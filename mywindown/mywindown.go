@@ -1,6 +1,7 @@
 package mywindown
 
 import (
+	"fmt"
 	"sync"
 
 	"fyne.io/fyne/v2"
@@ -12,7 +13,11 @@ var myLk sync.Mutex
 
 // Show 处理数据竞态
 func Show() {
-	myLk.Lock()
-	MyWindown.Show()
-	myLk.Unlock()
+	fmt.Println("a ...any")
+	if myLk.TryLock() {
+		fmt.Println("111")
+		MyWindown.Show()
+		myLk.Unlock()
+		fmt.Println("222")
+	}
 }

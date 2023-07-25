@@ -47,6 +47,7 @@ func Hook(queryContentLab, transalteResultLab, transalteExplainsLab *widget.Labe
 		case hook.MouseMove:
 			continue
 		case hook.MouseUp:
+			logrus.Info(ev)
 			if ev.Button == hook.MouseMap["left"] && (ev.Clicks == 2 || ev.Clicks == 3) {
 				// handleData()
 				continue
@@ -77,18 +78,15 @@ func Hook(queryContentLab, transalteResultLab, transalteExplainsLab *widget.Labe
 				}
 
 				queryContentLab.SetText(queryContent)
-
+				mywindown.Show()
 			}
-			mywindown.Show()
-			continue
-
 		case hook.MouseDown:
 			if ev.Button == hook.MouseMap["left"] && preKind == hook.MouseDrag {
 				// handleData()
 			}
 		}
 		preKind = ev.Kind
-		logrus.WithField("hook: ", ev).Info()
+		// logrus.WithField("hook: ", ev).Info()
 	}
 }
 

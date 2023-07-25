@@ -5,6 +5,7 @@ import (
 	"image/color"
 	"io"
 	"os"
+	"time"
 	"translate/mywindown"
 	"translate/register"
 	"translate/theme"
@@ -69,24 +70,31 @@ func main() {
 	// fyne显示翻译内容和原始文本
 	// 失去焦点，隐藏窗口
 
+	var tnow = time.Now()
+	tnowStr := tnow.Format("20060102")
 	// 校验文件是否存在
-	_, err := os.Stat("logfile.log")
+	filename := tnowStr + ".log"
+	_, err := os.Stat(filename)
 	var file *os.File
 	if os.IsNotExist(err) {
 		// 文件不存在，创建文件
-		file, err = os.Create("logfile.txt")
+		file, err = os.Create(filename)
 		if err != nil {
 			fmt.Println("无法创建文件:", err)
 			return
 		}
-		defer file.Close()
-
 		fmt.Println("文件创建成功。")
 	} else {
-		// 其他错误
-		fmt.Println("无法获取日志文件信息:", err)
+		file, err = os.OpenFile(filename, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+		if err != nil {
+			fmt.Println("无法创建文件:", err)
+			return
+		}
 	}
 
+	defer file.Close()
+
+	file.Seek(0, 0) //TODO 每次运行清空日志
 	mw := io.MultiWriter(os.Stdout, file)
 	logrus.SetOutput(mw)
 
