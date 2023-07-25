@@ -1,12 +1,13 @@
 package utils
 
 import (
-	"fmt"
 	"io"
 	"net/http"
 	neturl "net/url"
 	"strings"
 	"time"
+
+	"github.com/sirupsen/logrus"
 )
 
 func DoGet(url string, header map[string][]string, paramsMap map[string][]string, expectContentType string) []byte {
@@ -28,7 +29,7 @@ func DoGet(url string, header map[string][]string, paramsMap map[string][]string
 	}
 	res, err := client.Do(req)
 	if err != nil {
-		fmt.Print("request failed:", err)
+		logrus.Print("request failed:", err)
 		return nil
 	}
 	defer res.Body.Close()
@@ -59,7 +60,7 @@ func DoPost(url string, header map[string][]string, bodyMap map[string][]string,
 	}
 	res, err := client.Do(req)
 	if err != nil {
-		fmt.Print("request failed:", err)
+		logrus.Print("request failed:", err)
 		return nil
 	}
 	defer res.Body.Close()

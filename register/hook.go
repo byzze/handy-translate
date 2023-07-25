@@ -1,77 +1,119 @@
 package register
 
 import (
-	"fmt"
-	"golang/youdao/transalte"
 	"strings"
+	"sync"
 	"time"
+	"translate/mywindown"
+	"translate/translate"
 
 	"fyne.io/fyne/v2"
-	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
 	"github.com/go-vgo/robotgo"
 	hook "github.com/robotn/gohook"
+	"github.com/sirupsen/logrus"
 )
 
+var queryContent string
+var curContent string
+var err error
+
+var lk sync.RWMutex
+
+// 操作数据加锁
+func SetCurContent(value string) {
+	lk.Lock()
+	curContent = value
+	lk.Unlock()
+}
+
+// 操作数据加锁
+func SetQueryContent(value string) {
+	lk.Lock()
+	queryContent = value
+	lk.Unlock()
+}
+
 // Hook register hook event
-func Hook(myWindow fyne.Window) {
-	fmt.Println("--- Please wait hook starting ---")
-	var newContent string
-	var oldContent string
-	hook.Register(hook.MouseUp, []string{}, func(e hook.Event) {
-		if e.Button == hook.MouseMap["left"] && e.Clicks == 2 || e.Clicks == 3 {
-			fmt.Println(e)
-			// 读取原来的内容
-			oldContent, err := robotgo.ReadAll()
-			if err != nil {
-				fmt.Println(err)
-				return
+func Hook(queryContentLab, transalteResultLab, transalteExplainsLab *widget.Label) {
+	logrus.Info("--- Please wait hook starting ---")
+	evChan := hook.Start()
+	defer hook.End()
+	var preKind uint8
+	for ev := range evChan {
+		switch ev.Kind {
+		case hook.HookEnabled:
+			logrus.Info("--- Please hook start success ---")
+		case hook.MouseMove:
+			continue
+		case hook.MouseUp:
+			if ev.Button == hook.MouseMap["left"] && (ev.Clicks == 2 || ev.Clicks == 3) {
+				// handleData()
+				continue
 			}
-			// 模拟按下 Ctrl 键
-			robotgo.KeyTap("c", "ctrl")
-			newContent, err = robotgo.ReadAll()
-			if err != nil {
-				fmt.Println(err)
-				return
-			}
-			// 将原来的数据写回去，防止污染剪贴板
-			if oldContent != newContent {
-				if err := robotgo.WriteAll(oldContent); err != nil {
-					fmt.Println(err)
+
+			if ev.Button == hook.MouseMap["center"] {
+				logrus.WithField("queryContent", queryContent).Info("Hook")
+				mywindown.MyWindown.Resize(fyne.NewSize(300, 0))
+				if curContent == queryContent {
+					mywindown.Show()
+					continue
 				}
-				oldContent = ""
+
+				SetCurContent(queryContent)
+				var transalteTool = "youdao"
+				result := translate.GetTransalteApp(transalteTool).PostQuery(queryContent)
+				switch transalteTool {
+				case "youdao":
+					if len(result) > 0 {
+						transalteResultLab.SetText(result[0])
+					}
+					if len(result) > 1 {
+						transalteExplainsLab.SetText(result[1])
+					}
+				case "caiyun":
+					transalteResult := strings.Join(result, ",")
+					transalteResultLab.SetText(transalteResult)
+				}
+
+				queryContentLab.SetText(queryContent)
+
+			}
+			mywindown.Show()
+			continue
+
+		case hook.MouseDown:
+			if ev.Button == hook.MouseMap["left"] && preKind == hook.MouseDrag {
+				// handleData()
 			}
 		}
-		if e.Button == hook.MouseMap["center"] {
-			fmt.Println(newContent)
-			myWindow.Resize(fyne.NewSize(300, 0))
-			if oldContent == newContent {
-				myWindow.Show()
-				return
-			}
-			// 调用翻译接口, 将翻译结果set
-			result := transalte.PostQuery(newContent)
+		preKind = ev.Kind
+		logrus.WithField("hook: ", ev).Info()
+	}
+}
 
-			transalteResult := strings.Join(result.Translation, ",")
-			transalteExplains := strings.Join(result.Basic.Explains, ",")
-
-			transalteResultLab := widget.NewLabel(transalteResult)
-			transalteResultLab.Wrapping = fyne.TextWrapWord
-
-			transalteExplainsLab := widget.NewLabel(transalteExplains)
-			transalteExplainsLab.Wrapping = fyne.TextWrapWord
-
-			myWindow.SetContent(
-				container.NewVBox(
-					widget.NewLabel(newContent),
-					transalteResultLab,
-					transalteExplainsLab,
-				))
-			myWindow.Show()
-			time.Sleep(time.Millisecond * 300)
+func handleData() {
+	logrus.Info("handleData start")
+	// 读取原来的内容
+	oldContent, err := robotgo.ReadAll()
+	if err != nil {
+		logrus.WithError(err).Error("handleData")
+		return
+	}
+	// 模拟按下 Ctrl 键
+	robotgo.KeyTap("c", "ctrl")
+	tmpContent, err := robotgo.ReadAll()
+	if err != nil {
+		logrus.WithError(err).Error("handleData")
+		return
+	}
+	SetQueryContent(tmpContent)
+	// 将原来的数据写回去，防止污染剪贴板
+	if oldContent != queryContent {
+		if err := robotgo.WriteAll(oldContent); err != nil {
+			logrus.WithError(err).Error("handleData")
 		}
-	})
-	s := hook.Start()
-	fmt.Println("--- Please wait hook start success ---")
-	<-hook.Process(s)
+	}
+	logrus.Info("handleData end")
+	time.Sleep(time.Millisecond * 600)
 }

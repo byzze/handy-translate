@@ -1,12 +1,13 @@
-module golang
+module translate
 
-go 1.18
+go 1.20
 
 require (
 	fyne.io/fyne/v2 v2.3.5
 	github.com/go-vgo/robotgo v0.100.10
 	github.com/gorilla/websocket v1.5.0
 	github.com/robotn/gohook v0.31.3
+	github.com/sirupsen/logrus v1.8.1
 )
 
 require (

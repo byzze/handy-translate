@@ -1,10 +1,12 @@
-package transalte
+package youdao
 
 import (
 	"encoding/json"
-	"fmt"
-	"golang/youdao/utils"
-	"golang/youdao/utils/authv3"
+	"strings"
+	"translate/youdao/utils"
+	"translate/youdao/utils/authv3"
+
+	"github.com/sirupsen/logrus"
 )
 
 // 您的应用ID
@@ -13,7 +15,7 @@ var appKey = "5ade39ff86f06b4a"
 // 您的应用密钥
 var appSecret = "UCAXNIgHOebOlxosl67ZLf2wXQnuhrAJ"
 
-func PostQuery(query string) *Transalte {
+func PostQuery(query string) []string {
 	// 添加请求参数
 	paramsMap := createRequestParams(query)
 	header := map[string][]string{
@@ -24,30 +26,18 @@ func PostQuery(query string) *Transalte {
 	// 请求api服务
 	result := utils.DoPost("https://openapi.youdao.com/api", header, paramsMap, "application/json")
 	// 打印返回结果
-	/* if result != nil {
-		fmt.Print(string(result))
-	} */
-	/* // 测试数据
-	file, err := os.Open(`C:\Users\loyd\Desktop\工作\devlop\project\golang\translate.json`)
-	if err != nil {
-		fmt.Println(err)
-		return nil
-	}
-	defer file.Close()
-	result, err := io.ReadAll(file)
-	if err != nil {
-		fmt.Println(err)
-		return nil
-	} */
+
 	var tr Transalte
 
 	err := json.Unmarshal(result, &tr)
 	if err != nil {
-		fmt.Println(err)
+		logrus.Println(err)
 		return nil
 	}
+	transalteResult := strings.Join(tr.Translation, ",")
+	transalteExplains := strings.Join(tr.Basic.Explains, ",")
 
-	return &tr
+	return []string{transalteResult, transalteExplains}
 }
 
 func createRequestParams(query string) map[string][]string {
