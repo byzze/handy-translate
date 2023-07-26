@@ -1,8 +1,8 @@
 package translate
 
 import (
-	"translate/caiyun"
-	"translate/youdao"
+	"lyzee-translate/translate/caiyun"
+	"lyzee-translate/translate/youdao"
 )
 
 type Transalte interface {

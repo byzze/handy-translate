@@ -1,24 +1,22 @@
 package register
 
 import (
-	"strings"
 	"sync"
 	"time"
-	"translate/mywindown"
-	"translate/translate"
 
-	"fyne.io/fyne/v2"
-	"fyne.io/fyne/v2/widget"
 	"github.com/go-vgo/robotgo"
 	hook "github.com/robotn/gohook"
 	"github.com/sirupsen/logrus"
 )
+
+var HookChan = make(chan hook.Event, 1)
 
 var queryContent string
 var curContent string
 var err error
 
 var lk sync.RWMutex
+var datalk sync.RWMutex
 
 // 操作数据加锁
 func SetCurContent(value string) {
@@ -34,8 +32,22 @@ func SetQueryContent(value string) {
 	lk.Unlock()
 }
 
+// 读取数据
+func GetQueryContent() string {
+	lk.RLock()
+	defer lk.RUnlock()
+	return queryContent
+}
+
+// 读取数据
+func GetCurContent() string {
+	lk.RLock()
+	defer lk.RUnlock()
+	return curContent
+}
+
 // Hook register hook event
-func Hook(queryContentLab, transalteResultLab, transalteExplainsLab *widget.Label) {
+func Hook() {
 	logrus.Info("--- Please wait hook starting ---")
 	evChan := hook.Start()
 	defer hook.End()
@@ -47,42 +59,19 @@ func Hook(queryContentLab, transalteResultLab, transalteExplainsLab *widget.Labe
 		case hook.MouseMove:
 			continue
 		case hook.MouseUp:
-			logrus.Info(ev)
 			if ev.Button == hook.MouseMap["left"] && (ev.Clicks == 2 || ev.Clicks == 3) {
-				// handleData()
+				handleData()
 				continue
 			}
 
 			if ev.Button == hook.MouseMap["center"] {
-				logrus.WithField("queryContent", queryContent).Info("Hook")
-				mywindown.MyWindown.Resize(fyne.NewSize(300, 0))
-				if curContent == queryContent {
-					mywindown.Show()
-					continue
-				}
-
-				SetCurContent(queryContent)
-				var transalteTool = "youdao"
-				result := translate.GetTransalteApp(transalteTool).PostQuery(queryContent)
-				switch transalteTool {
-				case "youdao":
-					if len(result) > 0 {
-						transalteResultLab.SetText(result[0])
-					}
-					if len(result) > 1 {
-						transalteExplainsLab.SetText(result[1])
-					}
-				case "caiyun":
-					transalteResult := strings.Join(result, ",")
-					transalteResultLab.SetText(transalteResult)
-				}
-
-				queryContentLab.SetText(queryContent)
-				mywindown.Show()
+				logrus.Info("center: ", ev)
+				HookChan <- ev
 			}
+
 		case hook.MouseDown:
 			if ev.Button == hook.MouseMap["left"] && preKind == hook.MouseDrag {
-				// handleData()
+				handleData()
 			}
 		}
 		preKind = ev.Kind
@@ -91,6 +80,8 @@ func Hook(queryContentLab, transalteResultLab, transalteExplainsLab *widget.Labe
 }
 
 func handleData() {
+	datalk.Lock()
+	defer datalk.Unlock()
 	logrus.Info("handleData start")
 	// 读取原来的内容
 	oldContent, err := robotgo.ReadAll()
@@ -107,11 +98,9 @@ func handleData() {
 	}
 	SetQueryContent(tmpContent)
 	// 将原来的数据写回去，防止污染剪贴板
-	if oldContent != queryContent {
-		if err := robotgo.WriteAll(oldContent); err != nil {
-			logrus.WithError(err).Error("handleData")
-		}
+	if err := robotgo.WriteAll(oldContent); err != nil {
+		logrus.WithError(err).Error("handleData")
 	}
 	logrus.Info("handleData end")
-	time.Sleep(time.Millisecond * 600)
+	time.Sleep(time.Millisecond * 100)
 }

@@ -4,16 +4,11 @@ import (
 	"fmt"
 	"image/color"
 	"io"
+	"lyzee-translate/mywindown/xcgui"
+	"lyzee-translate/register"
 	"os"
 	"time"
-	"translate/mywindown"
-	"translate/register"
-	"translate/theme"
 
-	"fyne.io/fyne/v2"
-	"fyne.io/fyne/v2/app"
-	"fyne.io/fyne/v2/container"
-	"fyne.io/fyne/v2/widget"
 	"github.com/sirupsen/logrus"
 )
 
@@ -61,7 +56,6 @@ func main() {
 			}
 		}
 	} */
-	fmt.Println("xxxx")
 	// 设置字体
 
 	// 鼠标选中内容
@@ -98,34 +92,10 @@ func main() {
 	mw := io.MultiWriter(os.Stdout, file)
 	logrus.SetOutput(mw)
 
-	a := app.New()
-	// 设置自定主题，解决中文乱码
-	// 应用自定义主题
-	a.Settings().SetTheme(&theme.MyTheme{})
+	go register.Hook()
 
-	nw := a.NewWindow("翻译工具")
-	nw.Resize(fyne.NewSize(300, 0))
-
-	queryContentLab := widget.NewLabel("程序启动成功")
-	queryContentLab.Wrapping = fyne.TextWrapWord
-
-	transalteResultLab := widget.NewLabel("")
-	transalteResultLab.Wrapping = fyne.TextWrapWord
-
-	transalteExplainsLab := widget.NewLabel("")
-	transalteExplainsLab.Wrapping = fyne.TextWrapWord
-
-	nw.SetContent(
-		container.NewVBox(
-			queryContentLab,
-			transalteResultLab,
-			transalteExplainsLab,
-		))
-
-	mywindown.MyWindown = nw
-	mywindown.Show()
-
-	go register.Hook(queryContentLab, transalteResultLab, transalteExplainsLab)
-
-	a.Run()
+	// gio.Init()
+	// gkt3.Init()
+	xcgui.Init()
+	// fynewindown.Init()
 }
