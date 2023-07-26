@@ -53,54 +53,53 @@ func Hook() {
 	defer hook.End()
 	var preKind uint8
 	for ev := range evChan {
+		preKind = ev.Kind
 		switch ev.Kind {
 		case hook.HookEnabled:
 			logrus.Info("--- Please hook start success ---")
 		case hook.MouseMove:
 			continue
 		case hook.MouseUp:
+			logrus.Info("MouseUp: ", ev)
 			if ev.Button == hook.MouseMap["left"] && (ev.Clicks == 2 || ev.Clicks == 3) {
-				handleData()
+				handleData("left MouseUp")
 				continue
 			}
-
+		case hook.MouseDown:
 			if ev.Button == hook.MouseMap["center"] {
 				logrus.Info("center: ", ev)
 				HookChan <- ev
 			}
-
-		case hook.MouseDown:
 			if ev.Button == hook.MouseMap["left"] && preKind == hook.MouseDrag {
-				handleData()
+				handleData("left Moseup")
 			}
 		}
-		preKind = ev.Kind
 		// logrus.WithField("hook: ", ev).Info()
 	}
 }
 
-func handleData() {
+func handleData(mouse string) {
 	datalk.Lock()
 	defer datalk.Unlock()
-	logrus.Info("handleData start")
+	logrus.Info("handleData start", mouse)
 	// 读取原来的内容
 	oldContent, err := robotgo.ReadAll()
 	if err != nil {
-		logrus.WithError(err).Error("handleData")
+		logrus.WithError(err).Error("handleData oldContent ReadAll")
 		return
 	}
 	// 模拟按下 Ctrl 键
 	robotgo.KeyTap("c", "ctrl")
 	tmpContent, err := robotgo.ReadAll()
 	if err != nil {
-		logrus.WithError(err).Error("handleData")
+		logrus.WithError(err).Error("handleData tmpContent ReadAll")
 		return
 	}
 	SetQueryContent(tmpContent)
 	// 将原来的数据写回去，防止污染剪贴板
 	if err := robotgo.WriteAll(oldContent); err != nil {
-		logrus.WithError(err).Error("handleData")
+		logrus.WithError(err).Error("handleData WriteAll")
 	}
 	logrus.Info("handleData end")
-	time.Sleep(time.Millisecond * 100)
+	time.Sleep(time.Millisecond)
 }

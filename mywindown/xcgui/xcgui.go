@@ -22,17 +22,23 @@ func Init() {
 	// 1.初始化UI库
 	a := app.New(true)
 	// 2.创建窗口
-	w = window.New(0, 0, 530, 400, "翻译工具", 0, xcc.Window_Style_Default|xcc.Window_Style_Drag_Window)
-
+	w = window.New(0, 0, 430, 300, "翻译工具", 0, xcc.Window_Style_Default|xcc.Window_Style_Drag_Window)
+	// w.EnableLayout(true)
+	// w.ShowLayoutFrame(true)
 	// 设置窗口边框大小
 	w.SetBorderSize(0, 30, 0, 0)
 	// 设置窗口图标
 	a.SetWindowIcon(imagex.NewBySvgStringW(svgIcon).Handle)
 	// 设置窗口透明类型
-	w.SetTransparentType(xcc.Window_Transparent_False)
+	// w.SetTransparentType(xcc.Window_Transparent_False)
 	// 设置窗口阴影
 	w.SetShadowInfo(8, 255, 10, false, 0)
-
+	// h1 := xc.XLayoutFrame_Create(0, 0, 100, 100, w.Handle)
+	// xc.XWidget_LayoutItem_SetWidth(h1, xcc.Layout_Size_Fill, 0)
+	// xc.XWidget_LayoutItem_SetHeight(h1, xcc.Layout_Size_Auto, 0)
+	// xc.XLayout_Create(0, 0, 100, 100, w.Handle)
+	// xc.XWidget_LayoutItem_SetWidth(h1, xcc.Layout_Size_Fill, 0)
+	// xc.XWidget_LayoutItem_SetHeight(h1, xcc.Layout_Size_Weight, 1)
 	// 创建按钮
 	/* btn := widget.NewButton(165, 135, 100, 30, "Button", w.Handle)
 	// 注册按钮被单击事件
@@ -40,16 +46,23 @@ func Init() {
 		a.MessageBox("提示", btn.GetText(), xcc.MessageBox_Flag_Ok|xcc.MessageBox_Flag_Icon_Info, w.GetHWND(), xcc.Window_Style_Modal)
 		return 0
 	}) */
-	st = widget.NewShapeText(15, 35, 100, 30, "", w.Handle)
-	// a.MessageBox("提示", "翻译工具启动成功", xcc.MessageBox_Flag_Ok|xcc.MessageBox_Flag_Icon_Info, w.GetHWND(), xcc.Window_Style_Modal)
-	// 自动根据内容改变大小
-	st.LayoutItem_SetWidth(xcc.Layout_Size_Auto, -1)
+
+	// widget.NewButton(10, 10, 100, 30, "阿打发打发地方1", h1)
+	// widget.NewButton(10, 10, 100, 30, "阿打发打发地方2", h1)
+	// widget.NewButton(10, 10, 100, 30, "阿打发打发地方3", h1)
+	// widget.NewButton(10, 10, 100, 30, "阿打发打发地方4", h1)
+	// widget.NewButton(10, 10, 100, 30, "阿打发打发地方5", h1)
+	// widget.NewButton(10, 10, 100, 30, "阿打发打发地方6", h1)
+
+	st = widget.NewShapeText(15, 35, 330, 30, ``, w.Handle)
+	st.SetTextAlign(xcc.TextAlignFlag_Left | xcc.TextAlignFlag_Top)
 	st.LayoutItem_SetHeight(xcc.Layout_Size_Auto, -1)
-	// st.LayoutItem_EnableWrap(true)
+	// a.MessageBox("提示", "翻译工具启动成功", xcc.MessageBox_Flag_Ok|xcc.MessageBox_Flag_Icon_Info, w.GetHWND(), xcc.Window_Style_Modal)
 	// 设置字体大小
 	st.SetFont(font.New(12).Handle)
 
 	go handleHookData()
+	w.AdjustLayout()
 	// 3.显示窗口
 	w.Show(true)
 	// 4.运行程序
@@ -82,7 +95,7 @@ func handleHookData() {
 			case "caiyun":
 				text = append(text, result...)
 			}
-			st.SetText(strings.Join(text, "\n"))
+			st.SetText(strings.Join(text, "\n\n"))
 			w.Show(true)
 		}
 	}
