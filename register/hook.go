@@ -53,7 +53,6 @@ func Hook() {
 	defer hook.End()
 	var preKind uint8
 	for ev := range evChan {
-		preKind = ev.Kind
 		switch ev.Kind {
 		case hook.HookEnabled:
 			logrus.Info("--- Please hook start success ---")
@@ -74,6 +73,7 @@ func Hook() {
 				handleData("left Moseup")
 			}
 		}
+		preKind = ev.Kind
 		// logrus.WithField("hook: ", ev).Info()
 	}
 }
