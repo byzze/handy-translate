@@ -6,7 +6,6 @@ import (
 	"lyzee-translate/translate"
 	"strings"
 
-	"github.com/sirupsen/logrus"
 	"github.com/twgh/xcgui/app"
 	"github.com/twgh/xcgui/font"
 	"github.com/twgh/xcgui/imagex"
@@ -76,8 +75,7 @@ var svgIcon = `<svg t="1669088647057" class="icon" viewBox="0 0 1024 1024" versi
 func handleHookData() {
 	for {
 		select {
-		case ev := <-register.HookChan:
-			logrus.Info("handleHookData: ", ev)
+		case <-register.HookCenterChan:
 			curContent := register.GetCurContent()
 			queryContent := register.GetQueryContent()
 			if curContent == queryContent {

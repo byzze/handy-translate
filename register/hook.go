@@ -2,14 +2,12 @@ package register
 
 import (
 	"sync"
-	"time"
 
 	"github.com/go-vgo/robotgo"
-	hook "github.com/robotn/gohook"
 	"github.com/sirupsen/logrus"
 )
 
-var HookChan = make(chan hook.Event, 1)
+var HookCenterChan = make(chan struct{}, 1)
 
 var queryContent string
 var curContent string
@@ -49,39 +47,24 @@ func GetCurContent() string {
 // Hook register hook event
 func Hook() {
 	logrus.Info("--- Please wait hook starting ---")
-	evChan := hook.Start()
-	defer hook.End()
-	var preKind uint8
-	for ev := range evChan {
-		switch ev.Kind {
-		case hook.HookEnabled:
-			logrus.Info("--- Please hook start success ---")
-		case hook.MouseMove:
-			continue
-		case hook.MouseUp:
-			logrus.Info("MouseUp: ", ev)
-			if ev.Button == hook.MouseMap["left"] && (ev.Clicks == 2 || ev.Clicks == 3) {
-				handleData("left MouseUp")
-				continue
-			}
-		case hook.MouseDown:
-			if ev.Button == hook.MouseMap["center"] {
-				logrus.Info("center: ", ev)
-				HookChan <- ev
-			}
-			if ev.Button == hook.MouseMap["left"] && preKind == hook.MouseDrag {
-				handleData("left Moseup")
-			}
+	// 监听鼠标事件
+	centerBtn := robotgo.AddEvent("center")
+
+	// 等待鼠标中键按下
+	for {
+		if centerBtn {
+			// 按下鼠标中键，执行复制文本到剪贴板的操作
+			robotgo.MilliSleep(100)
+			handleData()
+			HookCenterChan <- struct{}{}
+			// 等待鼠标中键释放
+			robotgo.MilliSleep(100)
+			centerBtn = robotgo.AddEvent("center")
 		}
-		preKind = ev.Kind
-		// logrus.WithField("hook: ", ev).Info()
 	}
 }
 
-func handleData(mouse string) {
-	datalk.Lock()
-	defer datalk.Unlock()
-	logrus.Info("handleData start", mouse)
+func handleData() {
 	// 读取原来的内容
 	oldContent, err := robotgo.ReadAll()
 	if err != nil {
@@ -100,6 +83,5 @@ func handleData(mouse string) {
 	if err := robotgo.WriteAll(oldContent); err != nil {
 		logrus.WithError(err).Error("handleData WriteAll")
 	}
-	logrus.Info("handleData end")
-	time.Sleep(time.Millisecond)
+	logrus.WithField("tmpcontent", tmpContent).Info("handleData finsh")
 }
