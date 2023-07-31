@@ -10,6 +10,7 @@ require (
 	github.com/sirupsen/logrus v1.8.1
 	github.com/twgh/xcgui v1.3.380
 	github.com/webview/webview v0.0.0-20230728084238-22009bf0c6e1
+	github.com/zserge/lorca v0.1.10
 )
 
 require (

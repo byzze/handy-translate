@@ -67,8 +67,8 @@ func Hide() {
 func handleHookData() {
 	for {
 		select {
-		case ev := <-register.HookCenterChan:
-			logrus.Info("handleHookData: ", ev)
+		case <-register.HookCenterChan:
+			logrus.Info("handleHookData")
 			curContent := register.GetCurContent()
 			queryContent := register.GetQueryContent()
 			if curContent == queryContent {

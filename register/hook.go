@@ -69,14 +69,12 @@ func handleData() {
 	oldContent, err := robotgo.ReadAll()
 	if err != nil {
 		logrus.WithError(err).Error("handleData oldContent ReadAll")
-		return
 	}
 	// 模拟按下 Ctrl 键
 	robotgo.KeyTap("c", "ctrl")
 	tmpContent, err := robotgo.ReadAll()
 	if err != nil {
 		logrus.WithError(err).Error("handleData tmpContent ReadAll")
-		return
 	}
 	SetQueryContent(tmpContent)
 	// 将原来的数据写回去，防止污染剪贴板

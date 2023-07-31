@@ -2,6 +2,7 @@ package mywindow
 
 import (
 	"lyzee-translate/mywindow/fyne"
+	"lyzee-translate/mywindow/lorca"
 	"lyzee-translate/mywindow/walk"
 	"lyzee-translate/mywindow/webview"
 )
@@ -28,8 +29,9 @@ func (w *walkWindow) Run() {
 }
 
 func Init() {
+	lorca.Run()
 	// newMyWindow("webview").Run()
-	newMyWindow("fyne").Run()
+	// newMyWindow("fyne").Run()
 	// newMyWindow("walk").Run()
 }
 
