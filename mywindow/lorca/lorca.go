@@ -1,105 +1,125 @@
 package lorca
 
 import (
-	"fmt"
-	"log"
+	"bytes"
+	"html/template"
+	"lyzee-translate/register"
+	"lyzee-translate/translate"
 	"net/url"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
-	"time"
 
+	"github.com/go-vgo/robotgo"
+	"github.com/lxn/win"
+	"github.com/sirupsen/logrus"
 	"github.com/zserge/lorca"
 )
 
-var UI lorca.UI
-
-// 导入Windows API函数
-var (
-	user32              = syscall.NewLazyDLL("user32.dll")
-	showWindowProc      = user32.NewProc("ShowWindow")
-	getForegroundWin    = user32.NewProc("GetForegroundWindow")
-	setForegroundWindow = user32.NewProc("SetForegroundWindow")
-)
-
 const (
-	swHide  = 0
-	SW_HIDE = 0
-	swShow  = 5
+	title = "lyzze-translate"
 )
 
-func showWindow(hwnd syscall.Handle, showCmd int) {
-	showWindowProc.Call(uintptr(hwnd), uintptr(showCmd))
+type transalte struct {
+	Title        string
+	QueryContent string
+	Explain      string
+	ExplainEx    string
 }
 
-// 隐藏窗口
-func HideWindow(hwnd syscall.Handle) {
-	// 使用ShowWindow函数隐藏窗口
-	_, _, err := showWindowProc.Call(uintptr(hwnd), uintptr(0)) // 0表示隐藏窗口
-	if err != nil && err.Error() != "The operation completed successfully." {
-		log.Fatal(err)
-	}
+var t = transalte{
+	Title:        title,
+	QueryContent: "程序启动成功",
 }
-
-// 显示窗口
-func ShowWindow(hwnd syscall.Handle) {
-	// 使用ShowWindow函数显示窗口
-	_, _, err := showWindowProc.Call(uintptr(hwnd), uintptr(1)) // 1表示显示窗口
-	if err != nil && err.Error() != "The operation completed successfully." {
-		log.Fatal(err)
-	}
-}
+var tmpl *template.Template
+var ui lorca.UI
 
 func Run() {
-
 	var err error
-	UI, err = lorca.New("data:text/html,"+url.PathEscape(`
-	<html>
-		<head><title>Hello</title></head>
-		<body><h1>Hello, world!</h1></body>
-	</html>
-	`), "", 300, 300, "--remote-allow-origins=*")
+	var width, height = 300, 400
 
+	var b bytes.Buffer
+	tmpl, err = template.ParseFiles("mywindow/lorca/index.html")
+	tmpl.Execute(&b, t)
+	content := b.String()
+
+	ui, err = lorca.New("data:text/html,"+url.PathEscape(content), "", width, height, "--remote-allow-origins=*")
 	if err != nil {
-		log.Fatal(err)
+		logrus.Panic(err)
 	}
-	// 获取当前窗口句柄
-	// 获取前台窗口句柄
-	foregroundWin, _, _ := getForegroundWin.Call()
-	// 获取窗口句柄
-	// hwnd := GetHwnd()
 
-	// 显示窗口
-	// ShowWindow(hwnd)
+	go processData()
 
-	go func() {
-		for {
-			time.Sleep(time.Second * 3)
-			// 隐藏窗口
-			showWindowProc.Call(foregroundWin, SW_HIDE)
-			time.Sleep(time.Second * 3)
-			showWindowProc.Call(foregroundWin, 1)
-			setForegroundWindow.Call(foregroundWin)
-			fmt.Println("窗口已隐藏")
-			// l, t := robotgo.GetMousePos()
-			// bd := lorca.Bounds{
-			// 	Left:        l,
-			// 	Top:         t,
-			// 	WindowState: lorca.WindowStateNormal,
-			// }
-			// UI.SetBounds(bd)
-			// logrus.Info(bd)
-		}
-	}()
-
-	defer UI.Close()
+	defer ui.Close()
 	// Wait until the interrupt signal arrives or browser window is closed
 	sigc := make(chan os.Signal)
 	signal.Notify(sigc, os.Interrupt)
 	select {
 	case <-sigc:
-	case <-UI.Done():
+	case <-ui.Done():
 	}
 
-	log.Println("exiting...")
+	logrus.Info("exiting...")
+}
+
+func processData() {
+	for {
+		select {
+		case <-register.HookCenterChan:
+			logrus.Info("processData")
+			curContent := register.GetCurText()
+			text := register.GetQueryText()
+			if curContent == text {
+				show()
+				continue
+			}
+
+			register.SetCurText(text)
+			t.QueryContent = text
+
+			var transalteTool = "caiyun"
+			result := translate.GetTransalteWay(transalteTool).PostQuery(text)
+			logrus.WithField("result", result).Info("Transalte")
+			switch transalteTool {
+			case "youdao":
+				t.Explain = result[0]
+				t.ExplainEx = result[1]
+			case "caiyun":
+				t.QueryContent = text
+				t.Explain = strings.Join(result, ",")
+			}
+
+			var b bytes.Buffer
+			tmpl.Execute(&b, t)
+			content := b.String()
+			loadableContents := "data:text/html," + url.PathEscape(content)
+			ui.Load(loadableContents)
+
+			show()
+		}
+	}
+}
+
+func show() {
+	lpWindowName, err := syscall.UTF16PtrFromString(title)
+	if err != nil {
+		logrus.WithError(err).Error("UTF16PtrFromString")
+	}
+
+	// 查找窗口句柄
+	hwnd := win.FindWindow(nil, lpWindowName)
+	if hwnd == 0 {
+		logrus.Panic("启动失败")
+		return
+	}
+
+	var rect win.RECT
+	win.GetWindowRect(hwnd, &rect)
+	width := rect.Right - rect.Left
+	height := rect.Bottom - rect.Top
+
+	x, y := robotgo.GetMousePos()
+	win.SetWindowPos(hwnd, 0, int32(x), int32(y), width, height, win.SWP_SHOWWINDOW)
+	win.SetForegroundWindow(hwnd)
 }

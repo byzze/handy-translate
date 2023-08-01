@@ -3,10 +3,10 @@ package mywindow
 import (
 	"lyzee-translate/mywindow/fyne"
 	"lyzee-translate/mywindow/lorca"
-	"lyzee-translate/mywindow/walk"
 	"lyzee-translate/mywindow/webview"
 )
 
+// MyWindow interface
 type MyWindow interface {
 	Run()
 }
@@ -15,7 +15,7 @@ type webviewWindow struct{}
 
 type fyneWindow struct{}
 
-type walkWindow struct{}
+type lorcaWindow struct{}
 
 func (w *webviewWindow) Run() {
 	webview.Run()
@@ -24,15 +24,16 @@ func (w *webviewWindow) Run() {
 func (w *fyneWindow) Run() {
 	fyne.Run()
 }
-func (w *walkWindow) Run() {
-	walk.Run()
+
+func (w *lorcaWindow) Run() {
+	lorca.Run()
 }
 
+// Init windows 初始化
 func Init() {
-	lorca.Run()
 	// newMyWindow("webview").Run()
 	// newMyWindow("fyne").Run()
-	// newMyWindow("walk").Run()
+	newMyWindow("lorca").Run()
 }
 
 func newMyWindow(w string) MyWindow {
@@ -41,8 +42,8 @@ func newMyWindow(w string) MyWindow {
 		return new(fyneWindow)
 	case "webview":
 		return new(webviewWindow)
-	case "walk":
-		return new(walkWindow)
+	case "lorca":
+		return new(lorcaWindow)
 	}
 	return nil
 }

@@ -34,6 +34,7 @@ func PostQuery(query string) []string {
 		logrus.Println(err)
 		return nil
 	}
+
 	transalteResult := strings.Join(tr.Translation, ",")
 	transalteExplains := strings.Join(tr.Basic.Explains, ",")
 

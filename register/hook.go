@@ -17,13 +17,6 @@ var lk sync.RWMutex
 var datalk sync.RWMutex
 
 // 操作数据加锁
-func SetCurContent(value string) {
-	lk.Lock()
-	curContent = value
-	lk.Unlock()
-}
-
-// 操作数据加锁
 func SetQueryContent(value string) {
 	lk.Lock()
 	queryContent = value
@@ -31,14 +24,21 @@ func SetQueryContent(value string) {
 }
 
 // 读取数据
-func GetQueryContent() string {
+func GetQueryText() string {
 	lk.RLock()
 	defer lk.RUnlock()
 	return queryContent
 }
 
+// 操作数据加锁
+func SetCurText(value string) {
+	lk.Lock()
+	curContent = value
+	lk.Unlock()
+}
+
 // 读取数据
-func GetCurContent() string {
+func GetCurText() string {
 	lk.RLock()
 	defer lk.RUnlock()
 	return curContent

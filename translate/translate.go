@@ -9,7 +9,7 @@ type Transalte interface {
 	PostQuery(value string) []string
 }
 
-func GetTransalteApp(name string) Transalte {
+func GetTransalteWay(name string) Transalte {
 	switch name {
 	case "youdao":
 		return new(Youdao)

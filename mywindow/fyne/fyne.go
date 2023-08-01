@@ -48,7 +48,7 @@ func Run() {
 			transalteExplainsLab,
 		))
 
-	go handleHookData()
+	go processData()
 
 	myWindown = nw
 	myWindown.ShowAndRun()
@@ -64,13 +64,13 @@ func Hide() {
 	myWindown.Hide()
 }
 
-func handleHookData() {
+func processData() {
 	for {
 		select {
 		case <-register.HookCenterChan:
 			logrus.Info("handleHookData")
-			curContent := register.GetCurContent()
-			queryContent := register.GetQueryContent()
+			curContent := register.GetCurText()
+			queryContent := register.GetQueryText()
 			if curContent == queryContent {
 				myWindown.Show()
 				continue
@@ -78,7 +78,7 @@ func handleHookData() {
 
 			register.SetQueryContent(queryContent)
 			var transalteTool = "youdao"
-			result := translate.GetTransalteApp(transalteTool).PostQuery(queryContent)
+			result := translate.GetTransalteWay(transalteTool).PostQuery(queryContent)
 			logrus.WithField("result", result).Info("Transalte")
 			switch transalteTool {
 			case "youdao":

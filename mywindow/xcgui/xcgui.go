@@ -17,7 +17,7 @@ import (
 var w *window.Window
 var st *widget.ShapeText
 
-func Init() {
+func Run() {
 	// 1.初始化UI库
 	a := app.New(true)
 	// 2.创建窗口
@@ -76,15 +76,15 @@ func handleHookData() {
 	for {
 		select {
 		case <-register.HookCenterChan:
-			curContent := register.GetCurContent()
-			queryContent := register.GetQueryContent()
+			curContent := register.GetCurText()
+			queryContent := register.GetQueryText()
 			if curContent == queryContent {
 				continue
 			}
 			register.SetQueryContent(queryContent)
 			var text = []string{queryContent}
 			var transalteTool = "youdao"
-			result := translate.GetTransalteApp(transalteTool).PostQuery(queryContent)
+			result := translate.GetTransalteWay(transalteTool).PostQuery(queryContent)
 			fmt.Println(result)
 			switch transalteTool {
 			case "youdao":
