@@ -1,8 +1,9 @@
 package translate
 
 import (
-	"lyzee-translate/translate/caiyun"
-	"lyzee-translate/translate/youdao"
+	"handy-translate/config"
+	"handy-translate/translate/caiyun"
+	"handy-translate/translate/youdao"
 )
 
 type Transalte interface {
@@ -11,23 +12,17 @@ type Transalte interface {
 
 func GetTransalteWay(name string) Transalte {
 	switch name {
-	case "youdao":
-		return new(Youdao)
-	case "caiyun":
-		return new(Caiyun)
+	case youdao.Way:
+		return &youdao.Youdao{
+			Key:    config.Data.Translate[name].Key,
+			Secret: config.Data.Translate[name].Secret,
+		}
+	case caiyun.Way:
+		return &caiyun.Caiyun{
+			Key:    config.Data.Translate[name].Key,
+			Secret: config.Data.Translate[name].Secret,
+		}
 	default:
 		return nil
 	}
-}
-
-type Youdao struct{}
-
-type Caiyun struct{}
-
-func (y *Youdao) PostQuery(value string) []string {
-	return youdao.PostQuery(value)
-}
-
-func (c *Caiyun) PostQuery(value string) []string {
-	return caiyun.PostQuery(value)
 }

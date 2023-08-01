@@ -1,9 +1,9 @@
 package mywindow
 
 import (
-	"lyzee-translate/mywindow/fyne"
-	"lyzee-translate/mywindow/lorca"
-	"lyzee-translate/mywindow/webview"
+	"handy-translate/mywindow/fyne"
+	"handy-translate/mywindow/lorca"
+	"handy-translate/mywindow/webview"
 )
 
 // MyWindow interface

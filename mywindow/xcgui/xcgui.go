@@ -1,10 +1,7 @@
 package xcgui
 
 import (
-	"fmt"
-	"lyzee-translate/register"
-	"lyzee-translate/translate"
-	"strings"
+	"handy-translate/register"
 
 	"github.com/twgh/xcgui/app"
 	"github.com/twgh/xcgui/font"
@@ -82,17 +79,8 @@ func handleHookData() {
 				continue
 			}
 			register.SetQueryContent(queryContent)
-			var text = []string{queryContent}
-			var transalteTool = "youdao"
-			result := translate.GetTransalteWay(transalteTool).PostQuery(queryContent)
-			fmt.Println(result)
-			switch transalteTool {
-			case "youdao":
-				text = append(text, result...)
-			case "caiyun":
-				text = append(text, result...)
-			}
-			st.SetText(strings.Join(text, "\n\n"))
+
+			st.SetText("not implate translate way")
 			w.Show(true)
 		}
 	}

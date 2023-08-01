@@ -2,27 +2,32 @@ package youdao
 
 import (
 	"encoding/json"
-	"lyzee-translate/translate/youdao/utils"
-	"lyzee-translate/translate/youdao/utils/authv3"
+	"handy-translate/translate/youdao/utils"
+	"handy-translate/translate/youdao/utils/authv3"
 	"strings"
 
 	"github.com/sirupsen/logrus"
 )
 
-// 您的应用ID
-var appKey = "5ade39ff86f06b4a"
+const Way = "youdao"
 
-// 您的应用密钥
-var appSecret = "UCAXNIgHOebOlxosl67ZLf2wXQnuhrAJ"
+type Youdao struct {
+	Key    string
+	Secret string
+}
 
-func PostQuery(query string) []string {
+// func (y *Youdao) PostQuery(value string) []string {
+// 	return youdao.PostQuery(value)
+// }
+
+func (y *Youdao) PostQuery(query string) []string {
 	// 添加请求参数
 	paramsMap := createRequestParams(query)
 	header := map[string][]string{
 		"Content-Type": {"application/x-www-form-urlencoded"},
 	}
 	// 添加鉴权相关参数
-	authv3.AddAuthParams(appKey, appSecret, paramsMap)
+	authv3.AddAuthParams(y.Key, y.Secret, paramsMap)
 	// 请求api服务
 	result := utils.DoPost("https://openapi.youdao.com/api", header, paramsMap, "application/json")
 	// 打印返回结果

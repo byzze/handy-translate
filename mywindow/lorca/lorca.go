@@ -2,9 +2,12 @@ package lorca
 
 import (
 	"bytes"
+	"handy-translate/config"
+	"handy-translate/register"
+	"handy-translate/translate"
+	"handy-translate/translate/caiyun"
+	"handy-translate/translate/youdao"
 	"html/template"
-	"lyzee-translate/register"
-	"lyzee-translate/translate"
 	"net/url"
 	"os"
 	"os/signal"
@@ -17,10 +20,6 @@ import (
 	"github.com/zserge/lorca"
 )
 
-const (
-	title = "lyzze-translate"
-)
-
 type transalte struct {
 	Title        string
 	QueryContent string
@@ -28,22 +27,22 @@ type transalte struct {
 	ExplainEx    string
 }
 
-var t = transalte{
-	Title:        title,
-	QueryContent: "程序启动成功",
-}
+var t *transalte
 var tmpl *template.Template
 var ui lorca.UI
 
+// Run lorca runing
 func Run() {
 	var err error
 	var width, height = 300, 400
-
+	t = &transalte{
+		Title:        config.Data.Appname,
+		QueryContent: "程序启动成功",
+	}
 	var b bytes.Buffer
 	tmpl, err = template.ParseFiles("mywindow/lorca/index.html")
 	tmpl.Execute(&b, t)
 	content := b.String()
-
 	ui, err = lorca.New("data:text/html,"+url.PathEscape(content), "", width, height, "--remote-allow-origins=*")
 	if err != nil {
 		logrus.Panic(err)
@@ -78,14 +77,16 @@ func processData() {
 			register.SetCurText(text)
 			t.QueryContent = text
 
-			var transalteTool = "caiyun"
-			result := translate.GetTransalteWay(transalteTool).PostQuery(text)
+			var transalteTool = config.Data.TranslateWay
+			way := translate.GetTransalteWay(transalteTool)
+			result := way.PostQuery(text)
 			logrus.WithField("result", result).Info("Transalte")
-			switch transalteTool {
-			case "youdao":
+
+			switch way.(type) {
+			case *youdao.Youdao:
 				t.Explain = result[0]
 				t.ExplainEx = result[1]
-			case "caiyun":
+			case *caiyun.Caiyun:
 				t.QueryContent = text
 				t.Explain = strings.Join(result, ",")
 			}
@@ -102,12 +103,12 @@ func processData() {
 }
 
 func show() {
-	lpWindowName, err := syscall.UTF16PtrFromString(title)
+	lpWindowName, err := syscall.UTF16PtrFromString(config.Data.Appname)
 	if err != nil {
 		logrus.WithError(err).Error("UTF16PtrFromString")
 	}
 
-	// 查找窗口句柄
+	// find window
 	hwnd := win.FindWindow(nil, lpWindowName)
 	if hwnd == 0 {
 		logrus.Panic("启动失败")

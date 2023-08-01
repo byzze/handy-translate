@@ -11,6 +11,12 @@ import (
 )
 
 // https://docs.caiyunapp.com/blog/2021/12/30/hello-world
+const Way = "caiyun"
+
+type Caiyun struct {
+	Key    string
+	Secret string
+}
 
 type TranslationPayload struct {
 	Source    []string `json:"source"`
@@ -23,7 +29,7 @@ type TranslationResponse struct {
 	Target []string `json:"target"`
 }
 
-func PostQuery(source string) []string {
+func (c *Caiyun) PostQuery(source string) []string {
 	url := "http://api.interpreter.caiyunai.com/v1/translator"
 
 	// WARNING, this token is a test token for new developers,

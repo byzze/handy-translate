@@ -6,25 +6,27 @@ import (
 	"time"
 )
 
+// Init init log file
 func Init() *os.File {
 	var tnow = time.Now()
 	tnowStr := tnow.Format("20060102")
-	// 校验文件是否存在
+
+	// check file stat
 	filename := tnowStr + ".log"
 	_, err := os.Stat(filename)
 	var file *os.File
+
 	if os.IsNotExist(err) {
-		// 文件不存在，创建文件
 		file, err = os.Create(filename)
 		if err != nil {
-			fmt.Println("无法创建文件:", err)
+			fmt.Println("create fail:", err)
 			return nil
 		}
-		fmt.Println("文件创建成功。")
+		fmt.Println("create file success")
 	} else {
 		file, err = os.OpenFile(filename, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 		if err != nil {
-			fmt.Println("无法创建文件:", err)
+			fmt.Println("create fail:", err)
 			return nil
 		}
 	}

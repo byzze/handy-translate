@@ -1,10 +1,8 @@
 package fyne
 
 import (
-	"lyzee-translate/register"
-	"lyzee-translate/theme"
-	"lyzee-translate/translate"
-	"strings"
+	"handy-translate/register"
+	"handy-translate/theme"
 	"sync"
 
 	"fyne.io/fyne/v2"
@@ -22,17 +20,16 @@ var queryContentLab, transalteResultLab, transalteExplainsLab *widget.Label
 
 func Run() {
 	a := app.New()
-	// 设置自定主题，解决中文乱码
-	// 应用自定义主题
+
 	a.Settings().SetTheme(&theme.MyTheme{})
 
-	nw := a.NewWindow("翻译工具")
+	nw := a.NewWindow("handy-translate")
 	nw.Resize(fyne.NewSize(400, 0))
 	nw.SetMainMenu(nil)
 	nw.SetMaster()
 	nw.CenterOnScreen()
 
-	queryContentLab = widget.NewLabel("程序启动成功")
+	queryContentLab = widget.NewLabel("start success")
 	queryContentLab.Wrapping = fyne.TextWrapWord
 
 	transalteResultLab = widget.NewLabel("")
@@ -68,7 +65,7 @@ func processData() {
 	for {
 		select {
 		case <-register.HookCenterChan:
-			logrus.Info("handleHookData")
+			logrus.Info("processData")
 			curContent := register.GetCurText()
 			queryContent := register.GetQueryText()
 			if curContent == queryContent {
@@ -77,21 +74,6 @@ func processData() {
 			}
 
 			register.SetQueryContent(queryContent)
-			var transalteTool = "youdao"
-			result := translate.GetTransalteWay(transalteTool).PostQuery(queryContent)
-			logrus.WithField("result", result).Info("Transalte")
-			switch transalteTool {
-			case "youdao":
-				if len(result) > 0 {
-					transalteResultLab.SetText(result[0])
-				}
-				if len(result) > 1 {
-					transalteExplainsLab.SetText(result[1])
-				}
-			case "caiyun":
-				transalteResult := strings.Join(result, ",")
-				transalteResultLab.SetText(transalteResult)
-			}
 
 			queryContentLab.SetText(queryContent)
 			myWindown.Show()

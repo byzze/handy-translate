@@ -9,7 +9,8 @@ import (
 
 func TestTranslate(t *testing.T) {
 	source := `Lingocloud is the best translation service.`
-	target := PostQuery(source)
+	var caiyun = &Caiyun{}
+	target := caiyun.PostQuery(source)
 
 	fmt.Println(target)
 

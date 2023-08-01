@@ -47,7 +47,7 @@ curl -sSL "https://www.nuget.org/api/v2/package/Microsoft.Web.WebView2" | tar -x
 ## 安装gcc
 
 ## 在powershell执行报错
-PS C:\Users\loyd\Desktop\byzze\lyzee-translate> go run main.go
+PS C:\Users\loyd\Desktop\byzze\handy-translate> go run main.go
 # github.com/webview/webview
 In file included from webview.cc:1:
 webview.h:1105:10: fatal error: WebView2.h: No such file or directory
