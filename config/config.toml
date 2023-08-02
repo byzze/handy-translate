@@ -4,6 +4,8 @@ translateway = "youdao"
     [translate.youdao]
     key = "5ade39ff86f06b4a"
     secret = "UCAXNIgHOebOlxosl67ZLf2wXQnuhrAJ"
+    token = ""
     [translate.caiyun]
     key = ""
     secret = ""
+    token = "3975l6lr5pcbvidl6jl2"

@@ -14,13 +14,14 @@ var Data config
 type (
 	config struct {
 		Appname      string               `toml:"appname"`
-		Translate    map[string]translate `toml:"translate"`
+		Translate    map[string]Translate `toml:"translate"`
 		TranslateWay string               `toml:"translateway"`
 	}
 
-	translate struct {
+	Translate struct {
 		Key    string `toml:"key"`
 		Secret string `toml:"secret"`
+		Token  string `toml:"token"`
 	}
 )
 

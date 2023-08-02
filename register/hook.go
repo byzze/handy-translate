@@ -49,32 +49,35 @@ func Hook() {
 	// mouse center press
 	for {
 		if centerBtn {
-			robotgo.MilliSleep(100)
 			handleData()
 			HookCenterChan <- struct{}{}
 			robotgo.MilliSleep(100)
-			centerBtn = robotgo.AddEvent("center")
 		}
+		centerBtn = robotgo.AddEvent("center")
 	}
 }
 
 func handleData() {
 	// read origin data
-	oldContent, err := robotgo.ReadAll()
+	/* oldContent, err := robotgo.ReadAll()
 	if err != nil {
 		logrus.WithError(err).Error("handleData oldContent ReadAll")
 	}
+
+	// write origin data
+	defer func() {
+		if err := robotgo.WriteAll(oldContent); err != nil {
+			logrus.WithError(err).Error("handleData WriteAll")
+		}
+	}() */
+
 	// press Ctrl + C
 	robotgo.KeyTap("c", "ctrl")
+	robotgo.MilliSleep(50)
 	tmpContent, err := robotgo.ReadAll()
 	if err != nil {
 		logrus.WithError(err).Error("handleData tmpContent ReadAll")
 	}
-	SetQueryContent(tmpContent)
-	// write origin data
-	if err := robotgo.WriteAll(oldContent); err != nil {
-		logrus.WithError(err).Error("handleData WriteAll")
-	}
-
 	logrus.WithField("tmpcontent", tmpContent).Info("handleData finsh")
+	SetQueryContent(tmpContent)
 }

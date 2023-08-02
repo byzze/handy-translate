@@ -2,6 +2,7 @@ package youdao
 
 import (
 	"encoding/json"
+	"handy-translate/config"
 	"handy-translate/translate/youdao/utils"
 	"handy-translate/translate/youdao/utils/authv3"
 	"strings"
@@ -12,8 +13,7 @@ import (
 const Way = "youdao"
 
 type Youdao struct {
-	Key    string
-	Secret string
+	config.Translate
 }
 
 // func (y *Youdao) PostQuery(value string) []string {

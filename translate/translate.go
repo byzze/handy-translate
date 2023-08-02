@@ -14,13 +14,16 @@ func GetTransalteWay(name string) Transalte {
 	switch name {
 	case youdao.Way:
 		return &youdao.Youdao{
-			Key:    config.Data.Translate[name].Key,
-			Secret: config.Data.Translate[name].Secret,
+			Translate: config.Translate{
+				Key:    config.Data.Translate[name].Key,
+				Secret: config.Data.Translate[name].Secret,
+			},
 		}
 	case caiyun.Way:
 		return &caiyun.Caiyun{
-			Key:    config.Data.Translate[name].Key,
-			Secret: config.Data.Translate[name].Secret,
+			Translate: config.Translate{
+				Token: config.Data.Translate[name].Token,
+			},
 		}
 	default:
 		return nil

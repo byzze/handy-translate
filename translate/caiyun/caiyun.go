@@ -3,6 +3,7 @@ package caiyun
 import (
 	"bytes"
 	"encoding/json"
+	"handy-translate/config"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -14,8 +15,7 @@ import (
 const Way = "caiyun"
 
 type Caiyun struct {
-	Key    string
-	Secret string
+	config.Translate
 }
 
 type TranslationPayload struct {
@@ -34,7 +34,7 @@ func (c *Caiyun) PostQuery(source string) []string {
 
 	// WARNING, this token is a test token for new developers,
 	// and it should be replaced by your token
-	token := "3975l6lr5pcbvidl6jl2"
+	token := c.Key
 
 	payload := TranslationPayload{
 		Source:    strings.Split(source, ","),
