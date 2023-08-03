@@ -32,15 +32,15 @@ func (w *Windows) Show() {
 	y := int32(yp)
 
 	if y+height > ys {
-		y = ys - height - 10
+		y = ys - height - 20
 	}
 	if x+width > xs {
 		x = xs - width - 10
 	}
-
-	win.SetForegroundWindow(hwnd)
+	win.SetFocus(hwnd)
 	win.SetWindowPos(hwnd, 0, int32(x), int32(y), width, height, win.SWP_SHOWWINDOW)
-	win.ShowWindow(hwnd, win.SW_RESTORE|win.SWP_FRAMECHANGED|win.SWP_NOMOVE|win.SWP_NOSIZE)
+	win.SetForegroundWindow(hwnd)
+	win.ShowWindow(hwnd, win.SW_RESTORE)
 }
 
 func getHwnd() win.HWND {
