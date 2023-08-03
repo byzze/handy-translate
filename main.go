@@ -11,20 +11,16 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func init() {
-	config.Init()
-}
-
 func main() {
 	file := log.Init()
 	if file != nil {
 		defer file.Close()
-		file.Seek(0, 0) // 每次运行清空日志
+		file.Seek(0, 0)
 		mw := io.MultiWriter(os.Stdout, file)
 		logrus.SetOutput(mw)
 		logrus.SetFormatter(&logrus.JSONFormatter{})
 	}
-
+	config.Init()
 	go register.Hook()
 
 	mywindow.Init()

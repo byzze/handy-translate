@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"handy-translate/config"
 	"handy-translate/register"
+	"handy-translate/systemos"
 	"handy-translate/translate"
 	"handy-translate/translate/caiyun"
 	"handy-translate/translate/youdao"
@@ -12,10 +13,7 @@ import (
 	"os"
 	"os/signal"
 	"strings"
-	"syscall"
 
-	"github.com/go-vgo/robotgo"
-	"github.com/lxn/win"
 	"github.com/sirupsen/logrus"
 	"github.com/zserge/lorca"
 )
@@ -43,13 +41,12 @@ func Run() {
 	tmpl, err = template.ParseFiles("mywindow/lorca/index.html")
 	tmpl.Execute(&b, t)
 	content := b.String()
-	ui, err = lorca.New("data:text/html,"+url.PathEscape(content), "", width, height, "--remote-allow-origins=*", "disable-translate", "--disable-features=Translate", "-–disable-zero-browsers-open-for-tests", "--disable-logging")
+	ui, err = lorca.New("data:text/html,"+url.PathEscape(content), "", width, height, "--remote-allow-origins=*", "--disable-features=Translate", "--bwsi", "--disable-save-password-bubble", "--incognito", "--disable-sync")
 	if err != nil {
 		logrus.Panic(err)
 	}
 
 	go processData()
-
 	defer ui.Close()
 	// Wait until the interrupt signal arrives or browser window is closed
 	sigc := make(chan os.Signal)
@@ -67,12 +64,7 @@ func processData() {
 		select {
 		case <-register.HookCenterChan:
 			logrus.Info("processData")
-			// curContent := register.GetCurText()
 			text := register.GetQueryText()
-			// if curContent == text {
-			// 	show()
-			// 	continue
-			// }
 
 			register.SetCurText(text)
 			t.QueryContent = text
@@ -97,36 +89,7 @@ func processData() {
 			loadableContents := "data:text/html," + url.PathEscape(content)
 			ui.Load(loadableContents)
 
-			show()
+			systemos.GetOS().Show()
 		}
 	}
-}
-
-func show() {
-	lpWindowName, err := syscall.UTF16PtrFromString(config.Data.Appname)
-	if err != nil {
-		logrus.WithError(err).Error("UTF16PtrFromString")
-	}
-
-	// find window
-	hwnd := win.FindWindow(nil, lpWindowName)
-	if hwnd == 0 {
-		logrus.Panic("启动失败")
-		return
-	}
-
-	var rect win.RECT
-	win.GetWindowRect(hwnd, &rect)
-	width := rect.Right - rect.Left
-	height := rect.Bottom - rect.Top
-
-	x, y := robotgo.GetMousePos()
-	win.SetWindowPos(hwnd, 0, int32(x), int32(y), width, height, win.SWP_SHOWWINDOW)
-	// win.SetFocus(hwnd)
-	win.SetForegroundWindow(hwnd)
-	win.ShowWindow(hwnd, win.SW_RESTORE)
-	// hm := win.GetSystemMenu(hwnd, false)
-	// win.RemoveMenu(hm, win.SC_CLOSE, win.MF_BYCOMMAND)
-	// style := win.GetWindowLong(hwnd, win.GWL_STYLE)
-	// win.SetWindowLong(hwnd, win.GWL_STYLE, style)
 }

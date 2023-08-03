@@ -1,8 +1,8 @@
 package fyne
 
 import (
+	"handy-translate/mywindow/fyne/theme"
 	"handy-translate/register"
-	"handy-translate/theme"
 	"sync"
 
 	"fyne.io/fyne/v2"

@@ -1,5 +1,6 @@
 appname = "handy-translate"
 translateway = "youdao"
+windowWay = "lorca"
 [translate]
     [translate.youdao]
     key = "5ade39ff86f06b4a"

@@ -1,6 +1,7 @@
 package mywindow
 
 import (
+	"handy-translate/config"
 	"handy-translate/mywindow/fyne"
 	"handy-translate/mywindow/lorca"
 	"handy-translate/mywindow/webview"
@@ -33,7 +34,8 @@ func (w *lorcaWindow) Run() {
 func Init() {
 	// newMyWindow("webview").Run()
 	// newMyWindow("fyne").Run()
-	newMyWindow("lorca").Run()
+	// newMyWindow("lorca").Run()
+	newMyWindow(config.Data.WindowWay).Run()
 }
 
 func newMyWindow(w string) MyWindow {
