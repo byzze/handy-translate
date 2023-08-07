@@ -1,4 +1,6 @@
 *.log
 *.exe
 .hintrc
-./build
+build/bin
+node_modules
+frontend/dist

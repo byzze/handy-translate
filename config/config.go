@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/BurntSushi/toml"
@@ -15,7 +16,6 @@ type (
 		Appname      string               `toml:"appname"`
 		Translate    map[string]Translate `toml:"translate"`
 		TranslateWay string               `toml:"translateway"`
-		WindowWay    string               `toml:"windowway"`
 	}
 
 	Translate struct {
@@ -33,7 +33,8 @@ func Init() {
 	}
 	_, err := toml.DecodeFile(f, &Data)
 	if err != nil {
-		logrus.WithError(err).Error("DecodeFile")
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
 	}
-	logrus.Info(Data)
+	fmt.Println(Data)
 }
