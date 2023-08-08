@@ -62,11 +62,11 @@ func Hook(ctx context.Context) {
 func handleData() {
 	// press Ctrl + C
 	robotgo.KeyTap("c", "ctrl")
-	robotgo.MilliSleep(50)
-	tmpContent, err := robotgo.ReadAll()
-	if err != nil {
-		logrus.WithError(err).Error("handleData tmpContent ReadAll")
-	}
-	logrus.WithField("tmpcontent", tmpContent).Info("handleData finsh")
-	SetQueryContent(tmpContent)
+	// robotgo.MilliSleep(50)
+	// tmpContent, err := robotgo.ReadAll()
+	// if err != nil {
+	// 	logrus.WithError(err).Error("handleData tmpContent ReadAll")
+	// }
+	// logrus.WithField("tmpcontent", tmpContent).Info("handleData finsh")
+	// SetQueryContent(tmpContent)
 }

@@ -6,6 +6,6 @@ export function Greet(arg1) {
   return window['go']['main']['App']['Greet'](arg1);
 }
 
-export function SendDataToJS(arg1, arg2) {
-  return window['go']['main']['App']['SendDataToJS'](arg1, arg2);
+export function SendDataToJS(arg1, arg2, arg3) {
+  return window['go']['main']['App']['SendDataToJS'](arg1, arg2, arg3);
 }

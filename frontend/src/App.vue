@@ -1,10 +1,12 @@
 <script setup>
-import HelloWorld from './components/HelloWorld.vue'
+import Translate from './components/Translate.vue'
+import Close from './components/Close.vue'
 </script>
 
 <template>
-  <!--<img id="logo" alt="Wails logo" src="./assets/images/logo-universal.png" /> *-->
-  <HelloWorld />
+  <!-- <img id="logo" alt="Wails logo" src="./assets/images/logo-universal.png" /> -->
+  <!-- <Close /> -->
+  <Translate />
 </template>
 
 <style>

@@ -3,10 +3,14 @@ import { reactive } from 'vue'
 import { Greet } from '../../wailsjs/go/main/App'
 import { LogPrint } from '../../wailsjs/runtime/runtime'
 import { EventsOn } from '../../wailsjs/runtime/runtime'
+
 const data = reactive({
   name: "",
-  queryText: "Please enter your name below 👇",
-  resultText: "Please enter your name below 👇",
+  queryText: "",
+  resultText: "",
+  explianText: "",
+  showCloseBtn: true,
+  showModal: true,
 })
 
 EventsOn("query", (result) => {
@@ -15,29 +19,64 @@ EventsOn("query", (result) => {
 EventsOn("result", (result) => {
   data.resultText = result
 })
+EventsOn("explian", (result) => {
+  data.explianText = result
+})
 
-// function greet() {
-//   Greet(data.name).then(result => {
-//     data.resultText = result
-//   })
-// }
+function greet() {
+  Greet(data.name).then(result => {
+    data.resultText = result
+  })
+}
 
 </script>
 
 <template>
-  <main>
+  <!-- <main> -->
+  <div class="scroll-container">
     <div id="query" class="query">{{ data.queryText }}</div>
     <div id="result" class="result">{{ data.resultText }}</div>
-    <!-- <div id="input" class="input-box">
-      <input id="name" v-model="data.name" autocomplete="off" class="input" type="text" />
-      <button class="btn" @click="greet">Greet</button>
-    </div> -->
-  </main>
+    <div id="explian" class="explian">{{ data.explianText }}</div>
+    <div class="content" @mouseover="console.log(data.showCloseBtn = true)"
+      @mouseleave="console.log(data.showCloseBtn = false)">
+      <!-- 显示关闭按钮的逻辑 -->
+      <button v-if="data.showCloseBtn && data.showModal" class="close-btn" @click="data.closeModal">&times;</button>
+      <!-- 内容 -->
+    </div>
+    <!-- <button class="close-btn" @click="showModal = false">&times;</button> -->
+  </div>
+  <!-- </main> -->
 </template>
 
 <style scoped>
+.content {
+  position: absolute;
+  top: 0;
+  right: 0;
+  font-size: 1.0rem;
+  cursor: pointer;
+  width: 8%;
+  height: 8%;
+  background-color: red;
+}
+
+
+.scroll-container {
+  margin: 10px;
+}
+
 .result {
-  height: 20px;
+  line-height: 20px;
+  margin: 1.5rem auto;
+}
+
+.query {
+  line-height: 20px;
+  font-size: 23px;
+  margin: 1.5rem auto;
+}
+
+.explian {
   line-height: 20px;
   margin: 1.5rem auto;
 }
