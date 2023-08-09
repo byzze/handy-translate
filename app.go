@@ -38,9 +38,19 @@ func (a *App) onDomReady(ctx context.Context) {
 // startup is called when the app starts. The context is saved
 // so we can call the runtime methods
 func (a *App) startup(ctx context.Context) {
+	go hook.Hook(ctx)
+	windowX, windowY := runtime.WindowGetSize(ctx)
 
-	// runtime.WindowSetLightTheme(ctx)
-	// go hook.Hook(ctx)
+	scList, _ := runtime.ScreenGetAll(ctx)
+
+	var screenX, screenY int
+	for _, v := range scList {
+		if v.IsCurrent {
+			screenX = v.Width
+			screenY = v.Height
+		}
+	}
+
 	go func() {
 		for {
 			select {
@@ -63,9 +73,18 @@ func (a *App) startup(ctx context.Context) {
 
 					case *caiyun.Caiyun:
 						a.SendDataToJS(queryText, strings.Join(result, ","), "")
+
 					default:
 						a.SendDataToJS(queryText, "translate failed", "")
 					}
+				}
+
+				if y+windowY >= screenY {
+					y = screenY - windowY - 30
+				}
+
+				if x+windowX >= screenX {
+					x = screenX - windowX - 30
 				}
 
 				runtime.WindowSetPosition(ctx, x, y)

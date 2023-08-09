@@ -1,52 +1,35 @@
 <template>
-  <div class="modal-container">
-    <div class="modal">
-      <div class="modal-content">
-        <span class="close-btn" @click="closeModal">&times;</span>
-        <p>This is a modal content.</p>
-      </div>
-    </div>
+  <div class="close-button" @click="close">
+    <svg viewBox="0 0 40 40">
+      <path class="close-x" d="M 10,10 L 30,30 M 30,10 L 10,30" />
+    </svg>
   </div>
 </template>
 
-<script>
-export default {
-  methods: {
-    closeModal() {
-      console.log('Modal closed.');
-    }
-  }
+<script setup>
+import { WindowHide } from '../../wailsjs/runtime/runtime'
+
+function close() {
+  // 隐藏逻辑
+  WindowHide()
 }
+
 </script>
 
-<style scoped>
-.modal-container {
-  position: fixed;
-  top: 20px;
-  /* 调整距离顶部的距离 */
-  right: 20px;
-  /* 调整距离右侧的距离 */
-  z-index: 1000;
-}
-
-.modal {
-  display: block;
-  position: relative;
-  width: 300px;
-  background-color: white;
-  border-radius: 5px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.modal-content {
-  padding: 20px;
-}
-
-.close-btn {
+<style>
+.close-button {
   position: absolute;
-  top: 10px;
-  right: 15px;
-  font-size: 1.5rem;
+  top: 0px;
+  right: 0px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
   cursor: pointer;
+}
+
+.close-x {
+  stroke: white;
+  stroke-width: 4px;
+  stroke-linecap: round;
 }
 </style>

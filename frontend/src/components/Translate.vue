@@ -37,13 +37,6 @@ function greet() {
     <div id="query" class="query">{{ data.queryText }}</div>
     <div id="result" class="result">{{ data.resultText }}</div>
     <div id="explian" class="explian">{{ data.explianText }}</div>
-    <div class="content" @mouseover="console.log(data.showCloseBtn = true)"
-      @mouseleave="console.log(data.showCloseBtn = false)">
-      <!-- 显示关闭按钮的逻辑 -->
-      <button v-if="data.showCloseBtn && data.showModal" class="close-btn" @click="data.closeModal">&times;</button>
-      <!-- 内容 -->
-    </div>
-    <!-- <button class="close-btn" @click="showModal = false">&times;</button> -->
   </div>
   <!-- </main> -->
 </template>
@@ -62,7 +55,7 @@ function greet() {
 
 
 .scroll-container {
-  margin: 10px;
+  margin: 15px;
 }
 
 .result {

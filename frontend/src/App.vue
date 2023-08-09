@@ -1,11 +1,16 @@
 <script setup>
 import Translate from './components/Translate.vue'
 import Close from './components/Close.vue'
+import Setting from './components/Setting.vue'
+import Minimize from './components/Minimize.vue'
+
 </script>
 
 <template>
   <!-- <img id="logo" alt="Wails logo" src="./assets/images/logo-universal.png" /> -->
-  <!-- <Close /> -->
+  <!-- <Minimize /> -->
+  <Setting />
+  <Close />
   <Translate />
 </template>
 
