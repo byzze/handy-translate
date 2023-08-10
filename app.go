@@ -39,7 +39,6 @@ func (a *App) onDomReady(ctx context.Context) {
 // so we can call the runtime methods
 func (a *App) startup(ctx context.Context) {
 	go hook.Hook(ctx)
-	windowX, windowY := runtime.WindowGetSize(ctx)
 
 	scList, _ := runtime.ScreenGetAll(ctx)
 
@@ -55,6 +54,7 @@ func (a *App) startup(ctx context.Context) {
 		for {
 			select {
 			case <-hook.HookCenterChan:
+				windowX, windowY := runtime.WindowGetSize(ctx)
 				x, y := robotgo.GetMousePos()
 
 				queryText, _ := runtime.ClipboardGetText(a.ctx)
@@ -69,7 +69,9 @@ func (a *App) startup(ctx context.Context) {
 
 					switch way.(type) {
 					case *youdao.Youdao:
-						a.SendDataToJS(queryText, result[0], result[1])
+						if len(result) >= 2 {
+							a.SendDataToJS(queryText, result[0], result[1])
+						}
 
 					case *caiyun.Caiyun:
 						a.SendDataToJS(queryText, strings.Join(result, ","), "")
@@ -80,11 +82,11 @@ func (a *App) startup(ctx context.Context) {
 				}
 
 				if y+windowY >= screenY {
-					y = screenY - windowY - 30
+					y = screenY - windowY - (windowY / 3)
 				}
 
 				if x+windowX >= screenX {
-					x = screenX - windowX - 30
+					x = screenX - windowX - (windowX / 3)
 				}
 
 				runtime.WindowSetPosition(ctx, x, y)

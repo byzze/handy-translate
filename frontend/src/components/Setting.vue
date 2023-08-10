@@ -6,9 +6,8 @@
             <circle cx="24" cy="8" r="2.5" />
         </svg>
     </div>
-    <ul v-show="open" class="dropdown-menu">
-        <li v-for="item in list" :key="list.id" @mouseenter="onMouseEnter(item)" @mouseleave="onMouseLeave(item)"
-            @click="clickOpt(item)">
+    <ul v-show="open" class="dropdown-menu" @mouseenter="onMouseEnter(item)" @mouseleave="onMouseLeave(item)">
+        <li v-for="item in list" :key="list.id" @click="clickOpt(item)">
             {{ item.value }}
         </li>
     </ul>
@@ -23,6 +22,7 @@ document.onkeydown = (e) => {
         Quit()
     }
 }
+
 const open = ref(false)
 let id = 0
 const list = ref([{ id: id++, value: '退出       ESC' }])
@@ -34,18 +34,15 @@ function clickOpt(item) {
     }
 }
 function onMouseEnter(item) {
-    item.highlighted = true
+    console.log("进入")
 }
 
 function onMouseLeave(item) {
-    item.highlighted = false
+    console.log("离开", open.value)
+    open.value = false
 }
 </script>
 <style>
-.highlighted {
-    background: #eee;
-}
-
 .dropdown-menu {
     position: absolute;
     padding: 0 0;
@@ -54,7 +51,7 @@ function onMouseLeave(item) {
     list-style-type: none;
     border: 1px solid #ddd;
     border-radius: 16%;
-    top: 0px;
+    top: 5px;
     font-size: 10px;
 }
 
@@ -68,8 +65,8 @@ function onMouseLeave(item) {
 
 .dot-icon {
     position: absolute;
-    top: 0px;
-    left: 0px;
+    top: 5px;
+    left: 5px;
 }
 
 circle {

@@ -19,8 +19,8 @@ function close() {
 <style>
 .close-button {
   position: absolute;
-  top: 0px;
-  right: 0px;
+  top: 5px;
+  right: 5px;
   width: 18px;
   height: 18px;
   border-radius: 50%;

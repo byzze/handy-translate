@@ -16,9 +16,11 @@ const data = reactive({
 EventsOn("query", (result) => {
   data.queryText = result
 })
+
 EventsOn("result", (result) => {
   data.resultText = result
 })
+
 EventsOn("explian", (result) => {
   data.explianText = result
 })
@@ -55,17 +57,19 @@ function greet() {
 
 
 .scroll-container {
-  margin: 15px;
+  margin-top: 50px;
+  margin-left: 15px;
+  margin-right: 15px;
 }
 
 .result {
-  line-height: 20px;
-  margin: 1.5rem auto;
+  line-height: 28px;
+  font-size: 18px;
+  /* margin: 1.5rem auto; */
 }
 
 .query {
   line-height: 20px;
-  font-size: 23px;
   margin: 1.5rem auto;
 }
 
