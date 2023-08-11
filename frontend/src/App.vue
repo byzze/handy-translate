@@ -1,29 +1,32 @@
-<script setup>
-import Translate from './components/Translate.vue'
-import Close from './components/Close.vue'
-import Setting from './components/Setting.vue'
-import Minimize from './components/Minimize.vue'
-
-</script>
-
 <template>
-  <!-- <img id="logo" alt="Wails logo" src="./assets/images/logo-universal.png" /> -->
-  <!-- <Minimize /> -->
-  <Setting />
-  <Close />
-  <Translate />
+  <n-config-provider :theme-overrides="darkTheme">
+    <n-loading-bar-provider>
+      <n-message-provider>
+        <n-notification-provider>
+          <n-dialog-provider>
+            <Home />
+          </n-dialog-provider>
+        </n-notification-provider>
+      </n-message-provider>
+    </n-loading-bar-provider>
+  </n-config-provider>
 </template>
+  
+<script>
+import { defineComponent } from "vue";
+import Home from "./components/Home.vue";
 
-<style>
-#logo {
-  display: block;
-  width: 50%;
-  height: 50%;
-  margin: auto;
-  padding: 10% 0 0;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: 100% 100%;
-  background-origin: content-box;
-}
-</style>
+import { darkTheme } from 'naive-ui'
+
+
+export default defineComponent({
+  setup() {
+    return {
+      darkTheme
+    }
+  },
+  components: {
+    Home
+  },
+});
+</script>

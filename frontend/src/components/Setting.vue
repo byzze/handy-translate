@@ -1,79 +1,67 @@
 <template>
-    <div @click="open = !open" class="dot-icon" ref="dropdown">
-        <svg viewBox="0 0 30 30" width="24" height="24">
-            <circle cx="8" cy="8" r="2.5" />
-            <circle cx="16" cy="8" r="2.5" />
-            <circle cx="24" cy="8" r="2.5" />
-        </svg>
-    </div>
-    <ul v-show="open" class="dropdown-menu" @mouseenter="onMouseEnter(item)" @mouseleave="onMouseLeave(item)">
-        <li v-for="item in list" :key="list.id" @click="clickOpt(item)">
-            {{ item.value }}
-        </li>
-    </ul>
+    <n-dropdown :options="options" @select="handleSelect">
+        <n-button>
+            <n-icon>
+                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 32 32">
+                    <g fill="none">
+                        <path
+                            d="M16 11a5 5 0 1 0 0 10a5 5 0 0 0 0-10zm-3 5a3 3 0 1 1 6 0a3 3 0 0 1-6 0zm-.16 13.628c1.035.247 2.096.372 3.16.372a13.643 13.643 0 0 0 3.156-.375a1.478 1.478 0 0 0 1.13-1.276l.234-2.13a1.471 1.471 0 0 1 2.066-1.2l1.955.856a1.472 1.472 0 0 0 1.671-.345a14.245 14.245 0 0 0 3.156-5.443a1.478 1.478 0 0 0-.535-1.627l-1.729-1.275a1.481 1.481 0 0 1 .003-2.396l1.72-1.27a1.474 1.474 0 0 0 .537-1.63a14.199 14.199 0 0 0-3.157-5.443a1.48 1.48 0 0 0-1.674-.345l-1.946.856a1.483 1.483 0 0 1-2.067-1.2l-.236-2.12a1.476 1.476 0 0 0-1.147-1.283a15.123 15.123 0 0 0-3.127-.363a15.395 15.395 0 0 0-3.146.363a1.469 1.469 0 0 0-1.147 1.28l-.237 2.122a1.493 1.493 0 0 1-2.073 1.206l-1.946-.857a1.493 1.493 0 0 0-1.67.35a14.245 14.245 0 0 0-3.16 5.446a1.478 1.478 0 0 0 .536 1.625l1.725 1.272a1.488 1.488 0 0 1 0 2.397L3.167 18.47a1.477 1.477 0 0 0-.535 1.63a14.253 14.253 0 0 0 3.16 5.45a1.458 1.458 0 0 0 1.077.465c.203 0 .404-.042.591-.123l1.955-.859a1.485 1.485 0 0 1 2.065 1.2l.235 2.126a1.476 1.476 0 0 0 1.125 1.27zm5.501-1.866a11.638 11.638 0 0 1-4.677 0l-.195-1.74a3.48 3.48 0 0 0-1.14-2.208a3.534 3.534 0 0 0-3.718-.6l-1.606.7a12.237 12.237 0 0 1-2.348-4.05l1.424-1.052a3.488 3.488 0 0 0 0-5.616L4.66 12.147a12.243 12.243 0 0 1 2.348-4.046l1.6.7a3.45 3.45 0 0 0 1.4.294a3.5 3.5 0 0 0 3.467-3.108l.194-1.747c.774-.15 1.56-.23 2.347-.24c.782.01 1.562.09 2.33.24l.186 1.74a3.48 3.48 0 0 0 1.137 2.216a3.525 3.525 0 0 0 3.727.6l1.6-.7a12.212 12.212 0 0 1 2.35 4.047l-1.423 1.046a3.48 3.48 0 0 0 0 5.62l1.422 1.05A12.273 12.273 0 0 1 25 23.901l-1.6-.7a3.473 3.473 0 0 0-4.866 2.81l-.193 1.75z"
+                            fill="currentColor"></path>
+                    </g>
+                </svg>
+            </n-icon>
+        </n-button>
+    </n-dropdown>
 </template>
-<script setup>
-import { ref } from 'vue'
+  
+<script lang="ts">
+import { h, defineComponent } from 'vue'
+import type { Component } from 'vue'
+import { NIcon } from 'naive-ui'
+import {
+    PersonCircleOutline as UserIcon,
+    Pencil as EditIcon,
+    LogOutOutline as LogoutIcon
+} from '@vicons/ionicons5'
+import { useMessage } from 'naive-ui'
+const renderIcon = (icon: Component) => {
+    return () => {
+        return h(NIcon, null, {
+            default: () => h(icon)
+        })
+    }
+}
 import { Quit } from '../../wailsjs/runtime/runtime'
 
-document.onkeydown = (e) => {
-    console.log(e)
-    if (e.key === 'Escape') {
-        Quit()
+export default defineComponent({
+    setup() {
+        const message = useMessage()
+        return {
+            options: [
+                {
+                    label: '资料',
+                    key: 'profile',
+                    icon: renderIcon(UserIcon)
+                },
+                {
+                    label: '编辑',
+                    key: 'editProfile',
+                    icon: renderIcon(EditIcon)
+                },
+                {
+                    label: '退出',
+                    key: 'logout',
+                    icon: renderIcon(LogoutIcon)
+                }
+            ],
+            handleSelect(key: string | number) {
+                message.info(String(key))
+                switch (key) {
+                    case 'logout':
+                        Quit()
+                }
+            },
+        }
     }
-}
-
-const open = ref(false)
-let id = 0
-const list = ref([{ id: id++, value: '退出       ESC' }])
-
-function clickOpt(item) {
-    console.log(item)
-    if (item.id == 0) {
-        Quit()
-    }
-}
-function onMouseEnter(item) {
-    console.log("进入")
-}
-
-function onMouseLeave(item) {
-    console.log("离开", open.value)
-    open.value = false
-}
+})
 </script>
-<style>
-.dropdown-menu {
-    position: absolute;
-    padding: 0 0;
-    background: #fff;
-    color: black;
-    list-style-type: none;
-    border: 1px solid #ddd;
-    border-radius: 16%;
-    top: 5px;
-    font-size: 10px;
-}
-
-.dropdown-menu li {
-    padding: 5px 10px;
-}
-
-.dropdown-menu li:hover {
-    background: rgb(159, 159, 177);
-}
-
-.dot-icon {
-    position: absolute;
-    top: 5px;
-    left: 5px;
-}
-
-circle {
-    fill: white;
-}
-
-circle:hover {
-    fill: #f60;
-}
-</style>
