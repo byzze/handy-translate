@@ -1,40 +1,37 @@
 <template>
-    <div class="app-container">
-        <!-- Your application content -->
-
-        <!-- Minimize button -->
-        <span class="minimize-button" @click="minimizeApp">-</span>
+    <div class="minimize" @click="minimizeApp">
+        <n-button>
+            <n-icon>
+                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 32 32">
+                    <path d="M4 18v2h6.586L2 28.582L3.414 30L12 21.414V28h2V18H4z" fill="currentColor">
+                    </path>
+                    <path d="M30 3.416L28.592 2L20 10.586V4h-2v10h10v-2h-6.586L30 3.416z" fill="currentColor"></path>
+                </svg>
+            </n-icon>
+        </n-button>
     </div>
 </template>
   
-<script>
-export default {
-    methods: {
-        minimizeApp() {
-            // Logic to minimize the application
-            // You can modify the CSS styles, use a Vue state to track the minimized state, etc.
+ 
+<script lang="ts">
+import { defineComponent } from 'vue'
+import { WindowHide } from '../../wailsjs/runtime/runtime'
+export default defineComponent({
+    setup() {
+        return {
+            minimizeApp() {
+                WindowHide()
+            }
         }
     }
-}
+})
 </script>
   
 <style>
-.app-container {
-    position: absolute;
-    /* Ensure no extra margins or padding */
-    margin: 0;
-    padding: 0;
-    top: 0;
-    /* Button will be at the top edge of the container */
-    right: 0;
-}
-
-.minimize-button {
-    padding: 5px 10px;
-    font-size: 20px;
+.minimize {
+    float: right;
+    /* padding: 10px 5px; */
     color: white;
-    background-color: black;
-    border: none;
     cursor: pointer;
 }
 </style>

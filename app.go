@@ -80,15 +80,16 @@ func (a *App) startup(ctx context.Context) {
 						a.SendDataToJS(queryText, "translate failed", "")
 					}
 				}
+				fmt.Println("or:", x, y, screenX, screenY, windowX, windowY)
 
-				if y+windowY >= screenY {
-					y = screenY - windowY - (windowY / 3)
+				if y+windowY+200 >= screenY {
+					y = screenY - 2*windowY - 200
 				}
 
 				if x+windowX >= screenX {
-					x = screenX - windowX - (windowX / 3)
+					x = screenX - 2*windowX
 				}
-
+				fmt.Println("new:", x, y, screenX, screenY, windowX, windowY)
 				runtime.WindowSetPosition(ctx, x, y)
 				runtime.WindowShow(ctx)
 			}

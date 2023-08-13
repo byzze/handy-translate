@@ -24,7 +24,9 @@
                         </div>
                     </n-gi>
                     <n-gi>
-                        <div class="light-green" />
+                        <div class="right">
+                            <Minimize />
+                        </div>
                     </n-gi>
                 </n-grid>
             </n-layout-header>
@@ -44,11 +46,13 @@
 import { defineComponent } from "vue";
 import Setting from "./Setting.vue";
 import Translate from "./Translate.vue";
+import Minimize from "./Minimize.vue";
 
 export default defineComponent({
     components: {
         Setting,
-        Translate
+        Translate,
+        Minimize
     },
 });
 </script>
@@ -68,6 +72,12 @@ export default defineComponent({
     top: 10px
         /* height: 108px; */
         /* background-color: rgba(0, 128, 0, 0.24); */
+}
+
+.right {
+    /* top: 10px; */
+    /* height: 108px; */
+    background-color: rgba(0, 128, 0, 0.24);
 }
 
 .n-layout-header,

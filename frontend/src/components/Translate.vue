@@ -1,8 +1,7 @@
 <script setup>
 import { reactive } from 'vue'
 import { Greet } from '../../wailsjs/go/main/App'
-import { LogPrint } from '../../wailsjs/runtime/runtime'
-import { EventsOn } from '../../wailsjs/runtime/runtime'
+import { LogPrint, EventsOn } from '../../wailsjs/runtime/runtime'
 
 const data = reactive({
   name: "",
