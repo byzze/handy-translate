@@ -42,8 +42,8 @@ func main() {
 		},
 		// Menu: AppMenu, // reference the menu above
 		// BackgroundColour: &options.RGBA{R: 27, G: 38, B: 54, A: 1},
-		OnStartup: app.startup,
-		// OnDomReady:        app.onDomReady,
+		OnStartup:         app.startup,
+		OnDomReady:        app.onDomReady,
 		HideWindowOnClose: true,
 		Frameless:         true,
 		StartHidden:       true,

@@ -9,7 +9,6 @@ const data = reactive({
   resultText: "",
   explianText: "",
   showCloseBtn: true,
-  showModal: true,
 })
 
 EventsOn("query", (result) => {

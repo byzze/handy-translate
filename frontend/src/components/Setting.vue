@@ -12,17 +12,30 @@
             </n-icon>
         </n-button>
     </n-dropdown>
+    <n-modal v-model:show="showModal">
+        <n-card style="width: auto" title="配置" :bordered="false" size="huge" role="dialog" aria-modal="true">
+            <n-space>
+                <n-radio :checked="checkedValue === 'youdao'" value="youdao" name="youdao" @change="handleChange">
+                    有道翻译
+                </n-radio>
+                <n-radio :checked="checkedValue === 'caiyun'" value="caiyun" name="youdao" @change="handleChange">
+                    彩云翻译
+                </n-radio>
+            </n-space>
+        </n-card>
+    </n-modal>
 </template>
   
 <script>
-import { h, defineComponent } from 'vue'
+import { h, defineComponent, ref, reactive } from 'vue'
 import { NIcon } from 'naive-ui'
 import {
     PersonCircleOutline as UserIcon,
     Pencil as EditIcon,
     LogOutOutline as LogoutIcon
 } from '@vicons/ionicons5'
-import { useMessage } from 'naive-ui'
+import { useMessage, useDialog } from 'naive-ui'
+import { LogPrint, Quit, EventsOn, EventsEmit } from '../../wailsjs/runtime/runtime'
 
 const renderIcon = (icon) => {
     return () => {
@@ -32,23 +45,40 @@ const renderIcon = (icon) => {
     }
 }
 
-import { Quit } from '../../wailsjs/runtime/runtime'
+const data = reactive({
+    transalteWay: "",
+})
+
+document.onkeydown = function (e) {
+    switch (e.key) {
+        case "Escape":
+            Quit()
+    }
+}
+
+EventsOn("transalteWay", (result) => {
+    data.transalteWay = result
+})
 
 export default defineComponent({
     setup() {
-        const message = useMessage()
+        const showModalRef = ref(false);
+        const checkedValueRef = ref(data.transalteWay);
         return {
+            disabled: ref(true),
+            checkedValue: checkedValueRef,
+            showModal: showModalRef,
+            handleChange(e) {
+                checkedValueRef.value = e.target.value;
+                console.log(checkedValueRef.value)
+                EventsEmit("transalteWay-send", checkedValueRef.value)
+            },
             options: [
-                // {
-                //     label: '资料',
-                //     key: 'profile',
-                //     icon: renderIcon(UserIcon)
-                // },
-                // {
-                //     label: '编辑',
-                //     key: 'editProfile',
-                //     icon: renderIcon(EditIcon)
-                // },
+                {
+                    label: '配置',
+                    key: 'config',
+                    icon: renderIcon(EditIcon)
+                },
                 {
                     label: '退出 ESC',
                     key: 'logout',
@@ -56,12 +86,16 @@ export default defineComponent({
                 }
             ],
             handleSelect(key) {
-                message.info(String(key))
-                switch (key) {
-                    case 'logout':
-                        Quit()
-                }
+                console.log(data.transalteWay)
+                checkedValueRef.value = data.transalteWay
+                showModalRef.value = true
+                // message.info(String(key))
+                // switch (key) {
+                //     case 'logout':
+                //         Quit()
+                // }
             },
+
         }
     }
 })

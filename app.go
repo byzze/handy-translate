@@ -32,7 +32,16 @@ func (a *App) SendDataToJS(query, result, explian string) {
 
 // test data
 func (a *App) onDomReady(ctx context.Context) {
-	a.SendDataToJS("Board", "董事会", "n. 板，木板；黑板，告示牌；董事会，理事会；膳食，伙食，膳食费用；局；<非正式>舞台；<美>（冰球场周围的）界墙；<旧>（美国大学的）入学考试,v. 登上（火车、轮船或飞机）；让乘客登机（或上船等）；寄宿；（在学校）住校；将（宠物）暂时寄养在他处；用木板覆盖,【名】")
+	runtime.EventsEmit(a.ctx, "transalteWay", config.Data.TranslateWay)
+
+	runtime.EventsOn(a.ctx, "transalteWay-send", func(optionalData ...interface{}) {
+		logrus.WithField("optionalData", optionalData).Info("transalteWay-send")
+		if len(optionalData) >= 1 {
+			config.Data.TranslateWay = optionalData[0].(string)
+			runtime.EventsEmit(a.ctx, "transalteWay", optionalData[0].(string))
+		}
+	})
+	// a.SendDataToJS("Board", "董事会", "n. 板，木板；黑板，告示牌；董事会，理事会；膳食，伙食，膳食费用；局；<非正式>舞台；<美>（冰球场周围的）界墙；<旧>（美国大学的）入学考试,v. 登上（火车、轮船或飞机）；让乘客登机（或上船等）；寄宿；（在学校）住校；将（宠物）暂时寄养在他处；用木板覆盖,【名】")
 }
 
 // startup is called when the app starts. The context is saved
@@ -49,6 +58,7 @@ func (a *App) startup(ctx context.Context) {
 	// 		screenY = v.Height
 	// 	}
 	// }
+
 	runtime.WindowCenter(ctx)
 	go func() {
 		for {
@@ -62,10 +72,14 @@ func (a *App) startup(ctx context.Context) {
 				if queryText != hook.GetCurText() {
 					hook.SetCurText(queryText)
 
-					var transalteTool = config.Data.TranslateWay
-					way := translate.GetTransalteWay(transalteTool)
+					var transalteWay = config.Data.TranslateWay
+					way := translate.GetTransalteWay(transalteWay)
 					result := way.PostQuery(queryText)
-					logrus.WithField("result", result).Info("Transalte")
+
+					logrus.WithFields(logrus.Fields{
+						"result":       result,
+						"transalteWay": transalteWay,
+					}).Info("Transalte")
 
 					switch way.(type) {
 					case *youdao.Youdao:
