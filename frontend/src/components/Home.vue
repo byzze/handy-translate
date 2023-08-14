@@ -1,6 +1,6 @@
 <template>
     <n-space vertical size="large">
-        <n-layout>
+        <n-layout position="absolute" style=" background-color: rgba(27, 38, 54, 1);">
             <n-layout-header>
                 <n-grid x-gap="12" :cols="3">
                     <n-gi>
@@ -10,7 +10,7 @@
                     </n-gi>
                     <n-gi>
                         <div class="center">
-                            <n-icon size="40">
+                            <n-icon size="35">
                                 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
                                     viewBox="0 0 32 32">
                                     <path
@@ -30,7 +30,7 @@
                     </n-gi>
                 </n-grid>
             </n-layout-header>
-            <n-layout-content>
+            <n-layout-content position="absolute" style="bottom: 0;top:10vh">
                 <Translate />
             </n-layout-content>
 

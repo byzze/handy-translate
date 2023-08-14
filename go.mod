@@ -4,6 +4,7 @@ go 1.18
 
 require (
 	github.com/BurntSushi/toml v1.3.2
+	github.com/OwO-Network/gdeeplx v0.0.1
 	github.com/go-vgo/robotgo v0.100.10
 	github.com/gorilla/websocket v1.5.0
 	github.com/sirupsen/logrus v1.9.3
@@ -12,6 +13,8 @@ require (
 
 require (
 	github.com/StackExchange/wmi v1.2.1 // indirect
+	github.com/abadojack/whatlanggo v1.0.1 // indirect
+	github.com/andybalholm/brotli v1.0.5 // indirect
 	github.com/bep/debounce v1.2.1 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/google/uuid v1.1.2 // indirect
@@ -32,6 +35,9 @@ require (
 	github.com/robotn/xgbutil v0.0.0-20190912154524-c861d6f87770 // indirect
 	github.com/samber/lo v1.27.1 // indirect
 	github.com/shirou/gopsutil v3.21.10+incompatible // indirect
+	github.com/tidwall/gjson v1.14.4 // indirect
+	github.com/tidwall/match v1.1.1 // indirect
+	github.com/tidwall/pretty v1.2.0 // indirect
 	github.com/tklauser/go-sysconf v0.3.9 // indirect
 	github.com/tklauser/numcpus v0.3.0 // indirect
 	github.com/tkrajina/go-reflector v0.5.5 // indirect

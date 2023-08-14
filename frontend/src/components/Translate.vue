@@ -50,13 +50,13 @@ function greet() {
 
 .result {
   line-height: 1.5rem;
-  font-size: 1.5rem;
+  font-size: 1.3rem;
   /* margin: 1.5rem auto; */
 }
 
 .query {
   line-height: 1.5rem;
-  font-size: 1.5rem;
+  font-size: 1.3rem;
   margin: 1.5rem auto;
 }
 

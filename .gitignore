@@ -5,3 +5,4 @@ build/bin
 node_modules
 frontend/dist
 frontend/pkg
+config.toml

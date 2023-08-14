@@ -39,18 +39,18 @@ export default defineComponent({
         const message = useMessage()
         return {
             options: [
+                // {
+                //     label: '资料',
+                //     key: 'profile',
+                //     icon: renderIcon(UserIcon)
+                // },
+                // {
+                //     label: '编辑',
+                //     key: 'editProfile',
+                //     icon: renderIcon(EditIcon)
+                // },
                 {
-                    label: '资料',
-                    key: 'profile',
-                    icon: renderIcon(UserIcon)
-                },
-                {
-                    label: '编辑',
-                    key: 'editProfile',
-                    icon: renderIcon(EditIcon)
-                },
-                {
-                    label: '退出',
+                    label: '退出 ESC',
                     key: 'logout',
                     icon: renderIcon(LogoutIcon)
                 }

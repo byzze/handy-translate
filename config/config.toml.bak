@@ -2,10 +2,10 @@ appname = "handy-translate"
 translateway = "youdao"
 [translate]
     [translate.youdao]
-    key = "5ade39ff86f06b4a"
-    secret = "UCAXNIgHOebOlxosl67ZLf2wXQnuhrAJ"
+    key = ""
+    secret = ""
     token = ""
     [translate.caiyun]
     key = ""
     secret = ""
-    token = "3975l6lr5pcbvidl6jl2"
+    token = ""

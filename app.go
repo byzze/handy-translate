@@ -10,7 +10,6 @@ import (
 	"handy-translate/translate/youdao"
 	"strings"
 
-	"github.com/go-vgo/robotgo"
 	"github.com/sirupsen/logrus"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
@@ -41,23 +40,23 @@ func (a *App) onDomReady(ctx context.Context) {
 func (a *App) startup(ctx context.Context) {
 	go hook.Hook(ctx)
 
-	scList, _ := runtime.ScreenGetAll(ctx)
+	// scList, _ := runtime.ScreenGetAll(ctx)
 
-	var screenX, screenY int
-	for _, v := range scList {
-		if v.IsCurrent {
-			screenX = v.Width
-			screenY = v.Height
-		}
-	}
-
+	// var screenX, screenY int
+	// for _, v := range scList {
+	// 	if v.IsCurrent {
+	// 		screenX = v.Width
+	// 		screenY = v.Height
+	// 	}
+	// }
+	runtime.WindowCenter(ctx)
 	go func() {
 		for {
 			select {
 			case <-hook.HookCenterChan:
-				windowX, windowY := runtime.WindowGetSize(ctx)
-				x, y := robotgo.GetMousePos()
-				x, y = x+10, y-10
+				// windowX, windowY := runtime.WindowGetSize(ctx)
+				// x, y := robotgo.GetMousePos()
+				// x, y = x+10, y-10
 				queryText, _ := runtime.ClipboardGetText(a.ctx)
 
 				if queryText != hook.GetCurText() {
@@ -82,17 +81,17 @@ func (a *App) startup(ctx context.Context) {
 					}
 				}
 
-				fmt.Println("or:", x, y, screenX, screenY, windowX, windowY)
-				if y+windowY+20 >= screenY {
-					y = screenY - windowY - 20
-				}
+				// fmt.Println("or:", x, y, screenX, screenY, windowX, windowY)
+				// if y+windowY+20 >= screenY {
+				// 	y = screenY - windowY - 20
+				// }
 
-				if x+windowX >= screenX {
-					x = screenX - windowX
-				}
-				fmt.Println("new:", x, y, screenX, screenY, windowX, windowY)
+				// if x+windowX >= screenX {
+				// 	x = screenX - windowX
+				// }
+				// fmt.Println("new:", x, y, screenX, screenY, windowX, windowY)
 
-				runtime.WindowSetPosition(ctx, x, y)
+				// runtime.WindowSetPosition(ctx, x, y)
 				runtime.WindowShow(ctx)
 			}
 		}
