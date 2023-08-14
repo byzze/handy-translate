@@ -13,7 +13,7 @@
 </template>
   
  
-<script lang="ts">
+<script>
 import { defineComponent } from 'vue'
 import { WindowHide } from '../../wailsjs/runtime/runtime'
 export default defineComponent({

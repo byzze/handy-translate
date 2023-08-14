@@ -31,18 +31,12 @@ func main() {
 	}
 	// Create an instance of the app structure
 	app := NewApp()
-	/*  	AppMenu := menu.NewMenu()
-	FileMenu := AppMenu.AddSubmenu("File")
-	// FileMenu.AddText("&Open", keys.CmdOrCtrl("o"), openFile)
-	FileMenu.AddSeparator()
-	FileMenu.AddText("Quit", keys.CmdOrCtrl("q"), func(_ *menu.CallbackData) {
-		runtime.Quit(app.ctx)
-	}) */
+
 	// Create application with options
 	err := wails.Run(&options.App{
 		Title:  config.Data.Appname,
 		Width:  330,
-		Height: 430,
+		Height: 400,
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},

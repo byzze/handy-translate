@@ -44,23 +44,24 @@ function greet() {
 
 <style scoped>
 .scroll-container {
-  margin-left: 15px;
-  margin-right: 15px;
+  margin-left: 1rem;
+  margin-right: 1rem;
 }
 
 .result {
-  line-height: 24px;
-  font-size: 18px;
+  line-height: 1.5rem;
+  font-size: 1.5rem;
   /* margin: 1.5rem auto; */
 }
 
 .query {
-  line-height: 20px;
+  line-height: 1.5rem;
+  font-size: 1.5rem;
   margin: 1.5rem auto;
 }
 
 .explian {
-  line-height: 20px;
+  line-height: 1.5rem;
   margin: 1.5rem auto;
 }
 </style>

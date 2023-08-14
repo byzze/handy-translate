@@ -25,14 +25,15 @@ func NewApp() *App {
 	return &App{}
 }
 
-func (b *App) SendDataToJS(query, result, explian string) {
-	runtime.EventsEmit(b.ctx, "query", query)
-	runtime.EventsEmit(b.ctx, "result", result)
-	runtime.EventsEmit(b.ctx, "explian", explian)
+func (a *App) SendDataToJS(query, result, explian string) {
+	runtime.EventsEmit(a.ctx, "query", query)
+	runtime.EventsEmit(a.ctx, "result", result)
+	runtime.EventsEmit(a.ctx, "explian", explian)
 }
 
+// test data
 func (a *App) onDomReady(ctx context.Context) {
-	a.SendDataToJS("Board", "董事会", "n. 板，木板；黑板，告示牌；董事会，理事会；膳食，伙食，膳食费用；局；<非正式>舞台；<美>（冰球场周围的）界墙；<旧>（美国大学的）入学考试,v. 登上（火车、轮船或飞机）；让乘客登机（或上船等）；寄宿；（在学校）住校；将（宠物）暂时寄养在他处；用木板覆盖,【名】 （Board）（英、西）博德（人名）The onMount function tells Svelte compiler to run the code while mounting this component. This code initializes the theme stored in the $theme state store. The function then sets up the event receiver to receive “message” events using the rt.EventsOn function. When it gets a message, it sets the $message store variable to it and sets the $state store variable to “message”. This tells the HTML code to show the Message component and show the window using rt.ShowWindow().")
+	a.SendDataToJS("Board", "董事会", "n. 板，木板；黑板，告示牌；董事会，理事会；膳食，伙食，膳食费用；局；<非正式>舞台；<美>（冰球场周围的）界墙；<旧>（美国大学的）入学考试,v. 登上（火车、轮船或飞机）；让乘客登机（或上船等）；寄宿；（在学校）住校；将（宠物）暂时寄养在他处；用木板覆盖,【名】")
 }
 
 // startup is called when the app starts. The context is saved
@@ -56,7 +57,7 @@ func (a *App) startup(ctx context.Context) {
 			case <-hook.HookCenterChan:
 				windowX, windowY := runtime.WindowGetSize(ctx)
 				x, y := robotgo.GetMousePos()
-
+				x, y = x+10, y-10
 				queryText, _ := runtime.ClipboardGetText(a.ctx)
 
 				if queryText != hook.GetCurText() {
@@ -80,16 +81,17 @@ func (a *App) startup(ctx context.Context) {
 						a.SendDataToJS(queryText, "translate failed", "")
 					}
 				}
-				fmt.Println("or:", x, y, screenX, screenY, windowX, windowY)
 
-				if y+windowY+200 >= screenY {
-					y = screenY - 2*windowY - 200
+				fmt.Println("or:", x, y, screenX, screenY, windowX, windowY)
+				if y+windowY+20 >= screenY {
+					y = screenY - windowY - 20
 				}
 
 				if x+windowX >= screenX {
-					x = screenX - 2*windowX
+					x = screenX - windowX
 				}
 				fmt.Println("new:", x, y, screenX, screenY, windowX, windowY)
+
 				runtime.WindowSetPosition(ctx, x, y)
 				runtime.WindowShow(ctx)
 			}

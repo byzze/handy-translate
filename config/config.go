@@ -37,13 +37,5 @@ func Init() {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
-	// if _, err := os.Stat(f); err != nil {
-	// 	logrus.Panic("read file error")
-	// }
-	// _, err := toml.DecodeFile(f, &Data)
-	// if err != nil {
-	// 	fmt.Fprintln(os.Stderr, err)
-	// 	os.Exit(1)
-	// }
 	fmt.Println(Data)
 }

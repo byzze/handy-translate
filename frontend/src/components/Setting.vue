@@ -14,9 +14,8 @@
     </n-dropdown>
 </template>
   
-<script lang="ts">
+<script>
 import { h, defineComponent } from 'vue'
-import type { Component } from 'vue'
 import { NIcon } from 'naive-ui'
 import {
     PersonCircleOutline as UserIcon,
@@ -25,13 +24,14 @@ import {
 } from '@vicons/ionicons5'
 import { useMessage } from 'naive-ui'
 
-const renderIcon = (icon: Component) => {
+const renderIcon = (icon) => {
     return () => {
         return h(NIcon, null, {
             default: () => h(icon)
         })
     }
 }
+
 import { Quit } from '../../wailsjs/runtime/runtime'
 
 export default defineComponent({
@@ -55,7 +55,7 @@ export default defineComponent({
                     icon: renderIcon(LogoutIcon)
                 }
             ],
-            handleSelect(key: string | number) {
+            handleSelect(key) {
                 message.info(String(key))
                 switch (key) {
                     case 'logout':
