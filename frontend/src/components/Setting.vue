@@ -15,12 +15,19 @@
     <n-modal v-model:show="showModal">
         <n-card style="width: auto" title="配置" :bordered="false" size="huge" role="dialog" aria-modal="true">
             <n-space>
-                <n-radio :checked="checkedValue === 'youdao'" value="youdao" name="youdao" @change="handleChange">
+                <n-radio v-for="song in transalteWayData" :key="song.value" :value="song.value">
+                    {{ song.label }}
+                </n-radio>
+                <!-- <n-radio v-for="option in translationOptions" :key="option.value" :checked="checkedValue === option.value"
+                    :value="option.value" :name="option.name" @change="handleChange">
+                    {{ option.label }}
+                </n-radio> -->
+                <!-- <n-radio :checked="checkedValue === 'youdao'" value="youdao" name="youdao" @change="handleChange">
                     有道翻译
                 </n-radio>
                 <n-radio :checked="checkedValue === 'caiyun'" value="caiyun" name="youdao" @change="handleChange">
                     彩云翻译
-                </n-radio>
+                </n-radio> -->
             </n-space>
         </n-card>
     </n-modal>
@@ -47,6 +54,7 @@ const renderIcon = (icon) => {
 
 const data = reactive({
     transalteWay: "",
+    transalteMap: {},
 })
 
 document.onkeydown = function (e) {
@@ -60,16 +68,31 @@ EventsOn("transalteWay", (result) => {
     data.transalteWay = result
 })
 
+let transalteWayData = []
+
+EventsOn("transalteMap", (result) => {
+    let res = JSON.parse(result)
+    transalteWayData = Object.keys(res).map(key => ({
+        value: key,
+        name: key,
+        label: res[key].Name
+    }));
+    console.log(transalteWayData)
+})
+
+
 export default defineComponent({
     setup() {
         const showModalRef = ref(false);
         const checkedValueRef = ref(data.transalteWay);
+        const transalteWayDataRef = ref(transalteWayData);
         const message = useMessage()
         const dialog = useDialog()
         return {
             disabled: ref(true),
             checkedValue: checkedValueRef,
             showModal: showModalRef,
+            songs: transalteWayDataRef,
             options: [
                 {
                     label: '配置',
@@ -88,6 +111,9 @@ export default defineComponent({
                 EventsEmit("transalteWay-send", checkedValueRef.value)
             },
             handleSelect(key) {
+                console.log(transalteWayDataRef.value)
+                console.log(transalteWayData)
+                transalteWayDataRef.value = transalteWayData
                 showModalRef.value = false
                 switch (key) {
                     case 'logout':

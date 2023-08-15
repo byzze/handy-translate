@@ -23,6 +23,7 @@ type (
 	}
 
 	Translate struct {
+		Name   string `toml:"name"`
 		Key    string `toml:"key"`
 		Secret string `toml:"secret"`
 		Token  string `toml:"token"`

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"handy-translate/config"
 	"handy-translate/hook"
@@ -33,6 +34,19 @@ func (a *App) SendDataToJS(query, result, explian string) {
 // test data
 func (a *App) onDomReady(ctx context.Context) {
 	runtime.EventsEmit(a.ctx, "transalteWay", config.Data.TranslateWay)
+	var translateMap = make(map[string]config.Translate)
+	for k, v := range config.Data.Translate {
+		tmp := config.Translate{
+			Name: v.Name,
+		}
+		translateMap[k] = tmp
+	}
+	bTranslate, err := json.Marshal(translateMap)
+	if err != nil {
+		logrus.WithError(err).Error("Marshal")
+	}
+	runtime.EventsEmit(a.ctx, "transalteWay", config.Data.TranslateWay)
+	runtime.EventsEmit(a.ctx, "transalteMap", string(bTranslate))
 
 	runtime.EventsOn(a.ctx, "transalteWay-send", func(optionalData ...interface{}) {
 		logrus.WithField("optionalData", optionalData).Info("transalteWay-send")
@@ -88,6 +102,9 @@ func (a *App) startup(ctx context.Context) {
 						}
 
 					case *caiyun.Caiyun:
+						a.SendDataToJS(queryText, strings.Join(result, ","), "")
+
+					case *youdao.YoudaoOnline:
 						a.SendDataToJS(queryText, strings.Join(result, ","), "")
 
 					default:

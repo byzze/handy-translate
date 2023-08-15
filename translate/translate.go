@@ -19,6 +19,9 @@ func GetTransalteWay(name string) Transalte {
 				Secret: config.Data.Translate[name].Secret,
 			},
 		}
+	case youdao.YaoDaoOnlineWay:
+		return &youdao.YoudaoOnline{}
+
 	case caiyun.Way:
 		return &caiyun.Caiyun{
 			Translate: config.Translate{
