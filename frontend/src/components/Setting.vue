@@ -64,15 +64,12 @@ export default defineComponent({
     setup() {
         const showModalRef = ref(false);
         const checkedValueRef = ref(data.transalteWay);
+        const message = useMessage()
+        const dialog = useDialog()
         return {
             disabled: ref(true),
             checkedValue: checkedValueRef,
             showModal: showModalRef,
-            handleChange(e) {
-                checkedValueRef.value = e.target.value;
-                console.log(checkedValueRef.value)
-                EventsEmit("transalteWay-send", checkedValueRef.value)
-            },
             options: [
                 {
                     label: '配置',
@@ -85,17 +82,36 @@ export default defineComponent({
                     icon: renderIcon(LogoutIcon)
                 }
             ],
-            handleSelect(key) {
-                console.log(data.transalteWay)
-                checkedValueRef.value = data.transalteWay
-                showModalRef.value = true
-                // message.info(String(key))
-                // switch (key) {
-                //     case 'logout':
-                //         Quit()
-                // }
+            handleChange(e) {
+                checkedValueRef.value = e.target.value;
+                console.log(checkedValueRef.value)
+                EventsEmit("transalteWay-send", checkedValueRef.value)
             },
+            handleSelect(key) {
+                showModalRef.value = false
+                switch (key) {
+                    case 'logout':
+                        dialog.warning({
+                            title: '警告',
+                            content: '确定退出吗？',
+                            positiveText: '确定',
+                            negativeText: '取消',
+                            onPositiveClick: () => {
+                                Quit()
+                            },
+                            onNegativeClick: () => {
+                                message.warning('已取消')
+                            }
+                        })
+                        // It's important to add a "break" statement here to exit the switch after this case.
+                        break;
 
+                    case 'config':
+                        showModalRef.value = true
+                        checkedValueRef.value = data.transalteWay
+                        break;
+                }
+            }
         }
     }
 })
