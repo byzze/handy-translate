@@ -45,9 +45,7 @@ func (a *App) onDomReady(ctx context.Context) {
 	if err != nil {
 		logrus.WithError(err).Error("Marshal")
 	}
-	runtime.EventsEmit(a.ctx, "transalteWay", config.Data.TranslateWay)
 	runtime.EventsEmit(a.ctx, "transalteMap", string(bTranslate))
-
 	runtime.EventsOn(a.ctx, "transalteWay-send", func(optionalData ...interface{}) {
 		logrus.WithField("optionalData", optionalData).Info("transalteWay-send")
 		if len(optionalData) >= 1 {
@@ -61,6 +59,7 @@ func (a *App) onDomReady(ctx context.Context) {
 // startup is called when the app starts. The context is saved
 // so we can call the runtime methods
 func (a *App) startup(ctx context.Context) {
+
 	go hook.Hook(ctx)
 
 	// scList, _ := runtime.ScreenGetAll(ctx)

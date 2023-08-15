@@ -15,8 +15,9 @@
     <n-modal v-model:show="showModal">
         <n-card style="width: auto" title="配置" :bordered="false" size="huge" role="dialog" aria-modal="true">
             <n-space>
-                <n-radio v-for="song in transalteWayData" :key="song.value" :value="song.value">
-                    {{ song.label }}
+                <n-radio :checked="checkedValue === song.value" @change="handleChange" v-for="song in songs"
+                    :key="song.value" :value="song.value">
+                    {{ song.label }} <br>
                 </n-radio>
                 <!-- <n-radio v-for="option in translationOptions" :key="option.value" :checked="checkedValue === option.value"
                     :value="option.value" :name="option.name" @change="handleChange">
@@ -32,7 +33,6 @@
         </n-card>
     </n-modal>
 </template>
-  
 <script>
 import { h, defineComponent, ref, reactive } from 'vue'
 import { NIcon } from 'naive-ui'
@@ -68,16 +68,16 @@ EventsOn("transalteWay", (result) => {
     data.transalteWay = result
 })
 
-let transalteWayData = []
+var transalteWayData = []
 
 EventsOn("transalteMap", (result) => {
+    console.log(result)
     let res = JSON.parse(result)
     transalteWayData = Object.keys(res).map(key => ({
         value: key,
         name: key,
         label: res[key].Name
     }));
-    console.log(transalteWayData)
 })
 
 
@@ -93,6 +93,7 @@ export default defineComponent({
             checkedValue: checkedValueRef,
             showModal: showModalRef,
             songs: transalteWayDataRef,
+            selectedValue: ref(''),
             options: [
                 {
                     label: '配置',
@@ -107,12 +108,9 @@ export default defineComponent({
             ],
             handleChange(e) {
                 checkedValueRef.value = e.target.value;
-                console.log(checkedValueRef.value)
                 EventsEmit("transalteWay-send", checkedValueRef.value)
             },
             handleSelect(key) {
-                console.log(transalteWayDataRef.value)
-                console.log(transalteWayData)
                 transalteWayDataRef.value = transalteWayData
                 showModalRef.value = false
                 switch (key) {

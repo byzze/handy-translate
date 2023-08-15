@@ -6,6 +6,7 @@ import (
 	"handy-translate/config"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 
 	"github.com/sirupsen/logrus"
 )
@@ -17,7 +18,7 @@ type YoudaoOnline struct {
 }
 
 func (y *YoudaoOnline) PostQuery(query string) []string {
-	url := "https://dict.youdao.com/suggest?num=2&ver=3.0&doctype=json&cache=false&le=en&q=" + query // 替换为你要请求的 URL
+	url := "https://dict.youdao.com/suggest?num=2&ver=3.0&doctype=json&cache=false&le=en&q=" + url.QueryEscape(query) // 替换为你要请求的 URL
 
 	// 发起 GET 请求
 	response, err := http.Get(url)
@@ -33,12 +34,12 @@ func (y *YoudaoOnline) PostQuery(query string) []string {
 		fmt.Println("读取响应内容出错:", err)
 		return nil
 	}
-
+	fmt.Println(string(body))
 	var tr YoudaoOnlineTransalte
 
 	err = json.Unmarshal(body, &tr)
 	if err != nil {
-		logrus.Println(err)
+		logrus.WithError(err).Error("Unmarshal")
 		return nil
 	}
 	if len(tr.Data.Entries) > 0 {
