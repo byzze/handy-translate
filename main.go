@@ -36,19 +36,18 @@ func init() {
 
 func main() {
 	app := NewApp()
-
 	// system tray 系统托盘
 	onReady := func() {
 		systray.SetIcon(appicon)
 		systray.SetTitle(config.Data.Appname)
 		systray.SetTooltip(config.Data.Appname + "便捷翻译工具")
-		// 托盘菜单
 		mQuitOrig := systray.AddMenuItem("退出", "退出翻译工具")
 		go func() {
+			logrus.Info("Requesting quit waiting")
 			<-mQuitOrig.ClickedCh
 			logrus.Info("Requesting quit")
 			systray.Quit()
-			app.Quit()
+			defer app.Quit()
 			logrus.Info("Finished quitting")
 		}()
 		// Sets the icon of a menu item. Only available on Mac and Windows.

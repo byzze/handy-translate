@@ -42,7 +42,7 @@ import {
     LogOutOutline as LogoutIcon
 } from '@vicons/ionicons5'
 import { useMessage, useDialog } from 'naive-ui'
-import { LogPrint, Quit, EventsOn, EventsEmit } from '../../wailsjs/runtime/runtime'
+import { LogPrint, Hide, EventsOn, EventsEmit } from '../../wailsjs/runtime/runtime'
 
 const renderIcon = (icon) => {
     return () => {
@@ -60,7 +60,7 @@ const data = reactive({
 document.onkeydown = function (e) {
     switch (e.key) {
         case "Escape":
-            Quit()
+            Hide()
     }
 }
 
@@ -101,7 +101,7 @@ export default defineComponent({
                     icon: renderIcon(EditIcon)
                 },
                 {
-                    label: '退出 ESC',
+                    label: '退出',
                     key: 'logout',
                     icon: renderIcon(LogoutIcon)
                 }

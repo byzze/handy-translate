@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"handy-translate/config"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 
@@ -29,12 +29,12 @@ func (y *YoudaoOnline) PostQuery(query string) []string {
 	defer response.Body.Close()
 
 	// 读取响应内容
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		fmt.Println("读取响应内容出错:", err)
 		return nil
 	}
-	fmt.Println(string(body))
+
 	var tr YoudaoOnlineTransalte
 
 	err = json.Unmarshal(body, &tr)

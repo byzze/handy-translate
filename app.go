@@ -62,7 +62,6 @@ func (a *App) onDomReady(ctx context.Context) {
 // startup is called when the app starts. The context is saved
 // so we can call the runtime methods
 func (a *App) startup(ctx context.Context) {
-
 	go hook.Hook(ctx)
 
 	// scList, _ := runtime.ScreenGetAll(ctx)
@@ -83,10 +82,13 @@ func (a *App) startup(ctx context.Context) {
 				// windowX, windowY := runtime.WindowGetSize(ctx)
 				// x, y := robotgo.GetMousePos()
 				// x, y = x+10, y-10
+				runtime.WindowShow(ctx)
 				queryText, _ := runtime.ClipboardGetText(a.ctx)
 
 				if queryText != hook.GetCurText() {
 					hook.SetCurText(queryText)
+					// 加载动画变量
+					runtime.EventsEmit(a.ctx, "loading", "true")
 
 					var transalteWay = config.Data.TranslateWay
 					way := translate.GetTransalteWay(transalteWay)
@@ -103,10 +105,7 @@ func (a *App) startup(ctx context.Context) {
 							a.SendDataToJS(queryText, result[0], result[1])
 						}
 
-					case *caiyun.Caiyun:
-						a.SendDataToJS(queryText, strings.Join(result, ","), "")
-
-					case *youdao.YoudaoOnline:
+					case *caiyun.Caiyun, *youdao.YoudaoOnline, *translate.DefaultTransalte:
 						a.SendDataToJS(queryText, strings.Join(result, ","), "")
 
 					default:
@@ -125,7 +124,7 @@ func (a *App) startup(ctx context.Context) {
 				// fmt.Println("new:", x, y, screenX, screenY, windowX, windowY)
 
 				// runtime.WindowSetPosition(ctx, x, y)
-				runtime.WindowShow(ctx)
+
 			}
 		}
 	}()
