@@ -34,6 +34,7 @@ func (a *App) SendDataToJS(query, result, explian string) {
 // test data
 func (a *App) onDomReady(ctx context.Context) {
 	runtime.EventsEmit(a.ctx, "transalteWay", config.Data.TranslateWay)
+
 	var translateMap = make(map[string]config.Translate)
 	for k, v := range config.Data.Translate {
 		tmp := config.Translate{
@@ -45,6 +46,8 @@ func (a *App) onDomReady(ctx context.Context) {
 	if err != nil {
 		logrus.WithError(err).Error("Marshal")
 	}
+
+	runtime.EventsEmit(a.ctx, "transalteWay", config.Data.TranslateWay)
 	runtime.EventsEmit(a.ctx, "transalteMap", string(bTranslate))
 	runtime.EventsOn(a.ctx, "transalteWay-send", func(optionalData ...interface{}) {
 		logrus.WithField("optionalData", optionalData).Info("transalteWay-send")
@@ -110,7 +113,7 @@ func (a *App) startup(ctx context.Context) {
 						a.SendDataToJS(queryText, "translate failed", "")
 					}
 				}
-
+				// TODO 弹出窗口根据鼠标位置变动
 				// fmt.Println("or:", x, y, screenX, screenY, windowX, windowY)
 				// if y+windowY+20 >= screenY {
 				// 	y = screenY - windowY - 20
@@ -132,4 +135,8 @@ func (a *App) startup(ctx context.Context) {
 // Greet returns a greeting for the given name
 func (a *App) Greet(name string) string {
 	return fmt.Sprintf("Hello %s, It's show time!", name)
+}
+
+func (a *App) Quit() {
+	runtime.Quit(a.ctx)
 }

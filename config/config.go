@@ -8,7 +8,6 @@ import (
 	"github.com/BurntSushi/toml"
 )
 
-//
 //go:embed config.toml
 var configData []byte
 
