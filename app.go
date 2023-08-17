@@ -11,6 +11,7 @@ import (
 	"handy-translate/translate/youdao"
 	"strings"
 
+	"github.com/getlantern/systray"
 	"github.com/sirupsen/logrus"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
@@ -33,8 +34,6 @@ func (a *App) SendDataToJS(query, result, explian string) {
 
 // test data
 func (a *App) onDomReady(ctx context.Context) {
-	runtime.EventsEmit(a.ctx, "transalteWay", config.Data.TranslateWay)
-
 	var translateMap = make(map[string]config.Translate)
 	for k, v := range config.Data.Translate {
 		tmp := config.Translate{
@@ -47,8 +46,10 @@ func (a *App) onDomReady(ctx context.Context) {
 		logrus.WithError(err).Error("Marshal")
 	}
 
-	runtime.EventsEmit(a.ctx, "transalteWay", config.Data.TranslateWay)
 	runtime.EventsEmit(a.ctx, "transalteMap", string(bTranslate))
+
+	runtime.EventsEmit(a.ctx, "transalteWay", config.Data.TranslateWay)
+
 	runtime.EventsOn(a.ctx, "transalteWay-send", func(optionalData ...interface{}) {
 		logrus.WithField("optionalData", optionalData).Info("transalteWay-send")
 		if len(optionalData) >= 1 {
@@ -95,6 +96,7 @@ func (a *App) startup(ctx context.Context) {
 					result := way.PostQuery(queryText)
 
 					logrus.WithFields(logrus.Fields{
+						"queryText":    queryText,
 						"result":       result,
 						"transalteWay": transalteWay,
 					}).Info("Transalte")
@@ -138,4 +140,5 @@ func (a *App) Greet(name string) string {
 
 func (a *App) Quit() {
 	runtime.Quit(a.ctx)
+	systray.Quit()
 }

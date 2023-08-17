@@ -12,6 +12,7 @@
             </n-icon>
         </n-button>
     </n-dropdown>
+
     <n-modal v-model:show="showModal">
         <n-card style="width: auto" title="配置" :bordered="false" size="huge" role="dialog" aria-modal="true">
             <n-space>
@@ -19,17 +20,13 @@
                     :key="song.value" :value="song.value">
                     {{ song.label }} <br>
                 </n-radio>
-                <!-- <n-radio v-for="option in translationOptions" :key="option.value" :checked="checkedValue === option.value"
-                    :value="option.value" :name="option.name" @change="handleChange">
-                    {{ option.label }}
-                </n-radio> -->
-                <!-- <n-radio :checked="checkedValue === 'youdao'" value="youdao" name="youdao" @change="handleChange">
-                    有道翻译
-                </n-radio>
-                <n-radio :checked="checkedValue === 'caiyun'" value="caiyun" name="youdao" @change="handleChange">
-                    彩云翻译
-                </n-radio> -->
             </n-space>
+        </n-card>
+    </n-modal>
+
+    <n-modal v-model:show="showModalAbout">
+        <n-card style="width: auto" title="关于" :bordered="false" size="huge" role="dialog" aria-modal="true">
+            这是一款简单-便捷的翻译工具
         </n-card>
     </n-modal>
 </template>
@@ -37,12 +34,14 @@
 import { h, defineComponent, ref, reactive } from 'vue'
 import { NIcon } from 'naive-ui'
 import {
-    PersonCircleOutline as UserIcon,
     Pencil as EditIcon,
     LogOutOutline as LogoutIcon
 } from '@vicons/ionicons5'
+import {
+    ExclamationCircleOutlined as AboutIcon,
+} from '@vicons/antd'
 import { useMessage, useDialog } from 'naive-ui'
-import { LogPrint, Hide, EventsOn, EventsEmit } from '../../wailsjs/runtime/runtime'
+import { Hide, Quit, EventsOn, EventsEmit } from '../../wailsjs/runtime/runtime'
 
 const renderIcon = (icon) => {
     return () => {
@@ -84,6 +83,7 @@ EventsOn("transalteMap", (result) => {
 export default defineComponent({
     setup() {
         const showModalRef = ref(false);
+        const showModalAboutRef = ref(false);
         const checkedValueRef = ref(data.transalteWay);
         const transalteWayDataRef = ref(transalteWayData);
         const message = useMessage()
@@ -92,6 +92,7 @@ export default defineComponent({
             disabled: ref(true),
             checkedValue: checkedValueRef,
             showModal: showModalRef,
+            showModalAbout: showModalAboutRef,
             songs: transalteWayDataRef,
             selectedValue: ref(''),
             options: [
@@ -104,6 +105,11 @@ export default defineComponent({
                     label: '退出',
                     key: 'logout',
                     icon: renderIcon(LogoutIcon)
+                },
+                {
+                    label: '关于',
+                    key: 'about',
+                    icon: renderIcon(AboutIcon)
                 }
             ],
             handleChange(e) {
@@ -113,6 +119,8 @@ export default defineComponent({
             handleSelect(key) {
                 transalteWayDataRef.value = transalteWayData
                 showModalRef.value = false
+                showModalAboutRef.value = false
+                console.log(key)
                 switch (key) {
                     case 'logout':
                         dialog.warning({
@@ -133,6 +141,9 @@ export default defineComponent({
                     case 'config':
                         showModalRef.value = true
                         checkedValueRef.value = data.transalteWay
+                        break;
+                    case 'about':
+                        showModalAboutRef.value = true
                         break;
                 }
             }

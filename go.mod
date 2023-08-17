@@ -8,6 +8,7 @@ require (
 	github.com/getlantern/systray v1.2.2
 	github.com/go-vgo/robotgo v0.100.10
 	github.com/gorilla/websocket v1.5.0
+	github.com/robotn/gohook v0.31.3
 	github.com/sirupsen/logrus v1.9.3
 	github.com/wailsapp/wails/v2 v2.5.1
 )
@@ -39,7 +40,6 @@ require (
 	github.com/oxtoacart/bpool v0.0.0-20190530202638-03653db5a59c // indirect
 	github.com/pkg/browser v0.0.0-20210706143420-7d21f8c997e2 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
-	github.com/robotn/gohook v0.31.3 // indirect
 	github.com/robotn/xgb v0.0.0-20190912153532-2cb92d044934 // indirect
 	github.com/robotn/xgbutil v0.0.0-20190912154524-c861d6f87770 // indirect
 	github.com/samber/lo v1.27.1 // indirect

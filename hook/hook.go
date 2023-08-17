@@ -5,6 +5,7 @@ import (
 	"sync"
 
 	"github.com/go-vgo/robotgo"
+	hook "github.com/robotn/gohook"
 	"github.com/sirupsen/logrus"
 )
 
@@ -29,17 +30,25 @@ func GetCurText() string {
 // Hook register hook event
 func Hook(ctx context.Context) {
 	logrus.Info("--- Please wait hook starting ---")
-
-	centerBtn := robotgo.AddEvent("center")
-
-	// mouse center press
-	for {
-		if centerBtn {
+	hook.Register(hook.MouseHold, []string{}, func(e hook.Event) {
+		if e.Button == hook.MouseMap["center"] {
 			robotgo.KeyTap("c", "ctrl")
 			HookCenterChan <- struct{}{}
-			robotgo.MilliSleep(100)
 		}
+	})
+	s := hook.Start()
+	<-hook.Process(s)
 
-		centerBtn = robotgo.AddEvent("center")
-	}
+	// centerBtn := robotgo.AddEvent("center")
+
+	// // mouse center press
+	// for {
+	// 	if centerBtn {
+	// 		robotgo.KeyTap("c", "ctrl")
+	// 		HookCenterChan <- struct{}{}
+	// 		robotgo.MilliSleep(100)
+	// 	}
+
+	// 	centerBtn = robotgo.AddEvent("center")
+	// }
 }

@@ -1,29 +1,21 @@
 <template>
   <!-- 根据是否有数据来显示加载动画或实际内容 -->
-  <n-space vertical>
-    <n-spin size="small" :show="isLoading">
-      <br />
-    </n-spin>
-    <div class="scroll-container">
-      <div id="query" class="query">{{ queryText }}</div>
-      <div id="result" class="result">{{ resultText }}</div>
-      <div id="explian" class="explian">{{ explianText }}</div>
-    </div>
-  </n-space>
+  <div class="scroll-container">
+    <n-space vertical>
+      <n-spin size="small" :show="isLoading" v-if="isLoading" :stroke="'#FFFFFF'"></n-spin>
+      <div v-else>
+        <div id="query" class="query">{{ queryText }}</div>
+        <div id="result" class="result">{{ resultText }}</div>
+        <div id="explian" class="explian">{{ explianText }}</div>
+      </div>
+    </n-space>
+  </div>
 </template>
 
 
 <script>
 import { defineComponent, ref, reactive, onMounted } from 'vue'
-import { LogPrint, Hide, EventsOn, EventsEmit } from '../../wailsjs/runtime/runtime'
-
-
-
-
-
-
-
-
+import { Hide, EventsOn, EventsEmit } from '../../wailsjs/runtime/runtime'
 
 export default defineComponent({
   setup() {
@@ -35,6 +27,7 @@ export default defineComponent({
     onMounted(() => {
       EventsOn("explian", (result) => {
         explianTextRef.value = result
+        isLoadingRef.value = false
       })
 
       EventsOn("result", (result) => {
@@ -73,9 +66,11 @@ export default defineComponent({
   line-height: 1.5rem;
   font-size: 1.3rem;
   /* margin: 1.5rem auto; */
+  overflow-wrap: break-word;
 }
 
 .query {
+  overflow-wrap: break-word;
   line-height: 1.5rem;
   font-size: 1.3rem;
   margin: 1.5rem auto;
