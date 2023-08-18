@@ -25,7 +25,7 @@
     </n-modal>
 
     <n-modal v-model:show="showModalAbout">
-        <n-card style="width: auto" title="关于" :bordered="false" size="huge" role="dialog" aria-modal="true">
+        <n-card style="width: auto" title="便捷翻译" :bordered="false" size="huge" role="dialog" aria-modal="true">
             这是一款简单-便捷的翻译工具
         </n-card>
     </n-modal>

@@ -30,6 +30,16 @@ func GetCurText() string {
 // Hook register hook event
 func Hook(ctx context.Context) {
 	logrus.Info("--- Please wait hook starting ---")
+	// evChan := hook.Start()
+	// defer hook.End()
+
+	// for ev := range evChan {
+	// 	if ev.Button == hook.MouseMap["ctenter"] && ev.Kind == hook.MouseHold {
+	// 		// 模拟按下 Ctrl+C
+	// 		robotgo.KeyTap("c", "ctrl")
+	// 		HookCenterChan <- struct{}{}
+	// 	}
+	// }
 	hook.Register(hook.MouseHold, []string{}, func(e hook.Event) {
 		if e.Button == hook.MouseMap["center"] {
 			robotgo.KeyTap("c", "ctrl")
@@ -39,6 +49,7 @@ func Hook(ctx context.Context) {
 	s := hook.Start()
 	<-hook.Process(s)
 
+	// 这个会阻塞事件
 	// centerBtn := robotgo.AddEvent("center")
 
 	// // mouse center press
