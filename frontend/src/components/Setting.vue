@@ -12,10 +12,29 @@
             </n-icon>
         </n-button>
     </n-dropdown>
+    <n-modal v-model:show="showKeyModal">
+        <n-card style="width: auto" title="快捷键" :bordered="false" size="huge" role="dialog" aria-modal="true">
+            <n-space vertical>
+                <p>触发按键，点击保存</p>
+                <n-input placeholder="按压按键" v-model:value="editableText" />
+                <!-- <input v-model="editableText" @keyup.enter="onEnterKey"> -->
+
+                <n-space>
+                    <n-button type="warning" ghost>
+                        取消
+                    </n-button>
+                    <n-button type="success" ghost>
+                        保存
+                    </n-button>
+                </n-space>
+            </n-space>
+        </n-card>
+
+    </n-modal>
 
     <n-modal v-model:show="showModal">
-        <n-card style="width: auto" title="配置" :bordered="false" size="huge" role="dialog" aria-modal="true">
-            <n-space>
+        <n-card style="width: auto" title="翻译" :bordered="false" size="huge" role="dialog" aria-modal="true">
+            <n-space vertical>
                 <n-radio :checked="checkedValue === song.value" @change="handleChange" v-for="song in songs"
                     :key="song.value" :value="song.value">
                     {{ song.label }} <br>
@@ -31,7 +50,7 @@
     </n-modal>
 </template>
 <script>
-import { h, defineComponent, ref, reactive } from 'vue'
+import { h, defineComponent, ref, reactive, onMounted } from 'vue'
 import { NIcon } from 'naive-ui'
 import {
     Pencil as EditIcon,
@@ -50,48 +69,78 @@ const renderIcon = (icon) => {
         })
     }
 }
+const keyCombination = ["a", "b"]; // 指定的按键组合
+const timeWindow = 1000; // 设置时间窗口，单位为毫秒
+let pressedKeys = []; // 用于存储按下的按键顺序
 
-const data = reactive({
-    transalteWay: "",
-    transalteMap: {},
-})
+document.addEventListener("keydown", function (event) {
+    const pressedKey = event.key;
 
-document.onkeydown = function (e) {
-    switch (e.key) {
-        case "Escape":
-            Hide()
+    // 添加按键到队列
+    pressedKeys.push(pressedKey);
+
+    // 维持队列长度，保持在指定按键组合的长度内
+    if (pressedKeys.length > keyCombination.length) {
+        pressedKeys.shift();
     }
-}
 
-EventsOn("transalteWay", (result) => {
-    data.transalteWay = result
-})
+    // // 检查队列是否匹配指定的按键组合
+    // if (pressedKeys.join("") === keyCombination.join("")) {
+    //     console.log("连续按下了指定的按键组合:", keyCombination.join("+"));
+    //     // 清空按键队列，避免多次触发
+    //     pressedKeys = [];
+    // }
 
-var transalteWayData = []
-
-EventsOn("transalteMap", (result) => {
-    console.log(result)
-    let res = JSON.parse(result)
-    transalteWayData = Object.keys(res).map(key => ({
-        value: key,
-        name: key,
-        label: res[key].Name
-    }));
-})
-
+    // 设置时间窗口，超过时间窗口后重置按键队列
+    setTimeout(() => {
+        pressedKeys = [];
+    }, timeWindow);
+});
 
 export default defineComponent({
     setup() {
         const showModalRef = ref(false);
         const showModalAboutRef = ref(false);
-        const checkedValueRef = ref(data.transalteWay);
-        const transalteWayDataRef = ref(transalteWayData);
+        const showKeyModalRef = ref(false);
+        const transalteWayRef = ref("");
+        const editableTextRef = ref([]);
+        const transalteWayDataRef = ref([]);
         const message = useMessage()
         const dialog = useDialog()
+
+        // 模拟数据获取
+        onMounted(() => {
+            // document.onkeydown = function (e) {
+            //     console.log(editableTextRef.value)
+            //     editableTextRef.value.push(e.key)
+            //     if (editableTextRef.value.length > 2) {
+            //         editableTextRef.value = [e.key]
+            //     }
+            //     switch (e.key) {
+            //         case "Escape":
+            //             Hide()
+            //     }
+            // }
+            EventsOn("transalteWay", (result) => {
+                console.log(result)
+                transalteWayRef.value = result
+            })
+
+            EventsOn("transalteMap", (result) => {
+                console.log(result)
+                let res = JSON.parse(result)
+                transalteWayDataRef.value = Object.keys(res).map(key => ({
+                    value: key,
+                    name: key,
+                    label: res[key].Name
+                }));
+            })
+        })
         return {
-            disabled: ref(true),
-            checkedValue: checkedValueRef,
+            editableText: editableTextRef,
+            checkedValue: transalteWayRef,
             showModal: showModalRef,
+            showKeyModal: showKeyModalRef,
             showModalAbout: showModalAboutRef,
             songs: transalteWayDataRef,
             selectedValue: ref(''),
@@ -100,6 +149,11 @@ export default defineComponent({
                     label: '配置',
                     key: 'config',
                     icon: renderIcon(EditIcon)
+                },
+                {
+                    label: '快捷键',
+                    key: 'keyboard',
+                    // icon: renderIcon(EditIcon)
                 },
                 {
                     label: '退出',
@@ -113,14 +167,12 @@ export default defineComponent({
                 }
             ],
             handleChange(e) {
-                checkedValueRef.value = e.target.value;
-                EventsEmit("transalteWay-send", checkedValueRef.value)
+                transalteWayRef.value = e.target.value;
+                EventsEmit("transalteWay-send", transalteWayRef.value)
             },
             handleSelect(key) {
-                transalteWayDataRef.value = transalteWayData
                 showModalRef.value = false
                 showModalAboutRef.value = false
-                console.log(key)
                 switch (key) {
                     case 'logout':
                         dialog.warning({
@@ -140,7 +192,10 @@ export default defineComponent({
 
                     case 'config':
                         showModalRef.value = true
-                        checkedValueRef.value = data.transalteWay
+                        // checkedValueRef.value = data.transalteWay
+                        break;
+                    case 'keyboard':
+                        showKeyModalRef.value = true
                         break;
                     case 'about':
                         showModalAboutRef.value = true
