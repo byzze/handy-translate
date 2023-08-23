@@ -7,8 +7,6 @@ import (
 	"handy-translate/config"
 	"handy-translate/hook"
 	"handy-translate/translate"
-	"handy-translate/translate/caiyun"
-	"handy-translate/translate/youdao"
 	"strings"
 
 	"github.com/getlantern/systray"
@@ -102,16 +100,13 @@ func (a *App) startup(ctx context.Context) {
 					}).Info("Transalte")
 
 					switch way.(type) {
-					case *youdao.Youdao:
-						if len(result) >= 2 {
-							a.SendDataToJS(queryText, result[0], result[1])
-						}
-
-					case *caiyun.Caiyun, *youdao.YoudaoOnline, *translate.DefaultTransalte:
-						a.SendDataToJS(queryText, strings.Join(result, ","), "")
+					// case *youdao.Youdao:
+					// 	if len(result) >= 2 {
+					// 		a.SendDataToJS(queryText, result[0], result[1])
+					// 	}
 
 					default:
-						a.SendDataToJS(queryText, "translate failed", "")
+						a.SendDataToJS(queryText, strings.Join(result, ","), "")
 					}
 				}
 				// TODO 弹出窗口根据鼠标位置变动

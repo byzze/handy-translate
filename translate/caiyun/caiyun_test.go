@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"handy-translate/config"
 	"testing"
-
-	"github.com/go-vgo/robotgo"
 )
 
 func TestTranslate(t *testing.T) {
@@ -18,8 +16,4 @@ func TestTranslate(t *testing.T) {
 	target := caiyun.PostQuery(source)
 
 	fmt.Println(target)
-
-	x, y := robotgo.GetMousePos()
-	color := robotgo.GetPixelColor(x, y)
-	fmt.Println(color)
 }
