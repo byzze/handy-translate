@@ -32,6 +32,8 @@ func (a *App) SendDataToJS(query, result, explian string) {
 
 // test data
 func (a *App) onDomReady(ctx context.Context) {
+	runtime.EventsEmit(a.ctx, "transalteWay", config.Data.TranslateWay)
+
 	var translateMap = make(map[string]config.Translate)
 	for k, v := range config.Data.Translate {
 		tmp := config.Translate{
@@ -44,6 +46,7 @@ func (a *App) onDomReady(ctx context.Context) {
 		logrus.WithError(err).Error("Marshal")
 	}
 
+	runtime.EventsEmit(a.ctx, "transalteWay", config.Data.TranslateWay)
 	runtime.EventsEmit(a.ctx, "transalteMap", string(bTranslate))
 
 	runtime.EventsEmit(a.ctx, "transalteWay", config.Data.TranslateWay)

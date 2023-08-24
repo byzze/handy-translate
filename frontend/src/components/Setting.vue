@@ -14,11 +14,21 @@
     </n-dropdown>
     <n-modal v-model:show="showKeyModal">
         <n-card style="width: auto" title="快捷键" :bordered="false" size="huge" role="dialog" aria-modal="true">
-            <n-space vertical>
-                <p>触发按键，点击保存</p>
-                <n-input placeholder="按压按键" v-model:value="editableText" />
-                <!-- <input v-model="editableText" @keyup.enter="onEnterKey"> -->
-
+            <p>触发按键，点击保存</p>
+            <n-space>
+                <n-space>
+                    <n-form ref="formRef" inline :label-width="80">
+                        <n-form-item>
+                            <n-button attr-type="button">
+                                验证
+                            </n-button>
+                        </n-form-item>
+                        <n-form-item>
+                            <n-input placeholder="基本按钮" @blur="handleBlur" @focus="handleFocus" @keyup="handleKeyUp"
+                                @input="handleInput" @change="hchange" v-model:value="editableText" />
+                        </n-form-item>
+                    </n-form>
+                </n-space>
                 <n-space>
                     <n-button type="warning" ghost>
                         取消
@@ -69,33 +79,6 @@ const renderIcon = (icon) => {
         })
     }
 }
-const keyCombination = ["a", "b"]; // 指定的按键组合
-const timeWindow = 1000; // 设置时间窗口，单位为毫秒
-let pressedKeys = []; // 用于存储按下的按键顺序
-
-document.addEventListener("keydown", function (event) {
-    const pressedKey = event.key;
-
-    // 添加按键到队列
-    pressedKeys.push(pressedKey);
-
-    // 维持队列长度，保持在指定按键组合的长度内
-    if (pressedKeys.length > keyCombination.length) {
-        pressedKeys.shift();
-    }
-
-    // // 检查队列是否匹配指定的按键组合
-    // if (pressedKeys.join("") === keyCombination.join("")) {
-    //     console.log("连续按下了指定的按键组合:", keyCombination.join("+"));
-    //     // 清空按键队列，避免多次触发
-    //     pressedKeys = [];
-    // }
-
-    // 设置时间窗口，超过时间窗口后重置按键队列
-    setTimeout(() => {
-        pressedKeys = [];
-    }, timeWindow);
-});
 
 export default defineComponent({
     setup() {
@@ -107,20 +90,23 @@ export default defineComponent({
         const transalteWayDataRef = ref([]);
         const message = useMessage()
         const dialog = useDialog()
-
+        const handleKeydown = (e) => {
+            if (e.key.length === 1) {
+                if (e.key == " ") {
+                    editableTextRef.value = e.code;
+                } else {
+                    editableTextRef.value = e.key;
+                }
+            }
+        };
         // 模拟数据获取
         onMounted(() => {
-            // document.onkeydown = function (e) {
-            //     console.log(editableTextRef.value)
-            //     editableTextRef.value.push(e.key)
-            //     if (editableTextRef.value.length > 2) {
-            //         editableTextRef.value = [e.key]
-            //     }
-            //     switch (e.key) {
-            //         case "Escape":
-            //             Hide()
-            //     }
-            // }
+            document.onkeydown = function (e) {
+                switch (e.key) {
+                    case "Escape":
+                        Hide()
+                }
+            }
             EventsOn("transalteWay", (result) => {
                 console.log(result)
                 transalteWayRef.value = result
@@ -166,6 +152,22 @@ export default defineComponent({
                     icon: renderIcon(AboutIcon)
                 }
             ],
+
+            handleFocus() {
+                document.addEventListener('keydown', handleKeydown);
+            },
+            handleBlur() {
+                document.removeEventListener('keydown', handleKeydown);
+            },
+
+            hchange(e) {
+                editableTextRef.value = (e.key)
+            },
+
+            handleInput(e) {
+                // editableTextRef.value = (e.key)
+            },
+
             handleChange(e) {
                 transalteWayRef.value = e.target.value;
                 EventsEmit("transalteWay-send", transalteWayRef.value)
