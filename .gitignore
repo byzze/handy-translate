@@ -2,7 +2,6 @@
 *.exe
 .hintrc
 build/bin
-build
 node_modules
 frontend/dist
 frontend/pkg

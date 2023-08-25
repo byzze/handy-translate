@@ -1,18 +1,9 @@
 appname = "handy-translate"
 translateway = "youdao_online"
 [translate]
-    [translate.youdao]
-    name = "有道翻译"
-    key = ""
+    [translate.default]
+    name = "百度翻译"
+    key = "A0BWMb27a5cADOXeTKio"
     secret = ""
     token = ""
-    [translate.caiyun]
-    name = "彩云翻译"
-    key = ""
-    secret = ""
-    token = ""
-    [translate.youdao_online]
-    name = "有道在线翻译"
-    key = ""
-    secret = ""
-    token = ""
+

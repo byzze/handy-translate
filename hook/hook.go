@@ -1,15 +1,19 @@
 package hook
 
 import (
-	"context"
+	"fmt"
+	"handy-translate/config"
 	"sync"
 
-	"github.com/go-vgo/robotgo"
 	hook "github.com/robotn/gohook"
 	"github.com/sirupsen/logrus"
 )
 
-var HookCenterChan = make(chan struct{}, 1)
+var HookChan = make(chan struct{}, 1)
+
+var HookKeyboardChan = make(chan struct{}, 1)
+
+var HookCPChan = make(chan struct{}, 1)
 
 var curContent string
 
@@ -28,7 +32,7 @@ func GetCurText() string {
 }
 
 // Hook register hook event
-func Hook(ctx context.Context) {
+func Hook(keyboard []string) {
 	logrus.Info("--- Please wait hook starting ---")
 	// evChan := hook.Start()
 	// defer hook.End()
@@ -40,12 +44,20 @@ func Hook(ctx context.Context) {
 	// 		HookCenterChan <- struct{}{}
 	// 	}
 	// }
-	hook.Register(hook.MouseHold, []string{}, func(e hook.Event) {
-		if e.Button == hook.MouseMap["center"] {
-			robotgo.KeyTap("c", "ctrl")
-			HookCenterChan <- struct{}{}
-		}
-	})
+	if len(config.Data.Keyboard) == 0 || config.Data.Keyboard[0] == "center" {
+		hook.Register(hook.MouseHold, []string{}, func(e hook.Event) {
+			if e.Button == hook.MouseMap["center"] {
+				HookChan <- struct{}{}
+			}
+		})
+	} else {
+		hook.End()
+		hook.Register(hook.KeyHold, keyboard, func(e hook.Event) {
+			fmt.Println(e)
+			HookChan <- struct{}{}
+		})
+	}
+
 	s := hook.Start()
 	<-hook.Process(s)
 

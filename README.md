@@ -1,12 +1,40 @@
-# handy-translate
-## change file name -> config.toml
-config.toml.bak
-# naive-ui
+# 概述
+一款便捷翻译的工具，支持多平台Windows, Linux, Mac，任意窗口按压鼠标中键，弹出窗口，翻译选中的文本，支持自定义快捷键
+
+# 功能说明
+- [x] 选择文字翻译为中文
+- [x] 自定义快捷键
+- [ ] 多种翻译源(已完成百度，彩云)
+
+# 安装
+安装wails
+`https://wails.io/docs/gettingstarted/installation/`
+
+修改配置名
+`config.toml.bak -> config.toml`
+
+配置百度翻译秘钥(后续会支持多种翻译)
+```txt
+    [translate.default]
+    name = "百度翻译"
+    key = "xxxx"
+    secret = ""
+    token = ""
+```
+
+编译
+`wails build`
+
+windows生成文件./build/bin/handry-translate.exe
+
+# 使用效果
+按压鼠标中键，弹出窗口，支持自定义快捷键
+![Alt text](image.png)
+# 说明
+## golang桌面端开发 wails
+https://wails.io
+## naive-ui
 https://www.naiveui.com/zh-CN/os-theme/docs/installation
 
-# xicons
+## xicons
 https://github.com/07akioni/xicons#installation
-
-
-## 效果
-![Alt text](image.png)

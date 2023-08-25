@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/getlantern/systray"
+	"github.com/go-vgo/robotgo"
 	"github.com/sirupsen/logrus"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
@@ -58,13 +59,36 @@ func (a *App) onDomReady(ctx context.Context) {
 			runtime.EventsEmit(a.ctx, "transalteWay", optionalData[0].(string))
 		}
 	})
+
+	runtime.EventsOn(a.ctx, "key-save", func(optionalData ...interface{}) {
+		// 遍历 optionalData 切片，对每个元素进行类型断言并转换为 string
+		config.Data.Keyboard = []string{}
+		for _, item := range optionalData {
+			for _, items := range item.([]interface{}) {
+				if str, ok := items.(string); ok {
+					if strings.TrimSpace(str) == "" {
+						continue
+					}
+					config.Data.Keyboard = append(config.Data.Keyboard, str)
+				} else {
+					fmt.Println("Element is not of type string:", item)
+				}
+			}
+		}
+		logrus.Info(config.Data.Keyboard)
+		if len(config.Data.Keyboard) > 0 {
+			runtime.EventsEmit(a.ctx, "transalteWay", config.Data.Keyboard[:len(config.Data.Keyboard)-1])
+		}
+		go hook.Hook(config.Data.Keyboard)
+	})
 	// a.SendDataToJS("Board", "董事会", "n. 板，木板；黑板，告示牌；董事会，理事会；膳食，伙食，膳食费用；局；<非正式>舞台；<美>（冰球场周围的）界墙；<旧>（美国大学的）入学考试,v. 登上（火车、轮船或飞机）；让乘客登机（或上船等）；寄宿；（在学校）住校；将（宠物）暂时寄养在他处；用木板覆盖,【名】")
 }
 
 // startup is called when the app starts. The context is saved
 // so we can call the runtime methods
 func (a *App) startup(ctx context.Context) {
-	go hook.Hook(ctx)
+
+	go hook.Hook(config.Data.Keyboard)
 
 	// scList, _ := runtime.ScreenGetAll(ctx)
 
@@ -80,7 +104,8 @@ func (a *App) startup(ctx context.Context) {
 	go func() {
 		for {
 			select {
-			case <-hook.HookCenterChan:
+			case <-hook.HookChan:
+				robotgo.KeyTap("c", "ctrl")
 				// windowX, windowY := runtime.WindowGetSize(ctx)
 				// x, y := robotgo.GetMousePos()
 				// x, y = x+10, y-10

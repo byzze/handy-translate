@@ -17,6 +17,7 @@ var Data config
 type (
 	config struct {
 		Appname      string               `toml:"appname"`
+		Keyboard     []string             `toml:"keyboard"`
 		Translate    map[string]Translate `toml:"translate"`
 		TranslateWay string               `toml:"translateway"`
 	}

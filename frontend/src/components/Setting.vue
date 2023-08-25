@@ -12,32 +12,34 @@
             </n-icon>
         </n-button>
     </n-dropdown>
+
     <n-modal v-model:show="showKeyModal">
         <n-card style="width: auto" title="快捷键" :bordered="false" size="huge" role="dialog" aria-modal="true">
-            <p>触发按键，点击保存</p>
-            <n-space>
+            <p>触发按键，点击保存, 默认是鼠标中键</p>
+            <n-grid :x-gap="12" :y-gap="12" :cols="1" layout-shift-disabled>
+                <n-gi>
+                    <n-space item-style="display: flex;" vertical>
+                        <n-checkbox-group :value="cities" @update:value="handleUpdateValue">
+                            <n-space item-style="display: flex;" align="center">
+                                <n-checkbox value="ctrl" label="Ctrl" />
+                                <n-checkbox value="shift" label="Shift" />
+                                <n-input style="width: 50%" placeholder="基本按钮" @keyup="handleKeyUp" @input="handleInput"
+                                    @change="hchange" v-model:value="editableText" />
+                            </n-space>
+                        </n-checkbox-group>
+                    </n-space>
+                </n-gi>
+            </n-grid>
+            <n-grid :x-gap="12" :y-gap="12" :cols="1" layout-shift-disabled>
                 <n-space>
-                    <n-form ref="formRef" inline :label-width="80">
-                        <n-form-item>
-                            <n-button attr-type="button">
-                                验证
-                            </n-button>
-                        </n-form-item>
-                        <n-form-item>
-                            <n-input placeholder="基本按钮" @blur="handleBlur" @focus="handleFocus" @keyup="handleKeyUp"
-                                @input="handleInput" @change="hchange" v-model:value="editableText" />
-                        </n-form-item>
-                    </n-form>
-                </n-space>
-                <n-space>
-                    <n-button type="warning" ghost>
+                    <n-button type="warning" @click="cancel" ghost>
                         取消
                     </n-button>
-                    <n-button type="success" ghost>
+                    <n-button type="success" @click="save" ghost>
                         保存
                     </n-button>
                 </n-space>
-            </n-space>
+            </n-grid>
         </n-card>
 
     </n-modal>
@@ -59,6 +61,17 @@
         </n-card>
     </n-modal>
 </template>
+<style scoped>
+.light-green {
+    height: 108px;
+    background-color: rgba(0, 128, 0, 0.12);
+}
+
+.green {
+    height: 108px;
+    background-color: rgba(0, 128, 0, 0.24);
+}
+</style>
 <script>
 import { h, defineComponent, ref, reactive, onMounted } from 'vue'
 import { NIcon } from 'naive-ui'
@@ -69,6 +82,9 @@ import {
 import {
     ExclamationCircleOutlined as AboutIcon,
 } from '@vicons/antd'
+import {
+    Keyboard as Keyboard,
+} from '@vicons/tabler'
 import { useMessage, useDialog } from 'naive-ui'
 import { Hide, Quit, EventsOn, EventsEmit } from '../../wailsjs/runtime/runtime'
 
@@ -90,15 +106,9 @@ export default defineComponent({
         const transalteWayDataRef = ref([]);
         const message = useMessage()
         const dialog = useDialog()
-        const handleKeydown = (e) => {
-            if (e.key.length === 1) {
-                if (e.key == " ") {
-                    editableTextRef.value = e.code;
-                } else {
-                    editableTextRef.value = e.key;
-                }
-            }
-        };
+        const checkedRef = ref(false);
+        const citiesRef = ref([""]);
+
         // 模拟数据获取
         onMounted(() => {
             document.onkeydown = function (e) {
@@ -107,10 +117,17 @@ export default defineComponent({
                         Hide()
                 }
             }
+
+            // EventsOn("key-save", (result) => {
+            //     console.log(result)
+            //     citiesRef.value = result
+            // })
+
             EventsOn("transalteWay", (result) => {
                 console.log(result)
                 transalteWayRef.value = result
             })
+
 
             EventsOn("transalteMap", (result) => {
                 console.log(result)
@@ -129,6 +146,8 @@ export default defineComponent({
             showKeyModal: showKeyModalRef,
             showModalAbout: showModalAboutRef,
             songs: transalteWayDataRef,
+            checked: checkedRef,
+            cities: citiesRef,
             selectedValue: ref(''),
             options: [
                 {
@@ -139,7 +158,7 @@ export default defineComponent({
                 {
                     label: '快捷键',
                     key: 'keyboard',
-                    // icon: renderIcon(EditIcon)
+                    icon: renderIcon(Keyboard)
                 },
                 {
                     label: '退出',
@@ -152,22 +171,34 @@ export default defineComponent({
                     icon: renderIcon(AboutIcon)
                 }
             ],
-
-            handleFocus() {
-                document.addEventListener('keydown', handleKeydown);
+            save() {
+                let newArray = [...citiesRef.value, editableTextRef.value];
+                EventsEmit("key-save", newArray)
+                showKeyModalRef.value = false
             },
-            handleBlur() {
-                document.removeEventListener('keydown', handleKeydown);
+            handleCheckedChange(checked) {
+                checkedRef.value = checked;
+            },
+            handleUpdateValue(value) {
+                citiesRef.value = value;
             },
 
             hchange(e) {
-                editableTextRef.value = (e.key)
-            },
-
-            handleInput(e) {
                 // editableTextRef.value = (e.key)
             },
+            handleKeyUp(e) {
+                if (e.key.length <= 3) {
+                    if (e.key == " ") {
+                        editableTextRef.value = e.code;
+                    } else {
+                        editableTextRef.value = e.key;
+                    }
+                }
+            },
+            handleInput(e) {
 
+            },
+            cancel() { showKeyModalRef.value = false },
             handleChange(e) {
                 transalteWayRef.value = e.target.value;
                 EventsEmit("transalteWay-send", transalteWayRef.value)
