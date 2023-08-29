@@ -80,13 +80,14 @@ import {
     LogOutOutline as LogoutIcon
 } from '@vicons/ionicons5'
 import {
-    ExclamationCircleOutlined as AboutIcon,
+    ExclamationCircleOutlined as AboutIcon, ConsoleSqlOutlined,
 } from '@vicons/antd'
 import {
     Keyboard as Keyboard,
 } from '@vicons/tabler'
 import { useMessage, useDialog } from 'naive-ui'
 import { Hide, Quit, EventsOn, EventsEmit } from '../../wailsjs/runtime/runtime'
+import { GetTransalteMap, SetTransalteWay, GetTransalteWay, GetKeyBoard, SetKeyBoard } from '../../wailsjs/go/main/App'
 
 const renderIcon = (icon) => {
     return () => {
@@ -123,21 +124,21 @@ export default defineComponent({
             //     citiesRef.value = result
             // })
 
-            EventsOn("transalteWay", (result) => {
-                console.log(result)
-                transalteWayRef.value = result
-            })
+            // EventsOn("transalteWay", (result) => {
+            //     console.log(result)
+            //     transalteWayRef.value = result
+            // })
 
 
-            EventsOn("transalteMap", (result) => {
-                console.log(result)
-                let res = JSON.parse(result)
-                transalteWayDataRef.value = Object.keys(res).map(key => ({
-                    value: key,
-                    name: key,
-                    label: res[key].Name
-                }));
-            })
+            // EventsOn("transalteMap", (result) => {
+            //     console.log(result)
+            //     let res = JSON.parse(result)
+            //     transalteWayDataRef.value = Object.keys(res).map(key => ({
+            //         value: key,
+            //         name: key,
+            //         label: res[key].Name
+            //     }));
+            // })
         })
         return {
             editableText: editableTextRef,
@@ -173,7 +174,9 @@ export default defineComponent({
             ],
             save() {
                 let newArray = [...citiesRef.value, editableTextRef.value];
-                EventsEmit("key-save", newArray)
+                console.log(newArray)
+                SetKeyBoard(newArray)
+                // EventsEmit("key-save", newArray)
                 showKeyModalRef.value = false
             },
             handleCheckedChange(checked) {
@@ -201,7 +204,8 @@ export default defineComponent({
             cancel() { showKeyModalRef.value = false },
             handleChange(e) {
                 transalteWayRef.value = e.target.value;
-                EventsEmit("transalteWay-send", transalteWayRef.value)
+                SetTransalteWay(transalteWayRef.value)
+                // EventsEmit("transalteWay-send", transalteWayRef.value)
             },
             handleSelect(key) {
                 showModalRef.value = false
@@ -225,10 +229,28 @@ export default defineComponent({
 
                     case 'config':
                         showModalRef.value = true
-                        // checkedValueRef.value = data.transalteWay
+                        let tmap = GetTransalteMap()
+
+                        GetTransalteWay().then(result => {
+                            transalteWayRef.value = result;
+                        })
+
+                        tmap.then(result => {
+                            console.log(result)
+                            let res = JSON.parse(result)
+                            transalteWayDataRef.value = Object.keys(res).map(key => ({
+                                value: key,
+                                name: key,
+                                label: res[key].Name
+                            }));
+                        })
                         break;
                     case 'keyboard':
                         showKeyModalRef.value = true
+                        GetKeyBoard().then(res => {
+                            console.log(res)
+                            citiesRef.value = res
+                        })
                         break;
                     case 'about':
                         showModalAboutRef.value = true

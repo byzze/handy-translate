@@ -44,6 +44,7 @@ func Hook(keyboard []string) {
 	// 		HookCenterChan <- struct{}{}
 	// 	}
 	// }
+	SetCurText("")
 	if len(config.Data.Keyboard) == 0 || config.Data.Keyboard[0] == "center" {
 		hook.Register(hook.MouseHold, []string{}, func(e hook.Event) {
 			if e.Button == hook.MouseMap["center"] {

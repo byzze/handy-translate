@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"handy-translate/config"
 	"handy-translate/hook"
 	"handy-translate/translate"
@@ -33,54 +32,42 @@ func (a *App) SendDataToJS(query, result, explian string) {
 
 // test data
 func (a *App) onDomReady(ctx context.Context) {
-	runtime.EventsEmit(a.ctx, "transalteWay", config.Data.TranslateWay)
+	// runtime.EventsEmit(a.ctx, "transalteWay", config.Data.TranslateWay)
 
-	var translateMap = make(map[string]config.Translate)
-	for k, v := range config.Data.Translate {
-		tmp := config.Translate{
-			Name: v.Name,
-		}
-		translateMap[k] = tmp
-	}
-	bTranslate, err := json.Marshal(translateMap)
-	if err != nil {
-		logrus.WithError(err).Error("Marshal")
-	}
+	// runtime.EventsEmit(a.ctx, "transalteWay", config.Data.TranslateWay)
+	// runtime.EventsEmit(a.ctx, "transalteMap", string(bTranslate))
 
-	runtime.EventsEmit(a.ctx, "transalteWay", config.Data.TranslateWay)
-	runtime.EventsEmit(a.ctx, "transalteMap", string(bTranslate))
+	// runtime.EventsEmit(a.ctx, "transalteWay", config.Data.TranslateWay)
 
-	runtime.EventsEmit(a.ctx, "transalteWay", config.Data.TranslateWay)
+	// runtime.EventsOn(a.ctx, "transalteWay-send", func(optionalData ...interface{}) {
+	// 	logrus.WithField("optionalData", optionalData).Info("transalteWay-send")
+	// 	if len(optionalData) >= 1 {
+	// 		config.Data.TranslateWay = optionalData[0].(string)
+	// 		runtime.EventsEmit(a.ctx, "transalteWay", optionalData[0].(string))
+	// 	}
+	// })
 
-	runtime.EventsOn(a.ctx, "transalteWay-send", func(optionalData ...interface{}) {
-		logrus.WithField("optionalData", optionalData).Info("transalteWay-send")
-		if len(optionalData) >= 1 {
-			config.Data.TranslateWay = optionalData[0].(string)
-			runtime.EventsEmit(a.ctx, "transalteWay", optionalData[0].(string))
-		}
-	})
-
-	runtime.EventsOn(a.ctx, "key-save", func(optionalData ...interface{}) {
-		// 遍历 optionalData 切片，对每个元素进行类型断言并转换为 string
-		config.Data.Keyboard = []string{}
-		for _, item := range optionalData {
-			for _, items := range item.([]interface{}) {
-				if str, ok := items.(string); ok {
-					if strings.TrimSpace(str) == "" {
-						continue
-					}
-					config.Data.Keyboard = append(config.Data.Keyboard, str)
-				} else {
-					fmt.Println("Element is not of type string:", item)
-				}
-			}
-		}
-		logrus.Info(config.Data.Keyboard)
-		if len(config.Data.Keyboard) > 0 {
-			runtime.EventsEmit(a.ctx, "transalteWay", config.Data.Keyboard[:len(config.Data.Keyboard)-1])
-		}
-		go hook.Hook(config.Data.Keyboard)
-	})
+	// runtime.EventsOn(a.ctx, "key-save", func(optionalData ...interface{}) {
+	// 遍历 optionalData 切片，对每个元素进行类型断言并转换为 string
+	// config.Data.Keyboard = []string{}
+	// for _, item := range optionalData {
+	// 	for _, items := range item.([]interface{}) {
+	// 		if str, ok := items.(string); ok {
+	// 			if strings.TrimSpace(str) == "" {
+	// 				continue
+	// 			}
+	// 			config.Data.Keyboard = append(config.Data.Keyboard, str)
+	// 		} else {
+	// 			fmt.Println("Element is not of type string:", item)
+	// 		}
+	// 	}
+	// }
+	// logrus.Info(config.Data.Keyboard)
+	// if len(config.Data.Keyboard) > 0 {
+	// 	runtime.EventsEmit(a.ctx, "transalteWay", config.Data.Keyboard[:len(config.Data.Keyboard)-1])
+	// }
+	// go hook.Hook(config.Data.Keyboard)
+	// })
 	// a.SendDataToJS("Board", "董事会", "n. 板，木板；黑板，告示牌；董事会，理事会；膳食，伙食，膳食费用；局；<非正式>舞台；<美>（冰球场周围的）界墙；<旧>（美国大学的）入学考试,v. 登上（火车、轮船或飞机）；让乘客登机（或上船等）；寄宿；（在学校）住校；将（宠物）暂时寄养在他处；用木板覆盖,【名】")
 }
 
@@ -157,11 +144,44 @@ func (a *App) startup(ctx context.Context) {
 }
 
 // Greet returns a greeting for the given name
-func (a *App) Greet(name string) string {
-	return fmt.Sprintf("Hello %s, It's show time!", name)
+func (a *App) GetKeyBoard() []string {
+	return config.Data.Keyboard
+}
+
+func (a *App) SetKeyBoard(keys []string) {
+	config.Data.Keyboard = keys
+	go hook.Hook(config.Data.Keyboard)
+}
+
+// Greet returns a greeting for the given name
+func (a *App) GetTransalteWay() string {
+	return config.Data.TranslateWay
+}
+
+func (a *App) GetTransalteMap() string {
+	var translateMap = make(map[string]config.Translate)
+	for k, v := range config.Data.Translate {
+		tmp := config.Translate{
+			Name: v.Name,
+		}
+		translateMap[k] = tmp
+	}
+	bTranslate, err := json.Marshal(translateMap)
+	if err != nil {
+		logrus.WithError(err).Error("Marshal")
+	}
+	return string(bTranslate)
+}
+
+func (a *App) SetTransalteWay(way string) {
+	config.Data.TranslateWay = way
 }
 
 func (a *App) Quit() {
 	runtime.Quit(a.ctx)
 	systray.Quit()
+}
+
+func (a *App) Show() {
+	runtime.WindowShow(a.ctx)
 }
