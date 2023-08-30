@@ -30,11 +30,7 @@ windows生成文件./build/bin/handry-translate.exe
 # 使用效果
 按压鼠标中键，弹出窗口，支持自定义快捷键
 ![Alt text](image.png)
-# 说明
-## golang桌面端开发 wails
-https://wails.io
-## naive-ui
-https://www.naiveui.com/zh-CN/os-theme/docs/installation
+# 参考用到的工具组件
+https://wails.io(后端go组件)
+https://www.naiveui.com/zh-CN/os-theme/docs/installation(前端组件)
 
-## xicons
-https://github.com/07akioni/xicons#installation
