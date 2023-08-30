@@ -22,8 +22,8 @@ export function SendDataToJS(arg1, arg2, arg3) {
   return window['go']['main']['App']['SendDataToJS'](arg1, arg2, arg3);
 }
 
-export function SetKeyBoard(arg1) {
-  return window['go']['main']['App']['SetKeyBoard'](arg1);
+export function SetKeyBoard(arg1, arg2, arg3) {
+  return window['go']['main']['App']['SetKeyBoard'](arg1, arg2, arg3);
 }
 
 export function SetTransalteWay(arg1) {

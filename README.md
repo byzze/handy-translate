@@ -1,5 +1,5 @@
 # 概述
-一款便捷翻译的工具，支持多平台Windows, Linux, Mac，任意窗口按压鼠标中键，弹出窗口，翻译选中的文本，支持自定义快捷键
+一款便捷翻译的工具，支持多平台Windows, Linux, Mac，支持自定义快捷键，鼠标选中的文本，按压鼠标中键，弹出窗口渲染翻译结果
 
 # 功能说明
 - [x] 选择文字翻译为中文
@@ -7,7 +7,7 @@
 - [ ] 多种翻译源(已完成百度，彩云)
 
 # 安装
-安装wails
+安装wails(重要)
 `https://wails.io/docs/gettingstarted/installation/`
 
 修改配置名
@@ -16,7 +16,7 @@
 配置百度翻译秘钥(后续会支持多种翻译)
 ```txt
     [translate.default]
-    name = "百度翻译"
+    name = "xx翻译"
     key = "xxxx"
     secret = ""
     token = ""

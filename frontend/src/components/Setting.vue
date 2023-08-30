@@ -56,8 +56,34 @@
     </n-modal>
 
     <n-modal v-model:show="showModalAbout">
-        <n-card style="width: auto" title="便捷翻译" :bordered="false" size="huge" role="dialog" aria-modal="true">
+        <n-card style="width: auto; text-align: left;" title="便捷翻译" :bordered="false" size="huge" role="dialog"
+            aria-modal="true">
             这是一款简单-便捷的翻译工具
+            <div style="display: flex; align-items: center;">
+                <n-icon size="27">
+                    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 24 24">
+                        <path
+                            d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2c2.8-.3 5.5-1.4 5.5-6a4.6 4.6 0 0 0-1.3-3.2a4.2 4.2 0 0 0-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3 0 0 0-6.2 0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2 0 0 0-.1 3.2A4.6 4.6 0 0 0 4 9.5c0 4.6 2.7 5.7 5.5 6c-.6.6-.6 1.2-.5 2V21"
+                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round">
+                        </path>
+                    </svg>
+                </n-icon>
+                <span style="margin-left: 10px;">github.com/byzze/handy-translate</span>
+            </div>
+            <div style="display: flex; align-items: center;">
+                <n-icon size="27">
+                    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 32 32">
+                        <path
+                            d="M28 6H4a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h24a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2zm-2.2 2L16 14.78L6.2 8zM4 24V8.91l11.43 7.91a1 1 0 0 0 1.14 0L28 8.91V24z"
+                            fill="currentColor"></path>
+                    </svg>
+                </n-icon>
+                <span style="margin-left: 10px;">luoyd@163.com</span>
+            </div>
+            <template #footer>
+
+            </template>
         </n-card>
     </n-modal>
 </template>
@@ -73,20 +99,20 @@
 }
 </style>
 <script>
-import { h, defineComponent, ref, reactive, onMounted } from 'vue'
+import { h, defineComponent, ref, onMounted } from 'vue'
 import { NIcon } from 'naive-ui'
 import {
     Pencil as EditIcon,
     LogOutOutline as LogoutIcon
 } from '@vicons/ionicons5'
 import {
-    ExclamationCircleOutlined as AboutIcon, ConsoleSqlOutlined,
+    ExclamationCircleOutlined as AboutIcon,
 } from '@vicons/antd'
 import {
     Keyboard as Keyboard,
 } from '@vicons/tabler'
 import { useMessage, useDialog } from 'naive-ui'
-import { Hide, Quit, EventsOn, EventsEmit } from '../../wailsjs/runtime/runtime'
+import { Hide, Quit } from '../../wailsjs/runtime/runtime'
 import { GetTransalteMap, SetTransalteWay, GetTransalteWay, GetKeyBoard, SetKeyBoard } from '../../wailsjs/go/main/App'
 
 const renderIcon = (icon) => {
@@ -108,7 +134,7 @@ export default defineComponent({
         const message = useMessage()
         const dialog = useDialog()
         const checkedRef = ref(false);
-        const citiesRef = ref([""]);
+        const citiesRef = ref(["", "", ""]);
 
         // 模拟数据获取
         onMounted(() => {
@@ -118,27 +144,6 @@ export default defineComponent({
                         Hide()
                 }
             }
-
-            // EventsOn("key-save", (result) => {
-            //     console.log(result)
-            //     citiesRef.value = result
-            // })
-
-            // EventsOn("transalteWay", (result) => {
-            //     console.log(result)
-            //     transalteWayRef.value = result
-            // })
-
-
-            // EventsOn("transalteMap", (result) => {
-            //     console.log(result)
-            //     let res = JSON.parse(result)
-            //     transalteWayDataRef.value = Object.keys(res).map(key => ({
-            //         value: key,
-            //         name: key,
-            //         label: res[key].Name
-            //     }));
-            // })
         })
         return {
             editableText: editableTextRef,
@@ -173,10 +178,24 @@ export default defineComponent({
                 }
             ],
             save() {
-                let newArray = [...citiesRef.value, editableTextRef.value];
-                console.log(newArray)
-                SetKeyBoard(newArray)
-                // EventsEmit("key-save", newArray)
+                let ctrl = false;
+                let shift = false;
+
+                for (const key of citiesRef.value) {
+                    if (key === "ctrl") {
+                        ctrl = true;
+                    }
+                    if (key === "shift") {
+                        shift = true;
+                    }
+                }
+
+                if (!ctrl && !shift) {
+                    editableTextRef.value = "";
+                    SetKeyBoard("center", "", "");
+                } else {
+                    SetKeyBoard(ctrl ? "ctrl" : "center", shift ? "shift" : "", editableTextRef.value);
+                }
                 showKeyModalRef.value = false
             },
             handleCheckedChange(checked) {
@@ -189,13 +208,15 @@ export default defineComponent({
             hchange(e) {
                 // editableTextRef.value = (e.key)
             },
+
             handleKeyUp(e) {
-                if (e.key.length <= 3) {
-                    if (e.key == " ") {
-                        editableTextRef.value = e.code;
-                    } else {
-                        editableTextRef.value = e.key;
-                    }
+                if (e.key.length > 3) {
+                    return
+                }
+                if (e.key == " ") {
+                    editableTextRef.value = e.code;
+                } else {
+                    editableTextRef.value = e.key;
                 }
             },
             handleInput(e) {
@@ -205,7 +226,6 @@ export default defineComponent({
             handleChange(e) {
                 transalteWayRef.value = e.target.value;
                 SetTransalteWay(transalteWayRef.value)
-                // EventsEmit("transalteWay-send", transalteWayRef.value)
             },
             handleSelect(key) {
                 showModalRef.value = false
@@ -226,17 +246,12 @@ export default defineComponent({
                         })
                         // It's important to add a "break" statement here to exit the switch after this case.
                         break;
-
                     case 'config':
-                        showModalRef.value = true
-                        let tmap = GetTransalteMap()
-
-                        GetTransalteWay().then(result => {
-                            transalteWayRef.value = result;
+                        GetTransalteWay().then(res => {
+                            transalteWayRef.value = res;
                         })
 
-                        tmap.then(result => {
-                            console.log(result)
+                        GetTransalteMap().then(result => {
                             let res = JSON.parse(result)
                             transalteWayDataRef.value = Object.keys(res).map(key => ({
                                 value: key,
@@ -244,13 +259,14 @@ export default defineComponent({
                                 label: res[key].Name
                             }));
                         })
+                        showModalRef.value = true
                         break;
                     case 'keyboard':
-                        showKeyModalRef.value = true
                         GetKeyBoard().then(res => {
-                            console.log(res)
                             citiesRef.value = res
+                            editableTextRef.value = citiesRef.value[2]
                         })
+                        showKeyModalRef.value = true
                         break;
                     case 'about':
                         showModalAboutRef.value = true

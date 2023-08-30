@@ -32,7 +32,19 @@ func GetCurText() string {
 }
 
 // Hook register hook event
-func Hook(keyboard []string) {
+func DafaultHook() {
+	hook.Register(hook.MouseHold, []string{}, func(e hook.Event) {
+		if e.Button == hook.MouseMap["center"] {
+			HookChan <- struct{}{}
+		}
+	})
+
+	s := hook.Start()
+	<-hook.Process(s)
+}
+
+// Hook register hook event
+func Hook() {
 	logrus.Info("--- Please wait hook starting ---")
 	// evChan := hook.Start()
 	// defer hook.End()
@@ -44,6 +56,7 @@ func Hook(keyboard []string) {
 	// 		HookCenterChan <- struct{}{}
 	// 	}
 	// }
+	hook.End()
 	SetCurText("")
 	if len(config.Data.Keyboard) == 0 || config.Data.Keyboard[0] == "center" {
 		hook.Register(hook.MouseHold, []string{}, func(e hook.Event) {
@@ -52,8 +65,7 @@ func Hook(keyboard []string) {
 			}
 		})
 	} else {
-		hook.End()
-		hook.Register(hook.KeyHold, keyboard, func(e hook.Event) {
+		hook.Register(hook.KeyHold, config.Data.Keyboard, func(e hook.Event) {
 			fmt.Println(e)
 			HookChan <- struct{}{}
 		})
@@ -61,7 +73,6 @@ func Hook(keyboard []string) {
 
 	s := hook.Start()
 	<-hook.Process(s)
-
 	// 这个会阻塞事件
 	// centerBtn := robotgo.AddEvent("center")
 

@@ -14,8 +14,8 @@
 
 
 <script>
-import { defineComponent, ref, reactive, onMounted } from 'vue'
-import { Hide, EventsOn, EventsEmit } from '../../wailsjs/runtime/runtime'
+import { defineComponent, ref, onMounted } from 'vue'
+import { EventsOn } from '../../wailsjs/runtime/runtime'
 
 export default defineComponent({
   setup() {

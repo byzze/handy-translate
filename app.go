@@ -75,7 +75,7 @@ func (a *App) onDomReady(ctx context.Context) {
 // so we can call the runtime methods
 func (a *App) startup(ctx context.Context) {
 
-	go hook.Hook(config.Data.Keyboard)
+	go hook.DafaultHook()
 
 	// scList, _ := runtime.ScreenGetAll(ctx)
 
@@ -148,9 +148,9 @@ func (a *App) GetKeyBoard() []string {
 	return config.Data.Keyboard
 }
 
-func (a *App) SetKeyBoard(keys []string) {
-	config.Data.Keyboard = keys
-	go hook.Hook(config.Data.Keyboard)
+func (a *App) SetKeyBoard(ctrl, shift, key string) {
+	config.Data.Keyboard = []string{ctrl, shift, key}
+	go hook.Hook()
 }
 
 // Greet returns a greeting for the given name
