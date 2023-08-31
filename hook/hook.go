@@ -1,10 +1,11 @@
 package hook
 
 import (
-	"fmt"
 	"handy-translate/config"
 	"sync"
+	"time"
 
+	"github.com/go-vgo/robotgo"
 	hook "github.com/robotn/gohook"
 	"github.com/sirupsen/logrus"
 )
@@ -43,12 +44,13 @@ func DafaultHook() {
 	<-hook.Process(s)
 }
 
+var pressLock sync.RWMutex
+
 // Hook register hook event
 func Hook() {
 	logrus.Info("--- Please wait hook starting ---")
 	// evChan := hook.Start()
 	// defer hook.End()
-
 	// for ev := range evChan {
 	// 	if ev.Button == hook.MouseMap["ctenter"] && ev.Kind == hook.MouseHold {
 	// 		// 模拟按下 Ctrl+C
@@ -66,8 +68,13 @@ func Hook() {
 		})
 	} else {
 		hook.Register(hook.KeyHold, config.Data.Keyboard, func(e hook.Event) {
-			fmt.Println(e)
-			HookChan <- struct{}{}
+			if pressLock.TryLock() {
+				logrus.Info(e)
+				robotgo.KeyUp("ctrl")
+				time.Sleep(time.Millisecond * 300)
+				HookChan <- struct{}{}
+				pressLock.Unlock()
+			}
 		})
 	}
 

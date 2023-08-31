@@ -92,6 +92,7 @@ func (a *App) startup(ctx context.Context) {
 		for {
 			select {
 			case <-hook.HookChan:
+				logrus.Info("==========================hookchanler")
 				robotgo.KeyTap("c", "ctrl")
 				// windowX, windowY := runtime.WindowGetSize(ctx)
 				// x, y := robotgo.GetMousePos()
@@ -150,6 +151,7 @@ func (a *App) GetKeyBoard() []string {
 
 func (a *App) SetKeyBoard(ctrl, shift, key string) {
 	config.Data.Keyboard = []string{ctrl, shift, key}
+	logrus.Info(config.Data.Keyboard)
 	go hook.Hook()
 }
 

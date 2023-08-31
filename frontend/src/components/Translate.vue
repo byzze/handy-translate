@@ -1,6 +1,6 @@
 <template>
   <!-- 根据是否有数据来显示加载动画或实际内容 -->
-  <div class="scroll-container">
+  <div class="scroll-container" style="--wails-draggable:no-drag">
     <n-space vertical>
       <n-spin size="small" :show="isLoading" v-if="isLoading" :stroke="'#FFFFFF'"></n-spin>
       <div v-else>

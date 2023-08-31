@@ -13,7 +13,7 @@
 修改配置名
 `config.toml.bak -> config.toml`
 
-配置百度翻译秘钥(后续会支持多种翻译)
+配置百度，彩云翻译秘钥(后续会支持多种翻译)
 ```txt
     [translate.default]
     name = "xx翻译"
@@ -21,16 +21,14 @@
     secret = ""
     token = ""
 ```
-
-编译
+# 编译
 `wails build`
-
-windows生成文件./build/bin/handry-translate.exe
-
+# 运行
+双击windows生成文件`./build/bin/handry-translate.exe`
 # 使用效果
 按压鼠标中键，弹出窗口，支持自定义快捷键
 ![Alt text](image.png)
 # 参考用到的工具组件
-https://wails.io(后端go组件)
-https://www.naiveui.com/zh-CN/os-theme/docs/installation(前端组件)
+https://wails.io (后端go组件)
+https://www.naiveui.com/zh-CN/os-theme/docs/installation (前端组件)
 
