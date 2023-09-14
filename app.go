@@ -7,12 +7,47 @@ import (
 	"handy-translate/hook"
 	"handy-translate/translate"
 	"strings"
+	"syscall"
+	"time"
 
 	"github.com/getlantern/systray"
-	"github.com/go-vgo/robotgo"
 	"github.com/sirupsen/logrus"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
+
+var (
+	user321             = syscall.MustLoadDLL("user32.dll")
+	keybd_event         = user321.MustFindProc("keybd_event")
+	getForegroundWindow = user321.MustFindProc("GetForegroundWindow")
+	sendMessage         = user321.MustFindProc("SendMessageW")
+)
+
+const (
+	// 定义键盘事件常量
+	KEYEVENTF_KEYDOWN = 0x0000
+	KEYEVENTF_KEYUP   = 0x0002
+
+	// 定义VK常量
+	VK_CONTROL = 0x11
+	VK_C       = 0x43
+)
+
+func keybdEvent(keycode, flags uintptr) {
+	keybd_event.Call(keycode, uintptr(0), flags, 0)
+}
+
+func copyText() error {
+	// 模拟按下Ctrl键
+	keybdEvent(VK_CONTROL, KEYEVENTF_KEYDOWN)
+	time.Sleep(100 * time.Millisecond) // 等待一会
+	defer keybdEvent(VK_CONTROL, KEYEVENTF_KEYUP)
+
+	// 模拟按下C键
+	keybdEvent(VK_C, KEYEVENTF_KEYDOWN)
+	time.Sleep(100 * time.Millisecond) // 等待一会
+	defer keybdEvent(VK_C, KEYEVENTF_KEYUP)
+	return nil
+}
 
 // App struct
 type App struct {
@@ -71,12 +106,14 @@ func (a *App) onDomReady(ctx context.Context) {
 	// a.SendDataToJS("Board", "董事会", "n. 板，木板；黑板，告示牌；董事会，理事会；膳食，伙食，膳食费用；局；<非正式>舞台；<美>（冰球场周围的）界墙；<旧>（美国大学的）入学考试,v. 登上（火车、轮船或飞机）；让乘客登机（或上船等）；寄宿；（在学校）住校；将（宠物）暂时寄养在他处；用木板覆盖,【名】")
 }
 
+var ch = make(chan struct{}, 2)
+
 // startup is called when the app starts. The context is saved
 // so we can call the runtime methods
 func (a *App) startup(ctx context.Context) {
 
 	go hook.DafaultHook()
-
+	go hook.WindowsHook()
 	// scList, _ := runtime.ScreenGetAll(ctx)
 
 	// var screenX, screenY int
@@ -92,8 +129,23 @@ func (a *App) startup(ctx context.Context) {
 		for {
 			select {
 			case <-hook.HookChan:
+				ch <- struct{}{}
+				if len(ch) >= 2 {
+					for {
+						var f bool
+						select {
+						case <-ch:
+							// 处理通道的值
+						default:
+							// 通道为空时执行的代码
+							f = true
+						}
+						if f {
+							break
+						}
+					}
+				}
 				logrus.Info("==========================hookchanler")
-				robotgo.KeyTap("c", "ctrl")
 				// windowX, windowY := runtime.WindowGetSize(ctx)
 				// x, y := robotgo.GetMousePos()
 				// x, y = x+10, y-10
