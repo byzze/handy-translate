@@ -1,5 +1,8 @@
 <template>
     <n-space vertical size="large">
+        <div>
+            <Drag />
+        </div>
         <n-layout position="absolute" style=" background-color: rgba(27, 38, 54, 1);">
             <n-layout-header>
                 <n-grid x-gap="12" :cols="3">
@@ -27,15 +30,21 @@
                     </n-gi>
                 </n-grid>
             </n-layout-header>
-            <n-layout-content position="absolute" style="bottom: 0;top:10vh">
-                <Translate />
-            </n-layout-content>
+            <div style="--wails-draggable:no-drag">
+                <n-layout-content position="absolute" style="bottom: 0;top:10vh">
+                    <Drag />
+
+                </n-layout-content>
+
+            </div>
+
 
         </n-layout>
         <!-- <n-layout>
                 <n-layout-footer>成府路</n-layout-footer>
             </n-layout>
         </n-layout> -->
+
     </n-space>
 </template>
   
@@ -44,12 +53,14 @@ import { defineComponent } from "vue";
 import Setting from "./Setting.vue";
 import Translate from "./Translate.vue";
 import Minimize from "./Minimize.vue";
+import Drag from "./Drag.vue";
 
 export default defineComponent({
     components: {
         Setting,
         Translate,
-        Minimize
+        Minimize,
+        Drag
     },
 });
 </script>

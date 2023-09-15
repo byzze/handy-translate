@@ -7,47 +7,11 @@ import (
 	"handy-translate/hook"
 	"handy-translate/translate"
 	"strings"
-	"syscall"
-	"time"
 
 	"github.com/getlantern/systray"
 	"github.com/sirupsen/logrus"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
-
-var (
-	user321             = syscall.MustLoadDLL("user32.dll")
-	keybd_event         = user321.MustFindProc("keybd_event")
-	getForegroundWindow = user321.MustFindProc("GetForegroundWindow")
-	sendMessage         = user321.MustFindProc("SendMessageW")
-)
-
-const (
-	// 定义键盘事件常量
-	KEYEVENTF_KEYDOWN = 0x0000
-	KEYEVENTF_KEYUP   = 0x0002
-
-	// 定义VK常量
-	VK_CONTROL = 0x11
-	VK_C       = 0x43
-)
-
-func keybdEvent(keycode, flags uintptr) {
-	keybd_event.Call(keycode, uintptr(0), flags, 0)
-}
-
-func copyText() error {
-	// 模拟按下Ctrl键
-	keybdEvent(VK_CONTROL, KEYEVENTF_KEYDOWN)
-	time.Sleep(100 * time.Millisecond) // 等待一会
-	defer keybdEvent(VK_CONTROL, KEYEVENTF_KEYUP)
-
-	// 模拟按下C键
-	keybdEvent(VK_C, KEYEVENTF_KEYDOWN)
-	time.Sleep(100 * time.Millisecond) // 等待一会
-	defer keybdEvent(VK_C, KEYEVENTF_KEYUP)
-	return nil
-}
 
 // App struct
 type App struct {
@@ -67,51 +31,12 @@ func (a *App) SendDataToJS(query, result, explian string) {
 
 // test data
 func (a *App) onDomReady(ctx context.Context) {
-	// runtime.EventsEmit(a.ctx, "transalteWay", config.Data.TranslateWay)
 
-	// runtime.EventsEmit(a.ctx, "transalteWay", config.Data.TranslateWay)
-	// runtime.EventsEmit(a.ctx, "transalteMap", string(bTranslate))
-
-	// runtime.EventsEmit(a.ctx, "transalteWay", config.Data.TranslateWay)
-
-	// runtime.EventsOn(a.ctx, "transalteWay-send", func(optionalData ...interface{}) {
-	// 	logrus.WithField("optionalData", optionalData).Info("transalteWay-send")
-	// 	if len(optionalData) >= 1 {
-	// 		config.Data.TranslateWay = optionalData[0].(string)
-	// 		runtime.EventsEmit(a.ctx, "transalteWay", optionalData[0].(string))
-	// 	}
-	// })
-
-	// runtime.EventsOn(a.ctx, "key-save", func(optionalData ...interface{}) {
-	// 遍历 optionalData 切片，对每个元素进行类型断言并转换为 string
-	// config.Data.Keyboard = []string{}
-	// for _, item := range optionalData {
-	// 	for _, items := range item.([]interface{}) {
-	// 		if str, ok := items.(string); ok {
-	// 			if strings.TrimSpace(str) == "" {
-	// 				continue
-	// 			}
-	// 			config.Data.Keyboard = append(config.Data.Keyboard, str)
-	// 		} else {
-	// 			fmt.Println("Element is not of type string:", item)
-	// 		}
-	// 	}
-	// }
-	// logrus.Info(config.Data.Keyboard)
-	// if len(config.Data.Keyboard) > 0 {
-	// 	runtime.EventsEmit(a.ctx, "transalteWay", config.Data.Keyboard[:len(config.Data.Keyboard)-1])
-	// }
-	// go hook.Hook(config.Data.Keyboard)
-	// })
-	// a.SendDataToJS("Board", "董事会", "n. 板，木板；黑板，告示牌；董事会，理事会；膳食，伙食，膳食费用；局；<非正式>舞台；<美>（冰球场周围的）界墙；<旧>（美国大学的）入学考试,v. 登上（火车、轮船或飞机）；让乘客登机（或上船等）；寄宿；（在学校）住校；将（宠物）暂时寄养在他处；用木板覆盖,【名】")
 }
-
-var ch = make(chan struct{}, 2)
 
 // startup is called when the app starts. The context is saved
 // so we can call the runtime methods
 func (a *App) startup(ctx context.Context) {
-
 	go hook.DafaultHook()
 	go hook.WindowsHook()
 	// scList, _ := runtime.ScreenGetAll(ctx)
@@ -129,23 +54,7 @@ func (a *App) startup(ctx context.Context) {
 		for {
 			select {
 			case <-hook.HookChan:
-				ch <- struct{}{}
-				if len(ch) >= 2 {
-					for {
-						var f bool
-						select {
-						case <-ch:
-							// 处理通道的值
-						default:
-							// 通道为空时执行的代码
-							f = true
-						}
-						if f {
-							break
-						}
-					}
-				}
-				logrus.Info("==========================hookchanler")
+				logrus.Info("HookChan Process")
 				// windowX, windowY := runtime.WindowGetSize(ctx)
 				// x, y := robotgo.GetMousePos()
 				// x, y = x+10, y-10
@@ -187,9 +96,7 @@ func (a *App) startup(ctx context.Context) {
 				// 	x = screenX - windowX
 				// }
 				// fmt.Println("new:", x, y, screenX, screenY, windowX, windowY)
-
 				// runtime.WindowSetPosition(ctx, x, y)
-
 			}
 		}
 	}()

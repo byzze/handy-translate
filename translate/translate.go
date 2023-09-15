@@ -18,7 +18,6 @@ func GetTransalteWay(name string) Transalte {
 				Token: config.Data.Translate[name].Token,
 			},
 		}
-
 	default:
 		return &baidu.Baidu{
 			Translate: config.Translate{

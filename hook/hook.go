@@ -2,6 +2,7 @@ package hook
 
 import (
 	"handy-translate/config"
+
 	"sync"
 	"time"
 
@@ -37,6 +38,7 @@ var defaulthook = func(e hook.Event) {
 		if pressLock.TryLock() {
 			time.Sleep(time.Millisecond * 100)
 			HookChan <- struct{}{}
+			robotgo.KeyTap("c", "ctrl")
 			pressLock.Unlock()
 		}
 	}
@@ -45,16 +47,16 @@ var defaulthook = func(e hook.Event) {
 var keyboardhook = func(e hook.Event) {
 	if pressLock.TryLock() {
 		logrus.Info(e)
-		robotgo.KeyUp("ctrl")
 		time.Sleep(time.Millisecond * 300)
 		HookChan <- struct{}{}
+		robotgo.KeyTap("c", "ctrl")
 		pressLock.Unlock()
 	}
 }
 
 // Hook register hook event
 func DafaultHook() {
-	hook.Register(hook.MouseHold, []string{}, defaulthook)
+	hook.Register(hook.MouseDown, []string{}, defaulthook)
 	s := hook.Start()
 	<-hook.Process(s)
 	// 这个会阻塞事件
@@ -78,19 +80,10 @@ var pressLock sync.RWMutex
 // Hook register hook event
 func Hook() {
 	logrus.Info("--- Please wait hook starting ---")
-	// evChan := hook.Start()
-	// defer hook.End()
-	// for ev := range evChan {
-	// 	if ev.Button == hook.MouseMap["ctenter"] && ev.Kind == hook.MouseHold {
-	// 		// 模拟按下 Ctrl+C
-	// 		robotgo.KeyTap("c", "ctrl")
-	// 		HookCenterChan <- struct{}{}
-	// 	}
-	// }
 	hook.End()
 	SetCurText("")
 	if len(config.Data.Keyboard) == 0 || config.Data.Keyboard[0] == "center" {
-		hook.Register(hook.MouseHold, []string{}, defaulthook)
+		hook.Register(hook.MouseDown, []string{}, defaulthook)
 	} else {
 		hook.Register(hook.KeyHold, config.Data.Keyboard, keyboardhook)
 	}
