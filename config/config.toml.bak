@@ -1,9 +1,7 @@
 appname = "handy-translate"
-translateway = "youdao_online"
-[translate]
-    [translate.default]
-    name = "百度翻译"
-    key = "A0BWMb27a5cADOXeTKio"
-    secret = ""
-    token = ""
+translate = [
+    {name = "百度翻译", key = "", secret = "", token = ""},
+    {name = "有道翻译", key = "", secret = "", token = ""},
+    {name = "彩云翻译", key = "", secret = "", token = ""},
+]
 

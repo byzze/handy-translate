@@ -46,12 +46,13 @@
 
     <n-modal v-model:show="showModal">
         <n-card style="width: auto" title="翻译" :bordered="false" size="huge" role="dialog" aria-modal="true">
-            <n-space vertical>
-                <n-radio :checked="checkedValue === song.value" @change="handleChange" v-for="song in songs"
-                    :key="song.value" :value="song.value">
-                    {{ song.label }} <br>
+            <TranslateWay />
+            <!-- <n-space vertical>
+                <n-radio :checked="checkedValue === way.value" @change="handleChange" v-for="way in translateList"
+                    :key="way.value" :value="way.value">
+                    {{ way.label }} <br>
                 </n-radio>
-            </n-space>
+            </n-space> -->
         </n-card>
     </n-modal>
 
@@ -101,6 +102,8 @@
 <script>
 import { h, defineComponent, ref, onMounted } from 'vue'
 import { NIcon } from 'naive-ui'
+import TranslateWay from "./TranslateWay.vue";
+
 import {
     Pencil as EditIcon,
     LogOutOutline as LogoutIcon
@@ -113,7 +116,7 @@ import {
 } from '@vicons/tabler'
 import { useMessage, useDialog } from 'naive-ui'
 import { Hide, Quit } from '../../wailsjs/runtime/runtime'
-import { GetTransalteMap, SetTransalteWay, GetTransalteWay, GetKeyBoard, SetKeyBoard } from '../../wailsjs/go/main/App'
+import { GetKeyBoard, SetKeyBoard } from '../../wailsjs/go/main/App'
 
 const renderIcon = (icon) => {
     return () => {
@@ -124,6 +127,9 @@ const renderIcon = (icon) => {
 }
 
 export default defineComponent({
+    components: {
+        TranslateWay,
+    },
     setup() {
         const showModalRef = ref(false);
         const showModalAboutRef = ref(false);
@@ -151,7 +157,7 @@ export default defineComponent({
             showModal: showModalRef,
             showKeyModal: showKeyModalRef,
             showModalAbout: showModalAboutRef,
-            songs: transalteWayDataRef,
+            translateList: transalteWayDataRef,
             checked: checkedRef,
             cities: citiesRef,
             selectedValue: ref(''),
@@ -225,7 +231,6 @@ export default defineComponent({
             cancel() { showKeyModalRef.value = false },
             handleChange(e) {
                 transalteWayRef.value = e.target.value;
-                SetTransalteWay(transalteWayRef.value)
             },
             handleSelect(key) {
                 showModalRef.value = false
@@ -247,18 +252,6 @@ export default defineComponent({
                         // It's important to add a "break" statement here to exit the switch after this case.
                         break;
                     case 'config':
-                        GetTransalteWay().then(res => {
-                            transalteWayRef.value = res;
-                        })
-
-                        GetTransalteMap().then(result => {
-                            let res = JSON.parse(result)
-                            transalteWayDataRef.value = Object.keys(res).map(key => ({
-                                value: key,
-                                name: key,
-                                label: res[key].Name
-                            }));
-                        })
                         showModalRef.value = true
                         break;
                     case 'keyboard':

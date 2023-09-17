@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"handy-translate/config"
 	"handy-translate/hook"
 	"handy-translate/translate"
@@ -24,6 +25,8 @@ func NewApp() *App {
 }
 
 func (a *App) SendDataToJS(query, result, explian string) {
+	fmt.Println("===", query, result, explian)
+
 	runtime.EventsEmit(a.ctx, "query", query)
 	runtime.EventsEmit(a.ctx, "result", result)
 	runtime.EventsEmit(a.ctx, "explian", explian)
@@ -63,28 +66,39 @@ func (a *App) startup(ctx context.Context) {
 
 				if queryText != hook.GetCurText() {
 					hook.SetCurText(queryText)
-					// 加载动画变量
+					// 加载动画loading
 					runtime.EventsEmit(a.ctx, "loading", "true")
+					wayList := translate.GetTransalteWay()
+					var result []string
+					var err error
+					for i := range wayList {
+						obj := wayList[i]
+						logrus.WithFields(logrus.Fields{
+							"queryText":    queryText,
+							"transalteWay": obj.GetName(),
+						}).Info("Transalte")
 
-					var transalteWay = config.Data.TranslateWay
-					way := translate.GetTransalteWay(transalteWay)
-					result := way.PostQuery(queryText)
+						result, err = obj.PostQuery(queryText)
+						if err != nil {
+							logrus.WithError(err).Error("PostQuery")
+							continue
+						}
 
-					logrus.WithFields(logrus.Fields{
-						"queryText":    queryText,
-						"result":       result,
-						"transalteWay": transalteWay,
-					}).Info("Transalte")
+						logrus.WithFields(logrus.Fields{
+							"result": result,
+						}).Info("Transalte")
 
-					switch way.(type) {
-					// case *youdao.Youdao:
-					// 	if len(result) >= 2 {
-					// 		a.SendDataToJS(queryText, result[0], result[1])
-					// 	}
-
-					default:
-						a.SendDataToJS(queryText, strings.Join(result, ","), "")
+						if len(result) == 0 {
+							continue
+						}
+						break
 					}
+
+					if len(result) >= 2 {
+						a.SendDataToJS(queryText, result[0], result[1])
+						continue
+					}
+					a.SendDataToJS(queryText, strings.Join(result, ","), "")
 				}
 				// TODO 弹出窗口根据鼠标位置变动
 				// fmt.Println("or:", x, y, screenX, screenY, windowX, windowY)
@@ -114,28 +128,22 @@ func (a *App) SetKeyBoard(ctrl, shift, key string) {
 	go hook.Hook()
 }
 
-// Greet returns a greeting for the given name
-func (a *App) GetTransalteWay() string {
-	return config.Data.TranslateWay
-}
-
-func (a *App) GetTransalteMap() string {
-	var translateMap = make(map[string]config.Translate)
-	for k, v := range config.Data.Translate {
-		tmp := config.Translate{
-			Name: v.Name,
-		}
-		translateMap[k] = tmp
-	}
-	bTranslate, err := json.Marshal(translateMap)
+func (a *App) GetTransalteList() string {
+	var translateList = config.Data.Translate
+	bTranslate, err := json.Marshal(translateList)
 	if err != nil {
 		logrus.WithError(err).Error("Marshal")
 	}
 	return string(bTranslate)
 }
 
-func (a *App) SetTransalteWay(way string) {
-	config.Data.TranslateWay = way
+func (a *App) SetTransalteList(result string) {
+	fmt.Println(result)
+
+	err := json.Unmarshal([]byte(result), &config.Data.Translate)
+	if err != nil {
+		logrus.WithError(err).Error("SetTransalteList")
+	}
 }
 
 func (a *App) Quit() {

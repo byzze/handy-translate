@@ -3,9 +3,7 @@
 
 export function GetKeyBoard():Promise<Array<string>>;
 
-export function GetTransalteMap():Promise<string>;
-
-export function GetTransalteWay():Promise<string>;
+export function GetTransalteList():Promise<string>;
 
 export function Quit():Promise<void>;
 
@@ -13,6 +11,6 @@ export function SendDataToJS(arg1:string,arg2:string,arg3:string):Promise<void>;
 
 export function SetKeyBoard(arg1:string,arg2:string,arg3:string):Promise<void>;
 
-export function SetTransalteWay(arg1:string):Promise<void>;
+export function SetTransalteList(arg1:string):Promise<void>;
 
 export function Show():Promise<void>;

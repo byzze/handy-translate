@@ -16,17 +16,16 @@ var Data config
 
 type (
 	config struct {
-		Appname      string               `toml:"appname"`
-		Keyboard     []string             `toml:"keyboard"`
-		Translate    map[string]Translate `toml:"translate"`
-		TranslateWay string               `toml:"translateway"`
+		Appname   string      `toml:"appname"`
+		Keyboard  []string    `toml:"keyboard"`
+		Translate []Translate `toml:"translate"`
 	}
 
 	Translate struct {
-		Name   string `toml:"name"`
-		Key    string `toml:"key"`
-		Secret string `toml:"secret"`
-		Token  string `toml:"token"`
+		Name   string `toml:"name" json:"name"`
+		Key    string `toml:"key" json:"key"`
+		Secret string `toml:"secret" json:"secret"`
+		Token  string `toml:"token" json:"token"`
 	}
 )
 

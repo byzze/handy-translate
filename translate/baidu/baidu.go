@@ -9,10 +9,12 @@ import (
 	"math/rand"
 	"net/http"
 	"net/url"
+
+	"github.com/sirupsen/logrus"
 )
 
 // https://docs.caiyunapp.com/blog/2021/12/30/hello-world
-const Way = "baidu"
+const Way = "百度翻译"
 
 type Baidu struct {
 	config.Translate
@@ -27,7 +29,11 @@ const (
 	path     = "/api/trans/vip/translate"
 )
 
-func (b *Baidu) PostQuery(source string) []string {
+func (b *Baidu) GetName() string {
+	return Way
+}
+
+func (b *Baidu) PostQuery(source string) ([]string, error) {
 	appKey := b.Key
 
 	query := source
@@ -45,29 +51,33 @@ func (b *Baidu) PostQuery(source string) []string {
 
 	resp, err := http.PostForm(endpoint+path, data)
 	if err != nil {
-		fmt.Println("Error:", err)
-		return nil
+		logrus.Error("Error:", err)
+		return nil, err
 	}
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		fmt.Println("Error:", err)
-		return nil
+		logrus.Error("Error:", err)
+		return nil, err
 	}
 
 	var result translateResult
 	if err := json.Unmarshal(body, &result); err != nil {
-		fmt.Println("Error:", err)
-		return nil
+		logrus.Error("Error:", err)
+		return nil, err
 	}
 
 	prettyResult, _ := json.MarshalIndent(result, "", "    ")
-	fmt.Println(string(prettyResult))
+	logrus.Println(string(prettyResult))
+
 	if len(result.TransResult) > 0 {
-		return []string{result.TransResult[0].Dst}
+		if result.TransResult[0].Dst == result.TransResult[0].Src {
+			return nil, nil
+		}
+		return []string{result.TransResult[0].Dst}, nil
 	}
-	return nil
+	return nil, err
 }
 
 func generateMD5(s string) string {

@@ -13,7 +13,7 @@ func TestTranslate(t *testing.T) {
 			Token: "9t86wdbb14mx8o9qhouq",
 		},
 	}
-	target := caiyun.PostQuery(source)
+	target, _ := caiyun.PostQuery(source)
 
 	fmt.Println(target)
 }

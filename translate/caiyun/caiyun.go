@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"handy-translate/config"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strings"
 
@@ -12,7 +12,7 @@ import (
 )
 
 // https://docs.caiyunapp.com/blog/2021/12/30/hello-world
-const Way = "caiyun"
+const Way = "彩云翻译"
 
 type Caiyun struct {
 	config.Translate
@@ -29,7 +29,11 @@ type TranslationResponse struct {
 	Target []string `json:"target"`
 }
 
-func (c *Caiyun) PostQuery(source string) []string {
+func (c *Caiyun) GetName() string {
+	return Way
+}
+
+func (c *Caiyun) PostQuery(source string) ([]string, error) {
 	url := "http://api.interpreter.caiyunai.com/v1/translator"
 
 	// WARNING, this token is a test token for new developers,
@@ -46,13 +50,13 @@ func (c *Caiyun) PostQuery(source string) []string {
 	payloadBytes, err := json.Marshal(payload)
 	if err != nil {
 		logrus.Println("Error marshaling payload:", err)
-		return nil
+		return nil, err
 	}
 
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(payloadBytes))
 	if err != nil {
 		logrus.Println("Error creating request:", err)
-		return nil
+		return nil, err
 	}
 
 	req.Header.Set("Content-Type", "application/json")
@@ -62,29 +66,29 @@ func (c *Caiyun) PostQuery(source string) []string {
 	resp, err := client.Do(req)
 	if err != nil {
 		logrus.Println("Error sending request:", err)
-		return nil
+		return nil, err
 	}
 
 	if resp.StatusCode != 200 {
 		logrus.Println(resp)
-		return nil
+		return nil, err
 	}
 	defer resp.Body.Close()
 
-	respBody, err := ioutil.ReadAll(resp.Body)
+	respBody, err := io.ReadAll(resp.Body)
 	if err != nil {
 		logrus.Println("Error reading response body:", err)
-		return nil
+		return nil, err
 	}
 	logrus.Println(string(respBody))
 	var translationResponse TranslationResponse
 	err = json.Unmarshal(respBody, &translationResponse)
 	if err != nil {
 		logrus.Println("Error unmarshaling response body:", err)
-		return nil
+		return nil, err
 	}
 
-	return translationResponse.Target
+	return translationResponse.Target, nil
 }
 
 /* func main() {

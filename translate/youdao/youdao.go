@@ -2,6 +2,7 @@ package youdao
 
 import (
 	"encoding/json"
+	"fmt"
 	"handy-translate/config"
 	"handy-translate/translate/youdao/utils"
 	"handy-translate/translate/youdao/utils/authv3"
@@ -10,7 +11,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-const Way = "youdao"
+const Way = "有道翻译"
 
 type Youdao struct {
 	config.Translate
@@ -20,7 +21,11 @@ type Youdao struct {
 // 	return youdao.PostQuery(value)
 // }
 
-func (y *Youdao) PostQuery(query string) []string {
+func (y *Youdao) GetName() string {
+	return Way
+}
+
+func (y *Youdao) PostQuery(query string) ([]string, error) {
 	// 添加请求参数
 	paramsMap := createRequestParams(query)
 	header := map[string][]string{
@@ -37,13 +42,20 @@ func (y *Youdao) PostQuery(query string) []string {
 	err := json.Unmarshal(result, &tr)
 	if err != nil {
 		logrus.Println(err)
-		return nil
+		return nil, err
+	}
+
+	prettyResult, _ := json.MarshalIndent(string(result), "", "    ")
+	fmt.Println(string(prettyResult))
+
+	if len(tr.Translation) == 0 {
+		return nil, nil
 	}
 
 	transalteResult := strings.Join(tr.Translation, ",")
 	transalteExplains := strings.Join(tr.Basic.Explains, ",")
 
-	return []string{transalteResult, transalteExplains}
+	return []string{transalteResult, transalteExplains}, nil
 }
 
 func createRequestParams(query string) map[string][]string {

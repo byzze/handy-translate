@@ -13,7 +13,7 @@ func TestBaidu_PostQuery(t *testing.T) {
 			Key: "A0BWMb27a5cADOXeTKio",
 		},
 	}
-	target := baidu.PostQuery(source)
+	target, _ := baidu.PostQuery(source)
 
 	fmt.Println(target)
 }

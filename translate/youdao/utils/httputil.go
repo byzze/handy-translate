@@ -63,6 +63,7 @@ func DoPost(url string, header map[string][]string, bodyMap map[string][]string,
 		logrus.Print("request failed:", err)
 		return nil
 	}
+
 	defer res.Body.Close()
 	body, _ := io.ReadAll(res.Body)
 	contentType := res.Header.Get("Content-Type")

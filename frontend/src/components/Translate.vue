@@ -35,6 +35,7 @@ export default defineComponent({
       })
 
       EventsOn("query", (result) => {
+        console.log(result)
         queryTextRef.value = result
       })
 

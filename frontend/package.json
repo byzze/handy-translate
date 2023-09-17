@@ -11,7 +11,8 @@
   "dependencies": {
     "@vicons/antd": "^0.12.0",
     "@vicons/tabler": "^0.12.0",
-    "vue": "next",
+    "vue": "^3.2.36",
+    "vue-draggable": "^2.0.6",
     "vue-router": "next",
     "vue-smooth-dnd": "^0.8.1",
     "vuedraggable": "^2.24.3"
