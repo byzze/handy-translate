@@ -4,23 +4,29 @@
 # 功能说明
 - [x] 选择文字翻译为中文
 - [x] 自定义快捷键
-- [ ] 多种翻译源(已完成百度，彩云)
+- [ ] 多种翻译源
+
+# 支持的翻译源
+填写对应的翻译秘钥即可
+百度翻译源: https://docs.caiyunapp.com/blog/2021/12/30/hello-world
+有道翻译：https://ai.youdao.com/DOCSIRMA/html/trans/api/wbfy/index.html
+彩云翻译：https://docs.caiyunapp.com/blog/2021/12/30/hello-world
+```toml
+translate = [
+    {name = "百度翻译", key = "", secret = "", token = ""},
+    {name = "有道翻译", key = "", secret = "", token = ""},
+    {name = "彩云翻译", key = "", secret = "", token = ""},
+]
+```
+修改配置名
+`config.toml.bak -> config.toml`
 
 # 安装
 安装wails(重要)
 `https://wails.io/docs/gettingstarted/installation/`
 
-修改配置名
-`config.toml.bak -> config.toml`
 
-配置百度，彩云翻译秘钥(后续会支持多种翻译)
-```txt
-    [translate.default]
-    name = "xx翻译"
-    key = "xxxx"
-    secret = ""
-    token = ""
-```
+
 # 编译
 `wails build`
 # 运行

@@ -17,10 +17,6 @@ type Youdao struct {
 	config.Translate
 }
 
-// func (y *Youdao) PostQuery(value string) []string {
-// 	return youdao.PostQuery(value)
-// }
-
 func (y *Youdao) GetName() string {
 	return Way
 }
