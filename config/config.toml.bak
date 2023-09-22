@@ -1,7 +1,7 @@
 appname = "handy-translate"
 translate = [
-    {name = "百度翻译", key = "", secret = "", token = ""},
+    {name = "百度翻译", key = "A0BWMb27a5cADOXeTKio", secret = "", token = ""},
     {name = "有道翻译", key = "", secret = "", token = ""},
-    {name = "彩云翻译", key = "", secret = "", token = ""},
+    {name = "彩云翻译", key = "", secret = "", token = "9t86wdbb14mx8o9qhouq"},
 ]
 

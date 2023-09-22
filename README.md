@@ -11,7 +11,9 @@
 百度翻译源: https://docs.caiyunapp.com/blog/2021/12/30/hello-world
 有道翻译：https://ai.youdao.com/DOCSIRMA/html/trans/api/wbfy/index.html
 彩云翻译：https://docs.caiyunapp.com/blog/2021/12/30/hello-world
+
 ```toml
+keyboard = ["","",""] # 快捷键配置,默认鼠标中键 可指定固定顺序["ctrl","shift","c"] 通过配置文件或界面操作配置快捷键
 translate = [
     {name = "百度翻译", key = "", secret = "", token = ""},
     {name = "有道翻译", key = "", secret = "", token = ""},
@@ -24,9 +26,6 @@ translate = [
 # 安装
 安装wails(重要)
 `https://wails.io/docs/gettingstarted/installation/`
-
-
-
 # 编译
 `wails build`
 # 运行

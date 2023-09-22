@@ -47,9 +47,9 @@ var defaulthook = func(e hook.Event) {
 var keyboardhook = func(e hook.Event) {
 	if pressLock.TryLock() {
 		logrus.Info(e)
-		time.Sleep(time.Millisecond * 300)
-		HookChan <- struct{}{}
 		robotgo.KeyTap("c", "ctrl")
+		time.Sleep(time.Millisecond * 100)
+		HookChan <- struct{}{}
 		pressLock.Unlock()
 	}
 }
@@ -85,10 +85,9 @@ func Hook() {
 	if len(config.Data.Keyboard) == 0 || config.Data.Keyboard[0] == "center" {
 		hook.Register(hook.MouseDown, []string{}, defaulthook)
 	} else {
-		hook.Register(hook.KeyHold, config.Data.Keyboard, keyboardhook)
+		hook.Register(hook.KeyDown, config.Data.Keyboard, keyboardhook)
 	}
 
 	s := hook.Start()
 	<-hook.Process(s)
-
 }

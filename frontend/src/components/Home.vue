@@ -33,11 +33,6 @@
                 </n-layout-content>
             </div>
         </n-layout>
-        <!-- <n-layout>
-                <n-layout-footer>成府路</n-layout-footer>
-            </n-layout>
-        </n-layout> -->
-
     </n-space>
 </template>
   

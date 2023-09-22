@@ -16,30 +16,7 @@
     <n-modal v-model:show="showKeyModal">
         <n-card style="width: auto" title="快捷键" :bordered="false" size="huge" role="dialog" aria-modal="true">
             <p>触发按键，点击保存, 默认是鼠标中键</p>
-            <n-grid :x-gap="12" :y-gap="12" :cols="1" layout-shift-disabled>
-                <n-gi>
-                    <n-space item-style="display: flex;" vertical>
-                        <n-checkbox-group :value="cities" @update:value="handleUpdateValue">
-                            <n-space item-style="display: flex;" align="center">
-                                <n-checkbox value="ctrl" label="Ctrl" />
-                                <n-checkbox value="shift" label="Shift" />
-                                <n-input style="width: 50%" placeholder="基本按钮" @keyup="handleKeyUp" @input="handleInput"
-                                    @change="hchange" v-model:value="editableText" />
-                            </n-space>
-                        </n-checkbox-group>
-                    </n-space>
-                </n-gi>
-            </n-grid>
-            <n-grid :x-gap="12" :y-gap="12" :cols="1" layout-shift-disabled>
-                <n-space>
-                    <n-button type="warning" @click="cancel" ghost>
-                        取消
-                    </n-button>
-                    <n-button type="success" @click="save" ghost>
-                        保存
-                    </n-button>
-                </n-space>
-            </n-grid>
+            <ShortKey />
         </n-card>
 
     </n-modal>
@@ -47,12 +24,6 @@
     <n-modal v-model:show="showModal">
         <n-card style="width: auto" title="翻译" :bordered="false" size="huge" role="dialog" aria-modal="true">
             <TranslateWay />
-            <!-- <n-space vertical>
-                <n-radio :checked="checkedValue === way.value" @change="handleChange" v-for="way in translateList"
-                    :key="way.value" :value="way.value">
-                    {{ way.label }} <br>
-                </n-radio>
-            </n-space> -->
         </n-card>
     </n-modal>
 
@@ -103,6 +74,7 @@
 import { h, defineComponent, ref, onMounted } from 'vue'
 import { NIcon } from 'naive-ui'
 import TranslateWay from "./TranslateWay.vue";
+import ShortKey from "./ShortKey.vue";
 
 import {
     Pencil as EditIcon,
@@ -116,7 +88,6 @@ import {
 } from '@vicons/tabler'
 import { useMessage, useDialog } from 'naive-ui'
 import { Hide, Quit } from '../../wailsjs/runtime/runtime'
-import { GetKeyBoard, SetKeyBoard } from '../../wailsjs/go/main/App'
 
 const renderIcon = (icon) => {
     return () => {
@@ -129,6 +100,7 @@ const renderIcon = (icon) => {
 export default defineComponent({
     components: {
         TranslateWay,
+        ShortKey,
     },
     setup() {
         const showModalRef = ref(false);
@@ -183,55 +155,7 @@ export default defineComponent({
                     icon: renderIcon(AboutIcon)
                 }
             ],
-            save() {
-                let ctrl = false;
-                let shift = false;
 
-                for (const key of citiesRef.value) {
-                    if (key === "ctrl") {
-                        ctrl = true;
-                    }
-                    if (key === "shift") {
-                        shift = true;
-                    }
-                }
-
-                if (!ctrl && !shift) {
-                    editableTextRef.value = "";
-                    SetKeyBoard("center", "", "");
-                } else {
-                    SetKeyBoard(ctrl ? "ctrl" : "center", shift ? "shift" : "", editableTextRef.value);
-                }
-                showKeyModalRef.value = false
-            },
-            handleCheckedChange(checked) {
-                checkedRef.value = checked;
-            },
-            handleUpdateValue(value) {
-                citiesRef.value = value;
-            },
-
-            hchange(e) {
-                // editableTextRef.value = (e.key)
-            },
-
-            handleKeyUp(e) {
-                if (e.key.length > 3) {
-                    return
-                }
-                if (e.key == " ") {
-                    editableTextRef.value = e.code;
-                } else {
-                    editableTextRef.value = e.key;
-                }
-            },
-            handleInput(e) {
-
-            },
-            cancel() { showKeyModalRef.value = false },
-            handleChange(e) {
-                transalteWayRef.value = e.target.value;
-            },
             handleSelect(key) {
                 showModalRef.value = false
                 showModalAboutRef.value = false
@@ -255,10 +179,6 @@ export default defineComponent({
                         showModalRef.value = true
                         break;
                     case 'keyboard':
-                        GetKeyBoard().then(res => {
-                            citiesRef.value = res
-                            editableTextRef.value = citiesRef.value[2]
-                        })
                         showKeyModalRef.value = true
                         break;
                     case 'about':

@@ -18,7 +18,6 @@ import Home from "./components/Home.vue";
 
 import { darkTheme } from 'naive-ui'
 
-
 export default defineComponent({
   setup() {
     return {

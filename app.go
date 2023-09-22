@@ -119,6 +119,9 @@ func (a *App) startup(ctx context.Context) {
 
 // Greet returns a greeting for the given name
 func (a *App) GetKeyBoard() []string {
+	if len(config.Data.Keyboard) == 0 {
+		config.Data.Keyboard = make([]string, 3)
+	}
 	return config.Data.Keyboard
 }
 

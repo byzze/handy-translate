@@ -122,7 +122,7 @@ export default defineComponent({
                     }
                     let res = JSON.stringify(newArray)
                     DataListRef.value = newArray
-                    // SetTransalteList(res)
+                    SetTransalteList(res)
                 },
                 down(rowData) {
                     for (let i = 0; i < DataListRef.value.length; i++) {
@@ -145,7 +145,8 @@ export default defineComponent({
                     for (let i = 0; i < DataListRef.value.length; i++) {
                         DataListRef.value[i].index = i + 1
                     }
-                    // SetTransalteList(DataListRef.value.toString())
+                    let res = JSON.stringify(DataListRef.value)
+                    SetTransalteList(res)
                 }
             }),
             pagination: {
