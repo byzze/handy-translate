@@ -7,7 +7,7 @@
 - [ ] 多种翻译源
 # 使用示例
 按压鼠标中键
-![示例视频](https://github.com/byzze/oss/main/handly-translate/20230924_230429.mp4)
+![示例视频](https://github.com/byzze/oss/blame/main/handly-translate/20230924_230429.mp4)
 
 # 支持的翻译源
 填写对应的翻译秘钥即可
