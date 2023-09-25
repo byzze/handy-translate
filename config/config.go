@@ -26,6 +26,7 @@ type (
 		Key    string `toml:"key" json:"key"`
 		Secret string `toml:"secret" json:"secret"`
 		Token  string `toml:"token" json:"token"`
+		AppID  string `toml:"appID" json:"appID"`
 	}
 )
 

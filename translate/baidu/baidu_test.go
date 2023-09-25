@@ -7,13 +7,15 @@ import (
 )
 
 func TestBaidu_PostQuery(t *testing.T) {
-	source := `hello`
+	config.Init()
+	source := `Number of English letters`
 	var baidu = &Baidu{
 		Translate: config.Translate{
-			Key: "A0BWMb27a5cADOXeTKio",
+			Key:   config.Data.Translate[0].Key,
+			AppID: config.Data.Translate[0].AppID,
 		},
 	}
-	target, _ := baidu.PostQuery(source)
-
+	target, err := baidu.PostQuery(source)
+	fmt.Println(err)
 	fmt.Println(target)
 }

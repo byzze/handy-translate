@@ -5,10 +5,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"handy-translate/config"
+	"handy-translate/utils"
 	"io"
 	"math/rand"
 	"net/http"
 	"net/url"
+	"strconv"
+	"strings"
 
 	"github.com/sirupsen/logrus"
 )
@@ -21,44 +24,73 @@ type Baidu struct {
 }
 
 const (
-	appID = "20230823001790949"
-
-	fromLang = "en"
-	toLang   = "zh"
+	fromLang = "auto"
 	endpoint = "http://api.fanyi.baidu.com"
 	path     = "/api/trans/vip/translate"
 )
+
+var toLang = "zh"
 
 func (b *Baidu) GetName() string {
 	return Way
 }
 
+type translateResult struct {
+	From        string        `json:"from"`
+	To          string        `json:"to"`
+	TransResult []TransResult `json:"trans_result"`
+}
+type TransResult struct {
+	Dst string `json:"dst"`
+	Src string `json:"src"`
+}
+
 func (b *Baidu) PostQuery(source string) ([]string, error) {
+	endpoint := "http://api.fanyi.baidu.com"
+	path := "/api/trans/vip/translate"
+	uri := endpoint + path
 	appKey := b.Key
+	appID := b.AppID
 
 	query := source
 
-	salt := rand.Intn(32768) + 32768
-	sign := generateMD5(appID + query + fmt.Sprint(salt) + appKey)
+	// Generate salt and sign
+	salt := strconv.Itoa(rand.Intn(32768) + 32768)
+	sign := makeMD5(appID + query + salt + appKey)
 
-	data := url.Values{}
-	data.Add("appid", appID)
-	data.Add("q", query)
-	data.Add("from", fromLang)
-	data.Add("to", toLang)
-	data.Add("salt", fmt.Sprint(salt))
-	data.Add("sign", sign)
+	zhcount, encount := utils.CountQueryStr(query)
+	if zhcount > encount {
+		toLang = "en"
+	}
+	// Build request
+	form := url.Values{}
+	form.Add("appid", appID)
+	form.Add("q", query)
+	form.Add("from", fromLang)
+	form.Add("to", toLang)
+	form.Add("salt", salt)
+	form.Add("sign", sign)
 
-	resp, err := http.PostForm(endpoint+path, data)
+	// Send request
+	client := &http.Client{}
+	req, err := http.NewRequest("POST", uri, strings.NewReader(form.Encode()))
 	if err != nil {
-		logrus.Error("Error:", err)
+		fmt.Println("Error creating request:", err)
+		return nil, err
+	}
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+
+	resp, err := client.Do(req)
+	if err != nil {
+		fmt.Println("Error sending request:", err)
 		return nil, err
 	}
 	defer resp.Body.Close()
 
+	// Read response
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		logrus.Error("Error:", err)
+		fmt.Println("Error reading response:", err)
 		return nil, err
 	}
 
@@ -80,17 +112,8 @@ func (b *Baidu) PostQuery(source string) ([]string, error) {
 	return nil, err
 }
 
-func generateMD5(s string) string {
-	hash := md5.Sum([]byte(s))
-	return fmt.Sprintf("%x", hash)
-}
-
-type translateResult struct {
-	From        string        `json:"from"`
-	To          string        `json:"to"`
-	TransResult []TransResult `json:"trans_result"`
-}
-type TransResult struct {
-	Dst string `json:"dst"`
-	Src string `json:"src"`
+func makeMD5(s string) string {
+	hash := md5.New()
+	hash.Write([]byte(s))
+	return fmt.Sprintf("%x", hash.Sum(nil))
 }

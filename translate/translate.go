@@ -42,6 +42,7 @@ func GetTransalteWay() []Translate {
 					Key:    v.Key,
 					Secret: v.Secret,
 					Token:  v.Token,
+					AppID:  v.AppID,
 				},
 			}
 

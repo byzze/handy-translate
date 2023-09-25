@@ -4,8 +4,37 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"testing"
+
+	"golang.org/x/sys/windows/registry"
 )
+
+func TestOO(t *testing.T) {
+	// 注册表路径
+	keyPath := `Software\Microsoft\Windows\CurrentVersion\Run`
+
+	// 要设置的键名和值（你的程序的路径）
+	valueName := "MyGolangApp"
+	valueData := `C:\Users\loyd\Desktop\byzze\handy-translate\build\bin\handy-translate.exe`
+
+	// 打开或创建注册表项
+	k, err := registry.OpenKey(registry.CURRENT_USER, keyPath, registry.WRITE)
+	if err != nil {
+		fmt.Println("Error opening or creating registry key:", err)
+		os.Exit(1)
+	}
+	defer k.Close()
+
+	// 设置注册表项的值
+	err = k.SetStringValue(valueName, valueData)
+	if err != nil {
+		fmt.Println("Error setting registry key value:", err)
+		os.Exit(1)
+	}
+
+	fmt.Println("Registry key created and set successfully.")
+}
 
 func TestPingRoute(t *testing.T) {
 	url := "https://dict.youdao.com/suggest?num=5&ver=3.0&doctype=json&cache=false&le=en&q=hello" // 替换为你要请求的 URL
