@@ -5,11 +5,19 @@
 - [x] 选择文字翻译为中文
 - [x] 自定义快捷键
 - [X] 多种翻译源
-# 效果实例
+# 效果展示
 按压鼠标中键
 ![示例视频](https://raw.githubusercontent.com/byzze/oss/main/handly-translate/exp.gif)
 
-# 支持的翻译源
+# 安装编译环境
+安装wails(重要)
+`https://wails.io/docs/gettingstarted/installation/`
+
+## 检查wails所需环境是否安装成功
+`wails doctor`
+
+
+# 配置翻译源
 填写对应的翻译秘钥即可
 百度翻译源: https://docs.caiyunapp.com/blog/2021/12/30/hello-world
 有道翻译：https://ai.youdao.com/DOCSIRMA/html/trans/api/wbfy/index.html
@@ -36,14 +44,7 @@ name = '彩云翻译'
 key = ''
 ```
 
-# 安装
-安装wails(重要)
-`https://wails.io/docs/gettingstarted/installation/`
-
-## 检查wails所需环境是否安装成功
-`wails doctor`
-
-# 编译
+# 编译构建
 
 **方式一**
 编译可执行文件
@@ -58,7 +59,7 @@ key = ''
 双击生成文件`./build/bin/handy-translate-amd64-installer.exe`安装, 并执行安装成功后的`handry-translate.exe`文件
 
 
-# 使用
+# 使用示例
 选中文本，按压鼠标中键，弹出窗口显示翻译结果，支持自定义快捷键
 ![Alt text](image.png)
 
