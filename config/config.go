@@ -22,11 +22,9 @@ type (
 	}
 
 	Translate struct {
-		Name   string `toml:"name" json:"name"`
-		AppID  string `toml:"appID" json:"appID"`
-		Key    string `toml:"key" json:"key"`
-		Secret string `toml:"secret" json:"secret"`
-		Token  string `toml:"token" json:"token"`
+		Name  string `toml:"name" json:"name,omitempty"`
+		AppID string `toml:"appID" json:"appID,omitempty"`
+		Key   string `toml:"key" json:"key,omitempty"`
 	}
 )
 

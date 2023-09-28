@@ -20,28 +20,25 @@ func GetTransalteWay() []Translate {
 		case youdao.Way:
 			t = &youdao.Youdao{
 				Translate: config.Translate{
-					Name:   v.Name,
-					Secret: v.Secret,
-					AppID:  v.AppID,
+					Name:  v.Name,
+					AppID: v.AppID,
+					Key:   v.Key,
 				},
 			}
 		case caiyun.Way:
 			t = &caiyun.Caiyun{
 				Translate: config.Translate{
-					Name:   v.Name,
-					Key:    v.Key,
-					Secret: v.Secret,
-					Token:  v.Token,
+					Name:  v.Name,
+					AppID: v.AppID,
+					Key:   v.Key,
 				},
 			}
 		case baidu.Way:
 			t = &baidu.Baidu{
 				Translate: config.Translate{
-					Name:   v.Name,
-					Key:    v.Key,
-					Secret: v.Secret,
-					Token:  v.Token,
-					AppID:  v.AppID,
+					Name:  v.Name,
+					AppID: v.AppID,
+					Key:   v.Key,
 				},
 			}
 		}

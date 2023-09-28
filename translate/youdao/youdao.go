@@ -28,7 +28,7 @@ func (y *Youdao) PostQuery(query string) ([]string, error) {
 		"Content-Type": {"application/x-www-form-urlencoded"},
 	}
 	// 添加鉴权相关参数
-	authv3.AddAuthParams(y.AppID, y.Secret, paramsMap)
+	authv3.AddAuthParams(y.AppID, y.Key, paramsMap)
 	// 请求api服务
 	result := utils.DoPost("https://openapi.youdao.com/api", header, paramsMap, "application/json")
 	// 打印返回结果

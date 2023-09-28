@@ -3,16 +3,16 @@ keyboard = ['', '', '']
 
 [[translate]]
 name = '百度翻译'
-appID = '20230823001790949'
-key = 'A0BWMb27a5cADOXeTKio'
+appID = ''
+key = ''
 secret = ''
 token = ''
 
 [[translate]]
 name = '有道翻译'
-appID = '5ade39ff86f06b4a'
+appID = ''
 key = ''
-secret = 'UCAXNIgHOebOlxosl67ZLf2wXQnuhrAJ'
+secret = ''
 token = ''
 
 [[translate]]
@@ -20,4 +20,4 @@ name = '彩云翻译'
 appID = ''
 key = ''
 secret = ''
-token = '9t86wdbb14mx8o9qhouq'
+token = ''

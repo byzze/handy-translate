@@ -38,7 +38,7 @@ func (c *Caiyun) PostQuery(source string) ([]string, error) {
 
 	// WARNING, this token is a test token for new developers,
 	// and it should be replaced by your token
-	token := c.Token
+	token := c.Key
 
 	payload := TranslationPayload{
 		Source:    strings.Split(source, ","),

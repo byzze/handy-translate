@@ -83,7 +83,7 @@ Section
 
     SetOutPath $INSTDIR
 
-    File "C:\Users\loyd\Desktop\byzze\handy-translate\config.toml"
+    File "..\..\..\config.toml"
 
     !insertmacro wails.files
 

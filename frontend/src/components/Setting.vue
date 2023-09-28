@@ -23,6 +23,7 @@
 
     <n-modal v-model:show="showModal">
         <n-card style="width: auto" title="翻译" :bordered="false" size="huge" role="dialog" aria-modal="true">
+            <p>按顺序调用对应的翻译源</p>
             <TranslateWay />
         </n-card>
     </n-modal>
