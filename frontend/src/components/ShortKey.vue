@@ -77,16 +77,16 @@ export default defineComponent({
             reset() {
                 citiesRef.value = ["", "", ""]
                 shortcutKey.value = ""
-                message.success('已重置')
             },
             save() {
                 let ctrl = false;
                 let shift = false;
 
-                if (shortcutKey.value == "") {
+                if (shortcutKey.value == "" && ctrl || shift) {
                     message.warning('快捷键配置为空')
                     return
                 }
+
                 for (const key of citiesRef.value) {
                     if (key === "ctrl") {
                         ctrl = true;

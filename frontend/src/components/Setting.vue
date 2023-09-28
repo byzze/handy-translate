@@ -135,7 +135,7 @@ export default defineComponent({
             selectedValue: ref(''),
             options: [
                 {
-                    label: '配置',
+                    label: '配置翻译',
                     key: 'config',
                     icon: renderIcon(EditIcon)
                 },

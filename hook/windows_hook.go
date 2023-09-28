@@ -46,6 +46,7 @@ var (
 )
 var ch = make(chan struct{}, 2)
 
+// LowLevelMouseProc 代用windows api 才能做到选中文字，鼠标事件触发前执行模拟ctrl + c 操作
 func LowLevelMouseProc(nCode int, wParam uintptr, lParam uintptr) uintptr {
 	r1, _, _ := callNextHookEx.Call(uintptr(nCode), wParam, lParam)
 	if nCode >= 0 {
@@ -77,6 +78,8 @@ func WindowsHook() {
 	defer unhookWindowsHookEx.Call(hHook)
 
 	str, _ := syscall.UTF16PtrFromString("")
+
+	// 阻塞消息
 	for {
 		// 监听消息
 		getMessage.Call(uintptr(unsafe.Pointer(&str)), 0, 0, 0)

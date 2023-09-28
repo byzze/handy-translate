@@ -21,9 +21,8 @@ func GetTransalteWay() []Translate {
 			t = &youdao.Youdao{
 				Translate: config.Translate{
 					Name:   v.Name,
-					Key:    v.Key,
 					Secret: v.Secret,
-					Token:  v.Token,
+					AppID:  v.AppID,
 				},
 			}
 		case caiyun.Way:
@@ -45,7 +44,6 @@ func GetTransalteWay() []Translate {
 					AppID:  v.AppID,
 				},
 			}
-
 		}
 		trList = append(trList, t)
 	}

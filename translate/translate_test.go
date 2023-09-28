@@ -1,6 +1,7 @@
 package translate
 
 import (
+	"context"
 	"fmt"
 	"handy-translate/config"
 	"testing"
@@ -18,7 +19,7 @@ func TestGetTransalteWay(t *testing.T) {
 }
 
 func TestGetTransalteWayList(t *testing.T) {
-	config.Init()
+	config.Init(context.TODO())
 	list := GetTransalteWay()
 	for _, v := range list {
 		s, err := v.PostQuery("tr")

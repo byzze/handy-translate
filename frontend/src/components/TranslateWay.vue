@@ -78,7 +78,6 @@ export default defineComponent({
     setup() {
         const DataListRef = ref(createData());
         const message = useMessage()
-        // 模拟数据获取
         onMounted(() => {
             GetTransalteList().then(result => {
                 let res = JSON.parse(result)
@@ -90,6 +89,7 @@ export default defineComponent({
                     secret: res[key].secret,
                     key: res[key].key,
                     token: res[key].token,
+                    appID: res[key].appID,
                 }));
             })
         });

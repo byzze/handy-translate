@@ -29,8 +29,6 @@ const (
 	path     = "/api/trans/vip/translate"
 )
 
-var toLang = "zh"
-
 func (b *Baidu) GetName() string {
 	return Way
 }
@@ -46,6 +44,7 @@ type TransResult struct {
 }
 
 func (b *Baidu) PostQuery(source string) ([]string, error) {
+	var toLang = "zh"
 	endpoint := "http://api.fanyi.baidu.com"
 	path := "/api/trans/vip/translate"
 	uri := endpoint + path
@@ -107,7 +106,11 @@ func (b *Baidu) PostQuery(source string) ([]string, error) {
 		if result.TransResult[0].Dst == result.TransResult[0].Src {
 			return nil, nil
 		}
-		return []string{result.TransResult[0].Dst}, nil
+		var res []string
+		for _, v := range result.TransResult {
+			res = append(res, v.Dst)
+		}
+		return res, nil
 	}
 	return nil, err
 }

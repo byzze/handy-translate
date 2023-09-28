@@ -7,6 +7,7 @@ import (
 	"handy-translate/config"
 	"handy-translate/hook"
 	"handy-translate/translate"
+	"handy-translate/translate/youdao"
 	"strings"
 
 	"github.com/getlantern/systray"
@@ -25,7 +26,11 @@ func NewApp() *App {
 }
 
 func (a *App) SendDataToJS(query, result, explian string) {
-	fmt.Println("===", query, result, explian)
+	logrus.WithFields(logrus.Fields{
+		"query":   query,
+		"result":  result,
+		"explian": explian,
+	}).Info("SendDataToJS", query, result, explian)
 
 	runtime.EventsEmit(a.ctx, "query", query)
 	runtime.EventsEmit(a.ctx, "result", result)
@@ -34,12 +39,19 @@ func (a *App) SendDataToJS(query, result, explian string) {
 
 // test data
 func (a *App) onDomReady(ctx context.Context) {
-
+	runtime.MessageDialog(ctx, runtime.MessageDialogOptions{
+		Type:    runtime.InfoDialog,
+		Title:   config.Data.Appname + " 启动成功",
+		Message: "选中英文或中文按压鼠标中键即可弹出界面显示翻译结果！！！",
+		// DefaultButton: "No",
+	})
 }
 
 // startup is called when the app starts. The context is saved
 // so we can call the runtime methods
 func (a *App) startup(ctx context.Context) {
+	config.Init(ctx)
+
 	go hook.DafaultHook()
 	go hook.WindowsHook()
 	// scList, _ := runtime.ScreenGetAll(ctx)
@@ -71,12 +83,17 @@ func (a *App) startup(ctx context.Context) {
 					wayList := translate.GetTransalteWay()
 					var result []string
 					var err error
+					var curName string
 					for i := range wayList {
 						obj := wayList[i]
 						logrus.WithFields(logrus.Fields{
 							"queryText":    queryText,
 							"transalteWay": obj.GetName(),
 						}).Info("Transalte")
+						curName = obj.GetName()
+						// 使用 strings.Replace 替换 \r 和 \n 为空格
+						queryText = strings.ReplaceAll(queryText, "\r", " ")
+						queryText = strings.ReplaceAll(queryText, "\n", " ")
 
 						result, err = obj.PostQuery(queryText)
 						if err != nil {
@@ -93,13 +110,13 @@ func (a *App) startup(ctx context.Context) {
 						}
 						break
 					}
-
-					if len(result) >= 2 {
+					if len(result) >= 2 && curName == youdao.Way {
 						a.SendDataToJS(queryText, result[0], result[1])
 						continue
 					}
 					a.SendDataToJS(queryText, strings.Join(result, ","), "")
 				}
+
 				// TODO 弹出窗口根据鼠标位置变动
 				// fmt.Println("or:", x, y, screenX, screenY, windowX, windowY)
 				// if y+windowY+20 >= screenY {
@@ -128,6 +145,7 @@ func (a *App) GetKeyBoard() []string {
 func (a *App) SetKeyBoard(ctrl, shift, key string) {
 	config.Data.Keyboard = []string{ctrl, shift, key}
 	logrus.Info(config.Data.Keyboard)
+	config.Save()
 	go hook.Hook()
 }
 
@@ -142,11 +160,13 @@ func (a *App) GetTransalteList() string {
 
 func (a *App) SetTransalteList(result string) {
 	fmt.Println(result)
-
 	err := json.Unmarshal([]byte(result), &config.Data.Translate)
 	if err != nil {
 		logrus.WithError(err).Error("SetTransalteList")
 	}
+	hook.SetCurText("")
+	config.Save()
+	logrus.WithField("config.Data.Translate", config.Data.Translate).Info("SetTransalteList")
 }
 
 func (a *App) Quit() {

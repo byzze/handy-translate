@@ -1,14 +1,22 @@
 package main
 
 import (
+	"context"
 	"fmt"
-	"io/ioutil"
+	"handy-translate/config"
+	"io"
 	"net/http"
 	"os"
 	"testing"
 
 	"golang.org/x/sys/windows/registry"
 )
+
+func TestConfig(t *testing.T) {
+
+	config.Init(context.TODO())
+	config.Save()
+}
 
 func TestOO(t *testing.T) {
 	// 注册表路径
@@ -48,7 +56,7 @@ func TestPingRoute(t *testing.T) {
 	defer response.Body.Close()
 
 	// 读取响应内容
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		fmt.Println("读取响应内容出错:", err)
 		return

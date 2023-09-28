@@ -90,11 +90,3 @@ func (c *Caiyun) PostQuery(source string) ([]string, error) {
 
 	return translationResponse.Target, nil
 }
-
-/* func main() {
-	source := []string{"Lingocloud is the best translation service.", "彩云小译は最高の翻訳サービスです"}
-	target := Translate(source, "auto2zh")
-
-	fmt.Println(target)
-}
-*/

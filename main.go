@@ -25,7 +25,7 @@ var darwinIcon []byte
 var appicon []byte
 
 func init() {
-	config.Init()
+
 	// 根据操作系统选择图标文件的路径
 	switch os := runtime.GOOS; os {
 	case "windows":
@@ -40,6 +40,7 @@ var sc sync.Once
 func main() {
 	sc.Do(func() {
 		app := NewApp()
+
 		// system tray 系统托盘
 		onReady := func() {
 			systray.SetIcon(appicon)
@@ -62,7 +63,6 @@ func main() {
 			}()
 			// Sets the icon of a menu item. Only available on Mac and Windows.
 			mShow.SetIcon(appicon)
-			// Create an instance of the app structure
 		}
 
 		go systray.Run(onReady, func() { logrus.Info("app quit") })

@@ -3,11 +3,11 @@ module handy-translate
 go 1.20
 
 require (
-	github.com/BurntSushi/toml v1.3.2
 	github.com/OwO-Network/gdeeplx v0.0.1
 	github.com/getlantern/systray v1.2.2
 	github.com/go-vgo/robotgo v0.100.10
 	github.com/gorilla/websocket v1.5.0
+	github.com/pelletier/go-toml/v2 v2.1.0
 	github.com/robotn/gohook v0.31.3
 	github.com/sirupsen/logrus v1.9.3
 	github.com/wailsapp/wails/v2 v2.5.1
@@ -45,7 +45,6 @@ require (
 	github.com/robotn/xgbutil v0.0.0-20190912154524-c861d6f87770 // indirect
 	github.com/samber/lo v1.27.1 // indirect
 	github.com/shirou/gopsutil v3.21.10+incompatible // indirect
-	github.com/stretchr/testify v1.8.3 // indirect
 	github.com/tidwall/gjson v1.14.4 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.0 // indirect
