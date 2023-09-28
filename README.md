@@ -1,5 +1,5 @@
 # 概述
-一款便捷翻译的工具，支持多平台Windows, Linux, Mac，支持自定义快捷键，鼠标选中的文本，按压鼠标中键，弹出窗口渲染翻译结果，但目前开发没有多余的设备，所以仅验证适配了Windows
+一款便捷翻译的工具，使用wails框架开发，wails支持Go+Vue等多种前端框架结合使用，支持多平台Windows, Linux, Mac开发，该工具支持自定义快捷键，当鼠标选中的文本时，按压鼠标中键，弹出窗口渲染翻译结果，由于目前没有多余的开发设备，所以仅验证适配了Windows
 
 # 功能说明
 - [X] 选择文字翻译为中文
@@ -58,8 +58,8 @@ key = ''
 `wails build -nsis`
 双击生成文件`./build/bin/handy-translate-amd64-installer.exe`安装, 并执行安装成功后的`handry-translate.exe`文件
 
-# 参考用到的工具组件
-https://wails.io (后端go组件)
+# 参考用到的工具组件链接
+https://wails.io (使用了Go+VUE)
 
 https://www.naiveui.com/zh-CN/os-theme/docs/installation (前端组件)
 
