@@ -11,7 +11,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-const Way = "有道翻译"
+const Way = "youdao"
 
 type Youdao struct {
 	config.Translate

@@ -12,7 +12,7 @@ import (
 )
 
 // https://docs.caiyunapp.com/blog/2021/12/30/hello-world
-const Way = "彩云翻译"
+const Way = "caiyun"
 
 type Caiyun struct {
 	config.Translate

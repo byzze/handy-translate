@@ -6,8 +6,12 @@ export function GetKeyBoard() {
   return window['go']['main']['App']['GetKeyBoard']();
 }
 
-export function GetTransalteList() {
-  return window['go']['main']['App']['GetTransalteList']();
+export function GetTransalteMap() {
+  return window['go']['main']['App']['GetTransalteMap']();
+}
+
+export function GetTransalteWay() {
+  return window['go']['main']['App']['GetTransalteWay']();
 }
 
 export function Quit() {
@@ -22,8 +26,8 @@ export function SetKeyBoard(arg1, arg2, arg3) {
   return window['go']['main']['App']['SetKeyBoard'](arg1, arg2, arg3);
 }
 
-export function SetTransalteList(arg1) {
-  return window['go']['main']['App']['SetTransalteList'](arg1);
+export function SetTransalteWay(arg1) {
+  return window['go']['main']['App']['SetTransalteWay'](arg1);
 }
 
 export function Show() {

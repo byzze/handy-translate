@@ -12,8 +12,8 @@ func TestBaidu_PostQuery(t *testing.T) {
 	source := `Number of English letters`
 	var baidu = &Baidu{
 		Translate: config.Translate{
-			Key:   config.Data.Translate[0].Key,
-			AppID: config.Data.Translate[0].AppID,
+			Key:   config.Data.Translate[Way].Key,
+			AppID: config.Data.Translate[Way].AppID,
 		},
 	}
 	target, err := baidu.PostQuery(source)

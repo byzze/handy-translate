@@ -17,7 +17,7 @@ import (
 )
 
 // https://docs.caiyunapp.com/blog/2021/12/30/hello-world
-const Way = "百度翻译"
+const Way = "baidu"
 
 type Baidu struct {
 	config.Translate

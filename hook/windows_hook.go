@@ -7,6 +7,7 @@ import (
 	"github.com/go-vgo/robotgo"
 )
 
+// 因为windows下的robotgo鼠标获取文本内容有些瑕疵，故这里用windows原生api加以修改
 const (
 	WH_MOUSE_LL    = 14
 	WM_MOUSEMOVE   = 0x0200

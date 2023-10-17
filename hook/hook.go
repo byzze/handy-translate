@@ -21,13 +21,13 @@ var curContent string
 
 var lk sync.RWMutex
 
-func SetCurText(value string) {
+func SetQueryText(value string) {
 	lk.Lock()
 	curContent = value
 	lk.Unlock()
 }
 
-func GetCurText() string {
+func GetQueryText() string {
 	lk.RLock()
 	defer lk.RUnlock()
 	return curContent
@@ -81,7 +81,7 @@ var pressLock sync.RWMutex
 func Hook() {
 	logrus.Info("--- Please wait hook starting ---")
 	hook.End()
-	SetCurText("")
+	SetQueryText("")
 	if len(config.Data.Keyboard) == 0 || config.Data.Keyboard[0] == "center" {
 		hook.Register(hook.MouseDown, []string{}, defaulthook)
 	} else {

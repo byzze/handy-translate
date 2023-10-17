@@ -39,12 +39,8 @@ func (a *App) SendDataToJS(query, result, explian string) {
 
 // test data
 func (a *App) onDomReady(ctx context.Context) {
-	runtime.MessageDialog(ctx, runtime.MessageDialogOptions{
-		Type:    runtime.InfoDialog,
-		Title:   config.Data.Appname + " 启动成功",
-		Message: "选中英文或中文按压鼠标中键即可弹出界面显示翻译结果！！！",
-		// DefaultButton: "No",
-	})
+	runtime.WindowShow(ctx)
+	a.SendDataToJS("启动成功", "", "")
 }
 
 // startup is called when the app starts. The context is saved
@@ -76,45 +72,39 @@ func (a *App) startup(ctx context.Context) {
 				runtime.WindowShow(ctx)
 				queryText, _ := runtime.ClipboardGetText(a.ctx)
 
-				if queryText != hook.GetCurText() {
-					hook.SetCurText(queryText)
+				if queryText != hook.GetQueryText() {
+					hook.SetQueryText(queryText)
 					// 加载动画loading
 					runtime.EventsEmit(a.ctx, "loading", "true")
-					wayList := translate.GetTransalteWay()
-					var result []string
-					var err error
-					var curName string
-					for i := range wayList {
-						obj := wayList[i]
-						logrus.WithFields(logrus.Fields{
-							"queryText":    queryText,
-							"transalteWay": obj.GetName(),
-						}).Info("Transalte")
-						curName = obj.GetName()
-						// 使用 strings.Replace 替换 \r 和 \n 为空格
-						queryText = strings.ReplaceAll(queryText, "\r", " ")
-						queryText = strings.ReplaceAll(queryText, "\n", " ")
 
-						result, err = obj.PostQuery(queryText)
-						if err != nil {
-							logrus.WithError(err).Error("PostQuery")
-							continue
-						}
+					transalteWay := translate.GetTransalteWay(config.Data.TranslateWay)
 
-						logrus.WithFields(logrus.Fields{
-							"result": result,
-						}).Info("Transalte")
+					logrus.WithFields(logrus.Fields{
+						"queryText":    queryText,
+						"transalteWay": transalteWay.GetName(),
+					}).Info("Transalte")
 
-						if len(result) == 0 {
-							continue
-						}
-						break
+					curName := transalteWay.GetName()
+					// 使用 strings.Replace 替换 \r 和 \n 为空格
+					queryTextTmp := strings.ReplaceAll(queryText, "\r", "")
+					queryTextTmp = strings.ReplaceAll(queryTextTmp, "\n", "")
+
+					result, err := transalteWay.PostQuery(queryTextTmp)
+					if err != nil {
+						logrus.WithError(err).Error("PostQuery")
+						continue
 					}
+
+					logrus.WithFields(logrus.Fields{
+						"result": result,
+					}).Info("Transalte")
+
 					if len(result) >= 2 && curName == youdao.Way {
 						a.SendDataToJS(queryText, result[0], result[1])
 						continue
 					}
-					a.SendDataToJS(queryText, strings.Join(result, ","), "")
+					transalteRes := strings.Join(result, ",")
+					a.SendDataToJS(queryText, transalteRes, "")
 				}
 
 				// TODO 弹出窗口根据鼠标位置变动
@@ -149,7 +139,7 @@ func (a *App) SetKeyBoard(ctrl, shift, key string) {
 	go hook.Hook()
 }
 
-func (a *App) GetTransalteList() string {
+func (a *App) GetTransalteMap() string {
 	var translateList = config.Data.Translate
 	bTranslate, err := json.Marshal(translateList)
 	if err != nil {
@@ -158,15 +148,15 @@ func (a *App) GetTransalteList() string {
 	return string(bTranslate)
 }
 
-func (a *App) SetTransalteList(result string) {
-	fmt.Println(result)
-	err := json.Unmarshal([]byte(result), &config.Data.Translate)
-	if err != nil {
-		logrus.WithError(err).Error("SetTransalteList")
-	}
-	hook.SetCurText("")
+func (a *App) SetTransalteWay(translateWay string) {
+	fmt.Println(translateWay)
+	config.Data.TranslateWay = translateWay
+	hook.SetQueryText("")
 	config.Save()
 	logrus.WithField("config.Data.Translate", config.Data.Translate).Info("SetTransalteList")
+}
+func (a *App) GetTransalteWay() string {
+	return config.Data.TranslateWay
 }
 
 func (a *App) Quit() {

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"handy-translate/config"
+	"handy-translate/translate/baidu"
 	"testing"
 
 	"github.com/OwO-Network/gdeeplx"
@@ -20,17 +21,12 @@ func TestGetTransalteWay(t *testing.T) {
 
 func TestGetTransalteWayList(t *testing.T) {
 	config.Init(context.TODO())
-	list := GetTransalteWay()
-	for _, v := range list {
-		s, err := v.PostQuery("tr")
-		if err != nil {
-			t.Fatal(err)
-			continue
-		}
-		if len(s) == 0 {
-			continue
-		}
-		fmt.Println(s)
-		break
+	v := GetTransalteWay(baidu.Way)
+	s, err := v.PostQuery("Software\r\nAnalytics\r\nArchiving and Digital Preservation (DP)\r\nAutomation\r\nBackup\r\nBlogging Platforms\r\nBooking and Scheduling")
+	if err != nil {
+		t.Fatal(err)
+
 	}
+	fmt.Println(s)
+
 }

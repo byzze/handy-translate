@@ -13,18 +13,17 @@ import (
 )
 
 func TestConfig(t *testing.T) {
-
 	config.Init(context.TODO())
 	config.Save()
 }
 
-func TestOO(t *testing.T) {
+func TestAutoStarup(t *testing.T) {
 	// 注册表路径
 	keyPath := `Software\Microsoft\Windows\CurrentVersion\Run`
 
 	// 要设置的键名和值（你的程序的路径）
 	valueName := "MyGolangApp"
-	valueData := `C:\Users\loyd\Desktop\byzze\handy-translate\build\bin\handy-translate.exe`
+	valueData := `C:\Users\loyd\Desktop\byzze\handy-translate-install\handy-translate\handy-translate.exe`
 
 	// 打开或创建注册表项
 	k, err := registry.OpenKey(registry.CURRENT_USER, keyPath, registry.WRITE)
@@ -42,6 +41,29 @@ func TestOO(t *testing.T) {
 	}
 
 	fmt.Println("Registry key created and set successfully.")
+}
+
+func TestNotAutoStarup(t *testing.T) {
+	// 打开注册表项
+	keyPath := `Software\Microsoft\Windows\CurrentVersion\Run`
+
+	// 要设置的键名和值（你的程序的路径）
+	valueName := "MyGolangApp"
+
+	key, err := registry.OpenKey(registry.CURRENT_USER, keyPath, registry.ALL_ACCESS)
+	if err != nil {
+		fmt.Println("Error opening registry key:", err)
+		return
+	}
+	defer key.Close()
+
+	// 删除注册表项中的相应值
+	if err := key.DeleteValue(valueName); err != nil {
+		fmt.Println("Error deleting registry value:", err)
+		return
+	}
+
+	fmt.Println("Startup entry removed for YourAppName")
 }
 
 func TestPingRoute(t *testing.T) {
@@ -63,5 +85,4 @@ func TestPingRoute(t *testing.T) {
 	}
 
 	fmt.Println("响应内容:", string(body))
-
 }

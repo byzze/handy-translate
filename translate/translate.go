@@ -12,37 +12,34 @@ type Translate interface {
 	PostQuery(value string) ([]string, error)
 }
 
-func GetTransalteWay() []Translate {
-	var trList []Translate
-	for _, v := range config.Data.Translate {
-		var t Translate
-		switch v.Name {
-		case youdao.Way:
-			t = &youdao.Youdao{
-				Translate: config.Translate{
-					Name:  v.Name,
-					AppID: v.AppID,
-					Key:   v.Key,
-				},
-			}
-		case caiyun.Way:
-			t = &caiyun.Caiyun{
-				Translate: config.Translate{
-					Name:  v.Name,
-					AppID: v.AppID,
-					Key:   v.Key,
-				},
-			}
-		case baidu.Way:
-			t = &baidu.Baidu{
-				Translate: config.Translate{
-					Name:  v.Name,
-					AppID: v.AppID,
-					Key:   v.Key,
-				},
-			}
+func GetTransalteWay(way string) Translate {
+	var t Translate
+	switch way {
+	case youdao.Way:
+		t = &youdao.Youdao{
+			Translate: config.Translate{
+				Name:  config.Data.Translate[way].Name,
+				AppID: config.Data.Translate[way].AppID,
+				Key:   config.Data.Translate[way].Key,
+			},
 		}
-		trList = append(trList, t)
+	case caiyun.Way:
+		t = &caiyun.Caiyun{
+			Translate: config.Translate{
+				Name:  config.Data.Translate[way].Name,
+				AppID: config.Data.Translate[way].AppID,
+				Key:   config.Data.Translate[way].Key,
+			},
+		}
+	case baidu.Way:
+		t = &baidu.Baidu{
+			Translate: config.Translate{
+				Name:  config.Data.Translate[way].Name,
+				AppID: config.Data.Translate[way].AppID,
+				Key:   config.Data.Translate[way].Key,
+			},
+		}
 	}
-	return trList
+
+	return t
 }

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 
 	"github.com/pelletier/go-toml/v2"
 	"github.com/sirupsen/logrus"
@@ -16,9 +17,10 @@ var Data config
 
 type (
 	config struct {
-		Appname   string      `toml:"appname"`
-		Keyboard  []string    `toml:"keyboard"`
-		Translate []Translate `toml:"translate"`
+		Appname      string               `toml:"appname"`
+		Keyboard     []string             `toml:"keyboard"`
+		TranslateWay string               `toml:"translate_way"`
+		Translate    map[string]Translate `toml:"translate"`
 	}
 
 	Translate struct {
@@ -30,7 +32,12 @@ type (
 
 // Init  config
 func Init(ctx context.Context) {
-	configFile, err := os.Open("./config.toml")
+	filePath, _ := os.Getwd()
+	var projectName = "handy-translate"
+	b := strings.Index(filePath, projectName)
+	configPath := filePath[:b+len(projectName)]
+
+	configFile, err := os.Open(configPath + "/config.toml")
 	if err != nil {
 		logrus.WithError(err).Error("Open")
 		runtime.MessageDialog(ctx, runtime.MessageDialogOptions{
