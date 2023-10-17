@@ -1,10 +1,11 @@
 # 概述
-一款便捷翻译的工具，使用wails框架开发，wails支持Go+Vue等多种前端框架结合使用，支持多平台Windows, Linux, Mac开发，该工具支持自定义快捷键，当鼠标选中的文本时，按压鼠标中键，弹出窗口渲染翻译结果，由于目前没有多余的开发设备，所以仅验证适配了Windows
+一款便捷翻译的工具，使用wails框架开发，wails支持Go+Vue等多种前端框架结合使用，支持多平台Windows, Linux, Mac开发，该工具支持自定义快捷键，当鼠标选中的文本时，按压鼠标中键，弹出窗口渲染翻译结果，由于目前没有多余的开发设备，所以仅验证适配了Windows，wails生成的包容量相较于Electron的是相当的小了
 
 # 功能说明
 - [X] 选择文字翻译为中文
 - [X] 自定义快捷键
 - [X] 多种翻译源
+  
 # 效果展示
 按压鼠标中键
 ![示例视频](https://raw.githubusercontent.com/byzze/oss/main/handly-translate/exp.gif)
