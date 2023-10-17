@@ -1,23 +1,14 @@
 appname = 'handy-translate'
-keyboard = ['', '', '']
+keyboard = ['center', '', '']
+translate_way = 'baidu'
 
-[[translate]]
+[translate]
+[translate.baidu]
 name = '百度翻译'
 appID = ''
 key = ''
-secret = ''
-token = ''
 
-[[translate]]
+[translate.youdao]
 name = '有道翻译'
 appID = ''
 key = ''
-secret = ''
-token = ''
-
-[[translate]]
-name = '彩云翻译'
-appID = ''
-key = ''
-secret = ''
-token = ''
