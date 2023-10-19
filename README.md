@@ -1,5 +1,5 @@
 # 概述
-一款便捷翻译的工具，使用wails框架开发，wails支持Go+Vue等多种前端框架结合使用，支持多平台Windows, Linux, Mac开发，该工具支持自定义快捷键，当鼠标选中的文本时，按压鼠标中键，弹出窗口渲染翻译结果，由于目前没有多余的开发设备，所以仅验证适配了Windows，wails生成的包容量相较于Electron的是相当的小了
+一款便捷翻译的工具，使用wails框架开发，wails支持Go+Vue, React等多种前端框架结合使用，同时也支持多平台Windows, Linux, Mac开发，该工具支持自定义快捷键，当鼠标选中的文本时，按压鼠标中键，弹出窗口渲染翻译结果，由于目前没有多余的开发设备，所以仅验证了Windows，wails生成的包容量相较于Electron的是相当的小了, 仅有10M左右
 
 # 功能说明
 - [X] 选择文字翻译为中文
@@ -29,19 +29,19 @@
 
 **填写对应的api信息**
 ```toml
-keyboard = ["","",""] # 快捷键配置,默认鼠标中键 可指定固定顺序["ctrl","shift","c"] 通过配置文件或界面操作配置快捷键
-[[translate]]
+appname = 'handy-translate'
+keyboard = ['center', '', ''] # 快捷键配置,默认鼠标中键 可指定固定顺序["ctrl","shift","c"] 通过配置文件或界面操作配置快捷键
+translate_way = 'baidu'
+
+[translate]
+[translate.baidu]
 name = '百度翻译'
 appID = ''
 key = ''
 
-[[translate]]
+[translate.youdao]
 name = '有道翻译'
 appID = ''
-key = ''
-
-[[translate]]
-name = '彩云翻译'
 key = ''
 ```
 
