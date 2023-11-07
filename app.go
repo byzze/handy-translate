@@ -41,6 +41,27 @@ func (a *App) SendDataToJS(query, result, explian string) {
 func (a *App) onDomReady(ctx context.Context) {
 	runtime.WindowShow(ctx)
 	a.SendDataToJS("启动成功", "", "")
+	// system tray 系统托盘
+	onReady := func() {
+		systray.SetIcon(appicon)
+		systray.SetTitle(config.Data.Appname)
+		systray.SetTooltip(config.Data.Appname + "便捷翻译工具")
+		mShow := systray.AddMenuItem("显示", "显示翻译工具")
+		mQuitOrig := systray.AddMenuItem("退出", "退出翻译工具")
+		// Sets the icon of a menu item. Only available on Mac and Windows.
+		mShow.SetIcon(appicon)
+		for {
+			select {
+			case <-mShow.ClickedCh:
+				a.Show()
+			case <-mQuitOrig.ClickedCh:
+				a.Quit()
+			default:
+				logrus.Println("检测系统托盘进程中")
+			}
+		}
+	}
+	systray.Run(onReady, func() { logrus.Info("app quit") })
 }
 
 // startup is called when the app starts. The context is saved

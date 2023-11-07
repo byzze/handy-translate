@@ -1,6 +1,7 @@
 package hook
 
 import (
+	"runtime"
 	"syscall"
 	"unsafe"
 
@@ -49,6 +50,7 @@ var ch = make(chan struct{}, 2)
 
 // LowLevelMouseProc 代用windows api 才能做到选中文字，鼠标事件触发前执行模拟ctrl + c 操作
 func LowLevelMouseProc(nCode int, wParam uintptr, lParam uintptr) uintptr {
+	runtime.LockOSThread()
 	r1, _, _ := callNextHookEx.Call(uintptr(nCode), wParam, lParam)
 	if nCode >= 0 {
 		// msllHookStruct := (*MSLLHOOKSTRUCT)(unsafe.Pointer(lParam))

@@ -38,34 +38,10 @@ func init() {
 var sc sync.Once
 
 func main() {
+	runtime.LockOSThread()
+	defer runtime.UnlockOSThread()
 	sc.Do(func() {
 		app := NewApp()
-
-		// system tray 系统托盘
-		onReady := func() {
-			systray.SetIcon(appicon)
-			systray.SetTitle(config.Data.Appname)
-			systray.SetTooltip(config.Data.Appname + "便捷翻译工具")
-			mShow := systray.AddMenuItem("显示", "显示翻译工具")
-			mQuitOrig := systray.AddMenuItem("退出", "退出翻译工具")
-			go func() {
-				<-mQuitOrig.ClickedCh
-				defer app.Quit()
-			}()
-
-			go func() {
-				for {
-					select {
-					case <-mShow.ClickedCh:
-						app.Show()
-					}
-				}
-			}()
-			// Sets the icon of a menu item. Only available on Mac and Windows.
-			mShow.SetIcon(appicon)
-		}
-
-		go systray.Run(onReady, func() { logrus.Info("app quit") })
 
 		// Create application with options
 		err := wails.Run(&options.App{
@@ -88,5 +64,6 @@ func main() {
 		if err != nil {
 			logrus.Error("Error:", err.Error())
 		}
+		systray.Quit()
 	})
 }

@@ -9,12 +9,21 @@ import (
 	"os"
 	"testing"
 
+	"github.com/otiai10/gosseract/v2"
 	"golang.org/x/sys/windows/registry"
 )
 
 func TestConfig(t *testing.T) {
 	config.Init(context.TODO())
 	config.Save()
+}
+
+func TestOCR(t *testing.T) {
+	client := gosseract.NewClient()
+	defer client.Close()
+	client.SetImage("test.png")
+	text, _ := client.Text()
+	fmt.Println(text)
 }
 
 func TestAutoStarup(t *testing.T) {

@@ -13,34 +13,25 @@ import (
 
 var HookChan = make(chan struct{}, 1)
 
-var HookKeyboardChan = make(chan struct{}, 1)
-
-var HookCPChan = make(chan struct{}, 1)
-
-var curContent string
+var queryText string
 
 var lk sync.RWMutex
 
 func SetQueryText(value string) {
 	lk.Lock()
-	curContent = value
+	queryText = value
 	lk.Unlock()
 }
 
 func GetQueryText() string {
 	lk.RLock()
 	defer lk.RUnlock()
-	return curContent
+	return queryText
 }
 
 var defaulthook = func(e hook.Event) {
 	if e.Button == hook.MouseMap["center"] {
-		if pressLock.TryLock() {
-			time.Sleep(time.Millisecond * 100)
-			HookChan <- struct{}{}
-			robotgo.KeyTap("c", "ctrl")
-			pressLock.Unlock()
-		}
+		HookChan <- struct{}{}
 	}
 }
 
