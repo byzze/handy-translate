@@ -56,8 +56,6 @@ func (a *App) onDomReady(ctx context.Context) {
 				a.Show()
 			case <-mQuitOrig.ClickedCh:
 				a.Quit()
-			default:
-				logrus.Println("检测系统托盘进程中")
 			}
 		}
 	}
