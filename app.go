@@ -31,7 +31,8 @@ func (a *App) SendDataToJS(query, result, explian string) {
 		"result":  result,
 		"explian": explian,
 	}).Info("SendDataToJS", query, result, explian)
-
+	//TODO
+	result = "模拟翻译结果\n模拟翻译结果\n模拟翻译结果\n模拟翻译结果\n模拟翻译结果"
 	runtime.EventsEmit(a.ctx, "query", query)
 	runtime.EventsEmit(a.ctx, "result", result)
 	runtime.EventsEmit(a.ctx, "explian", explian)
@@ -59,6 +60,8 @@ func (a *App) onDomReady(ctx context.Context) {
 			}
 		}
 	}
+	result := "模拟翻译结果\n模拟翻译结果\n模拟翻译结果\n模拟翻译结果\n模拟翻译结果"
+	runtime.EventsEmit(a.ctx, "result", result)
 	systray.Run(onReady, func() { logrus.Info("app quit") })
 }
 
