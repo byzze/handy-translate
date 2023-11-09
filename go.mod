@@ -7,7 +7,6 @@ require (
 	github.com/getlantern/systray v1.2.2
 	github.com/go-vgo/robotgo v0.100.10
 	github.com/gorilla/websocket v1.5.0
-	github.com/otiai10/gosseract/v2 v2.4.1
 	github.com/pelletier/go-toml/v2 v2.1.0
 	github.com/robotn/gohook v0.31.3
 	github.com/sirupsen/logrus v1.9.3
@@ -39,6 +38,7 @@ require (
 	github.com/mattn/go-colorable v0.1.11 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/otiai10/gosseract v2.2.1+incompatible // indirect
+	github.com/otiai10/mint v1.6.3 // indirect
 	github.com/oxtoacart/bpool v0.0.0-20190530202638-03653db5a59c // indirect
 	github.com/pkg/browser v0.0.0-20210706143420-7d21f8c997e2 // indirect
 	github.com/pkg/errors v0.9.1 // indirect

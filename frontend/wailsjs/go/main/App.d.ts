@@ -7,6 +7,8 @@ export function GetTransalteMap():Promise<string>;
 
 export function GetTransalteWay():Promise<string>;
 
+export function MyFetch(arg1:string,arg2:{[key: string]: any}):Promise<any>;
+
 export function Quit():Promise<void>;
 
 export function SendDataToJS(arg1:string,arg2:string,arg3:string):Promise<void>;
@@ -16,3 +18,5 @@ export function SetKeyBoard(arg1:string,arg2:string,arg3:string):Promise<void>;
 export function SetTransalteWay(arg1:string):Promise<void>;
 
 export function Show():Promise<void>;
+
+export function Transalte(arg1:string):Promise<void>;

@@ -11,6 +11,8 @@ import LanguageArea from './components/LanguageArea';
 import SourceArea from './components/SourceArea';
 import TargetArea from './components/TargetArea';
 import { useConfig } from '../../hooks';
+import { GetTransalteWay } from "../../../wailsjs/go/main/App"
+
 let blurTimeout = null;
 let resizeTimeout = null;
 let moveTimeout = null;
@@ -24,18 +26,20 @@ export default function Translate() {
     const [hideLanguage] = useConfig('hide_language', false);
     const [pined, setPined] = useState(false);
     const [serviceConfig, setServiceConfig] = useState(null);
-    // const [translateServiceList, setTranslateServiceList] = useState([
-    //     'deepl',
-    //     'bing',
-    //     'yandex',
-    //     'google',
+
+    // const [translateServiceList, setTranslateServiceList] = useConfig('translate_service_list', [
+    //     // 'deepl',
+    //     'youdao',
+    //     // 'yandex',
+    //     // 'google',
     // ]);
-    const [translateServiceList, setTranslateServiceList] = useConfig('translate_service_list', [
-        // 'deepl',
-        'youdao',
-        // 'yandex',
-        // 'google',
-    ]);
+
+    const [translateServiceList, setTranslateServiceList] = useState([])
+    useEffect(() => {
+        GetTransalteWay().then(result => {
+            setTranslateServiceList([result]);
+        });
+    }, []);
 
     const reorder = (list, startIndex, endIndex) => {
         const result = Array.from(list);
@@ -62,6 +66,8 @@ export default function Translate() {
         }
         setServiceConfig({ ...config });
     };
+
+
 
     useEffect(() => {
         if (translateServiceList !== null) {

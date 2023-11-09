@@ -1,15 +1,17 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"handy-translate/config"
 	"io"
+	"io/ioutil"
 	"net/http"
+	"net/url"
 	"os"
 	"testing"
 
-	"github.com/otiai10/gosseract/v2"
 	"golang.org/x/sys/windows/registry"
 )
 
@@ -18,13 +20,13 @@ func TestConfig(t *testing.T) {
 	config.Save()
 }
 
-func TestOCR(t *testing.T) {
-	client := gosseract.NewClient()
-	defer client.Close()
-	client.SetImage("test.png")
-	text, _ := client.Text()
-	fmt.Println(text)
-}
+// func TestOCR(t *testing.T) {
+// 	client := gosseract.NewClient()
+// 	defer client.Close()
+// 	client.SetImage("test.png")
+// 	text, _ := client.Text()
+// 	fmt.Println(text)
+// }
 
 func TestAutoStarup(t *testing.T) {
 	// 注册表路径
@@ -94,4 +96,44 @@ func TestPingRoute(t *testing.T) {
 	}
 
 	fmt.Println("响应内容:", string(body))
+}
+
+func TestLangdetect(t *testing.T) {
+	// 目标 URL
+	uri := "https://fanyi.baidu.com/langdetect"
+
+	// 准备请求体数据
+	data := url.Values{}
+	data.Set("query", "asd")
+	payload := bytes.NewBufferString(data.Encode())
+
+	// 创建 HTTP 请求
+	req, err := http.NewRequest("POST", uri, payload)
+	if err != nil {
+		fmt.Println("Error creating request:", err)
+		return
+	}
+
+	// 设置请求头
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	// 发送请求
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		fmt.Println("Error sending request:", err)
+		return
+	}
+	defer resp.Body.Close()
+
+	// 读取响应数据
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Println("Error reading response:", err)
+		return
+	}
+
+	// 输出响应数据
+	fmt.Println(string(body))
+
 }

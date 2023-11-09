@@ -14,6 +14,10 @@ export function GetTransalteWay() {
   return window['go']['main']['App']['GetTransalteWay']();
 }
 
+export function MyFetch(arg1, arg2) {
+  return window['go']['main']['App']['MyFetch'](arg1, arg2);
+}
+
 export function Quit() {
   return window['go']['main']['App']['Quit']();
 }
@@ -32,4 +36,8 @@ export function SetTransalteWay(arg1) {
 
 export function Show() {
   return window['go']['main']['App']['Show']();
+}
+
+export function Transalte(arg1) {
+  return window['go']['main']['App']['Transalte'](arg1);
 }

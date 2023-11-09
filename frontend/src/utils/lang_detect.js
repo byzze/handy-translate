@@ -1,6 +1,7 @@
-import { fetch, Body } from '@tauri-apps/api/http';
-import { invoke } from '@tauri-apps/api';
-import { store } from './store';
+// import { fetch, Body } from '@tauri-apps/api/http';
+// import { invoke } from '@tauri-apps/api';
+// import { store } from './store';
+import { MyFetch } from '../../wailsjs/go/main/App'
 import { v4 as uuidv4 } from 'uuid';
 
 // https://fanyi-api.baidu.com/product/113
@@ -28,23 +29,23 @@ async function baidu_detect(text) {
         nno: 'nn_no',
         per: 'fa',
     };
-    let res = await fetch('https://fanyi.baidu.com/langdetect', {
+    let res = await MyFetch('https://fanyi.baidu.com/langdetect', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
         },
-        body: Body.form({
-            query: text,
-        }),
+        body: "query=" + text,
     });
-    if (res.ok) {
-        let result = res.data;
+
+    let result = JSON.parse(res)
+    if (result.error == 0) {
         if (result.lan && result.lan in lang_map) {
             return lang_map[result.lan];
         }
     }
     return 'en';
 }
+
 // 腾讯只支持这么多语言
 // https://cloud.tencent.com/document/product/551/15619
 async function tencent_detect(text) {
@@ -306,7 +307,7 @@ async function local_detect(text) {
 }
 
 export default async function detect(text) {
-    let langDetectEngine = (await store.get('translate_detect_engine')) ?? 'baidu';
+    let langDetectEngine = 'baidu';
 
     switch (langDetectEngine) {
         case 'baidu':

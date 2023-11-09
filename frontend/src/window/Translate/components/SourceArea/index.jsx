@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Button, Card, CardBody, CardFooter, ButtonGroup, Chip, Tooltip } from '@nextui-org/react';
+import { Button, Card, CardBody, CardFooter, ButtonGroup, Chip, Tooltip, Spinner } from '@nextui-org/react';
 import toast, { Toaster } from 'react-hot-toast';
-import { useSyncAtom } from '../../../../hooks';
 import { atom, useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { HiOutlineVolumeUp } from 'react-icons/hi';
@@ -9,23 +8,37 @@ import { HiTranslate } from 'react-icons/hi';
 import { LuDelete } from 'react-icons/lu';
 import { MdContentCopy } from 'react-icons/md';
 import { MdSmartButton } from 'react-icons/md';
-import { WindowHide, EventsOn } from "../../../../../wailsjs/runtime"
+import { WindowHide, WindowShow, EventsOn, ClipboardSetText } from "../../../../../wailsjs/runtime"
 
-export const sourceTextAtom = atom('sourceTextAtom');
-export const detectLanguageAtom = atom('auto');
+import { useConfig, useSyncAtom, useVoice, useToastStyle } from '../../../../hooks';
+import * as builtinTtsServices from '../../../../services/tts';
+import detect from '../../../../utils/lang_detect';
+import { Transalte } from "../../../../../wailsjs/go/main/App"
+
+export const sourceTextAtom = atom('');
+export const detectLanguageAtom = atom('');
 
 export default function SourceArea(props) {
     const { pluginList } = props;
     const [sourceText, setSourceText, syncSourceText] = useSyncAtom(sourceTextAtom);
     const [detectLanguage, setDetectLanguage] = useAtom(detectLanguageAtom);
-    // const [recognizeLanguage] = useConfig('recognize_language', 'auto');
-    const textAreaRef = useRef();
+    const [recognizeLanguage] = useConfig('recognize_language', 'auto');
+    const [ttsServiceList] = useConfig('tts_service_list', ['lingva_tts']);
+    const [deleteNewline] = useConfig('translate_delete_newline', false);
+    const [recognizeServiceList] = useConfig('recognize_service_list', ['system', 'tesseract']);
+    const [dynamicTranslate] = useConfig('dynamic_translate', false);
+    const toastStyle = useToastStyle();
     const { t } = useTranslation();
+
+    const [isSpeakLoading, setIsSpeakLoading] = useState(false)
+    const textAreaRef = useRef();
+    const speak = useVoice();
 
     useEffect(() => {
         textAreaRef.current.style.height = '50px';
         textAreaRef.current.style.height = textAreaRef.current.scrollHeight + 'px';
     }, [sourceText]);
+
 
     const detect_language = async (text) => {
         setDetectLanguage(await detect(text));
@@ -38,16 +51,159 @@ export default function SourceArea(props) {
                 syncSourceText();
             });
         }
-        if (event.key === 'Escape') {
-            WindowHide();
-        }
+        // if (event.key === 'Escape') {
+        //     WindowHide();
+        // }
     };
 
     useEffect(() => {
         EventsOn("query", (result) => {
             setSourceText(result)
         })
-    }, [sourceText]);
+    }, []);
+
+    const handleNewText = async (text) => {
+        text = text.trim();
+        if (hideWindow) {
+            // appWindow.hide();
+            WindowHide()
+        } else {
+            WindowShow()
+            // appWindow.show();
+            // appWindow.setFocus();
+        }
+        // 清空检测语言
+        setDetectLanguage('');
+        if (text === '[INPUT_TRANSLATE]') {
+            WindowShow()
+            // appWindow.show();
+            // appWindow.setFocus();
+            setSourceText('', true);
+        } else if (text === '[IMAGE_TRANSLATE]') {
+            // const base64 = await invoke('get_base64');
+            const base64 = "";
+            const serviceName = recognizeServiceList[0];
+            if (serviceName.startsWith('[plugin]')) {
+                if (recognizeLanguage in pluginList['recognize'][serviceName].language) {
+                    const pluginConfig = (await store.get(serviceName)) ?? {};
+                    // invoke('invoke_plugin', {
+                    //     name: serviceName,
+                    //     pluginType: 'recognize',
+                    //     source: base64,
+                    //     lang: pluginList['recognize'][serviceName].language[recognizeLanguage],
+                    //     needs: pluginConfig,
+                    // }).then(
+                    //     (v) => {
+                    //         let newText = v.trim();
+                    //         if (deleteNewline) {
+                    //             newText = v.replace(/\s+/g, ' ');
+                    //         } else {
+                    //             newText = v.trim();
+                    //         }
+                    //         if (incrementalTranslate) {
+                    //             setSourceText((old) => {
+                    //                 return old + ' ' + newText;
+                    //             });
+                    //         } else {
+                    //             setSourceText(newText);
+                    //         }
+                    //         detect_language(newText).then(() => {
+                    //             syncSourceText();
+                    //         });
+                    //     },
+                    //     (e) => {
+                    //         setSourceText(e.toString());
+                    //     }
+                    // );
+                } else {
+                    setSourceText('Language not supported');
+                }
+            } else {
+                // if (recognizeLanguage in recognizeServices[serviceName].Language) {
+                //     recognizeServices[serviceName]
+                //         .recognize(base64, recognizeServices[serviceName].Language[recognizeLanguage])
+                //         .then(
+                //             (v) => {
+                //                 let newText = v.trim();
+                //                 if (deleteNewline) {
+                //                     newText = v.replace(/\s+/g, ' ');
+                //                 } else {
+                //                     newText = v.trim();
+                //                 }
+                //                 if (incrementalTranslate) {
+                //                     setSourceText((old) => {
+                //                         return old + ' ' + newText;
+                //                     });
+                //                 } else {
+                //                     setSourceText(newText);
+                //                 }
+                //                 detect_language(newText).then(() => {
+                //                     syncSourceText();
+                //                 });
+                //             },
+                //             (e) => {
+                //                 setSourceText(e.toString());
+                //             }
+                //         );
+                // } else {
+                //     setSourceText('Language not supported');
+                // }
+            }
+        } else {
+            let newText = text.trim();
+            if (deleteNewline) {
+                newText = text.replace(/\s+/g, ' ');
+            } else {
+                newText = text.trim();
+            }
+            if (incrementalTranslate) {
+                setSourceText((old) => {
+                    return old + ' ' + newText;
+                });
+            } else {
+                setSourceText(newText);
+            }
+            detect_language(newText).then(() => {
+                syncSourceText();
+            });
+        }
+    };
+
+    const handleSpeak = async () => {
+        try {
+            setIsSpeakLoading(true)
+
+            let lang = await detect(sourceText);
+            setDetectLanguage(lang)
+
+            const serviceName = ttsServiceList[0];
+            if (serviceName.startsWith('[plugin]')) {
+                if (!(detectLanguage in ttsPluginInfo.language)) {
+                    throw new Error('Language not supported');
+                }
+                const config = (await store.get(serviceName)) ?? {};
+                const data = await invoke('invoke_plugin', {
+                    name: serviceName,
+                    pluginType: 'tts',
+                    source: sourceText,
+                    lang: ttsPluginInfo.language[lang],
+                    needs: config,
+                });
+                speak(data);
+            } else {
+                if (!(lang in builtinTtsServices[serviceName].Language)) {
+                    throw new Error('Language not supported');
+                }
+                let data = await builtinTtsServices[serviceName].tts(
+                    sourceText,
+                    builtinTtsServices[serviceName].Language[lang]
+                );
+                speak(data);
+            }
+        } finally {
+            setIsSpeakLoading(false)
+        }
+    };
 
     return (
         <Card
@@ -93,7 +249,7 @@ export default function SourceArea(props) {
                                     });
                                 }}
                             >
-                                <HiOutlineVolumeUp className='text-[16px]' />
+                                {isSpeakLoading ? <Spinner size="sm" color="default" /> : <HiOutlineVolumeUp className='text-[16px]' />}
                             </Button>
                         </Tooltip>
                         <Tooltip content={t('translate.copy')}>
@@ -102,7 +258,9 @@ export default function SourceArea(props) {
                                 variant='light'
                                 size='sm'
                                 onPress={() => {
-                                    writeText(sourceText);
+                                    ClipboardSetText(sourceText).then((e) => {
+                                        toast.success(e.toString(), { style: toastStyle });
+                                    });
                                 }}
                             >
                                 <MdContentCopy className='text-[16px]' />
@@ -158,6 +316,7 @@ export default function SourceArea(props) {
                     onPress={() => {
                         detect_language(sourceText).then(() => {
                             syncSourceText();
+                            Transalte(sourceText)
                         });
                     }}
                 >

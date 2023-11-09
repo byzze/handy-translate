@@ -27,6 +27,8 @@ import { sourceTextAtom, detectLanguageAtom } from '../SourceArea';
 import { useConfig, useToastStyle, useVoice } from '../../../../hooks';
 import { WindowHide, EventsOn, ClipboardSetText } from "../../../../../wailsjs/runtime"
 import * as builtinTtsServices from '../../../../services/tts';
+import * as builtinServices from '../../../../services/translate';
+
 
 
 export default function TargetArea(props) {
@@ -38,7 +40,7 @@ export default function TargetArea(props) {
     const [translateServiceName, setTranslateServiceName] = useState(name);
     const [clipboardMonitor] = useConfig('clipboard_monitor', false);
     const [hideWindow] = useConfig('translate_hide_window', false);
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading, getIsLoading] = useState(false);
     const sourceText = useAtomValue(sourceTextAtom);
     const sourceLanguage = useAtomValue(sourceLanguageAtom);
     const targetLanguage = useAtomValue(targetLanguageAtom);
@@ -54,6 +56,9 @@ export default function TargetArea(props) {
     useEffect(() => {
         setResult('');
         setError('');
+        EventsOn("loading", (result) => {
+            setIsLoading(result);
+        })
         if (
             sourceText.trim() !== '' &&
             sourceLanguage &&
@@ -63,22 +68,27 @@ export default function TargetArea(props) {
             clipboardMonitor !== null
         ) {
             if (autoCopy === 'source' && !clipboardMonitor) {
-                ClipboardSetText(sourceText).then(() => {
-                    alert("复制成功")
+                ClipboardSetText(sourceText).then((e) => {
+                    toast.success(e.toString(), { style: toastStyle });
                     if (hideWindow) {
                         sendNotification({ title: t('common.write_clipboard'), body: sourceText });
                     }
                 });
             }
+
+            // setIsLoading(true)
+
             // translate();
             EventsOn("result", (result) => {
                 setResult(result)
+                setIsLoading(false)
             })
         }
     }, [sourceText, targetLanguage, sourceLanguage, autoCopy, hideWindow, translateServiceName, clipboardMonitor]);
 
     const handleSpeak = async () => {
         const serviceName = ttsServiceList[0];
+
         if (serviceName.startsWith('[plugin]')) {
             const config = (await store.get(serviceName)) ?? {};
             if (!(targetLanguage in ttsPluginInfo.language)) {
@@ -115,7 +125,6 @@ export default function TargetArea(props) {
     }, [ttsServiceList]);
 
     useEffect(() => {
-
         if (textAreaRef.current !== null) {
             textAreaRef.current.style.height = '0px';
             if (result !== '') {
@@ -150,7 +159,7 @@ export default function TargetArea(props) {
                                         />
                                     ) : (
                                         <img
-                                            src='https://store-images.s-microsoft.com/image/apps.15136.c243d491-c838-40a0-a8c3-cac616cd560b.53f39371-3317-452f-be00-c56a5447c4eb.663bcee7-a1b6-4083-9610-e21d1e033b2c?mode=scale&h=100&q=90&w=100'
+                                            src={builtinServices[translateServiceName].info.icon}
                                             className='h-[20px] my-auto'
                                         />
                                     )
@@ -184,7 +193,7 @@ export default function TargetArea(props) {
                                                 />
                                             ) : (
                                                 <img
-                                                    src='https://store-images.s-microsoft.com/image/apps.15136.c243d491-c838-40a0-a8c3-cac616cd560b.53f39371-3317-452f-be00-c56a5447c4eb.663bcee7-a1b6-4083-9610-e21d1e033b2c?mode=scale&h=100&q=90&w=100'
+                                                    src={builtinServices[x].info.icon}
                                                     className='h-[20px] my-auto'
                                                 />
                                             )
@@ -376,8 +385,9 @@ export default function TargetArea(props) {
                             size='sm'
                             isDisabled={typeof result !== 'string' || result === ''}
                             onPress={() => {
-                                ClipboardSetText(result);
-                                alert("复制成功");
+                                ClipboardSetText(result).then((e) => {
+                                    toast.success(e.toString(), { style: toastStyle });
+                                });
                             }}
                         >
                             <MdContentCopy className='text-[16px]' />

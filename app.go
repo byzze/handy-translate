@@ -8,6 +8,7 @@ import (
 	"handy-translate/hook"
 	"handy-translate/translate"
 	"handy-translate/translate/youdao"
+	"handy-translate/utils"
 	"strings"
 
 	"github.com/getlantern/systray"
@@ -25,6 +26,10 @@ func NewApp() *App {
 	return &App{}
 }
 
+func (a *App) MyFetch(URL string, content map[string]interface{}) interface{} {
+	return utils.MyFetch(URL, content)
+}
+
 func (a *App) SendDataToJS(query, result, explian string) {
 	logrus.WithFields(logrus.Fields{
 		"query":   query,
@@ -32,7 +37,7 @@ func (a *App) SendDataToJS(query, result, explian string) {
 		"explian": explian,
 	}).Info("SendDataToJS", query, result, explian)
 	//TODO
-	result = "模拟翻译结果\n模拟翻译结果\n模拟翻译结果\n模拟翻译结果\n模拟翻译结果"
+
 	runtime.EventsEmit(a.ctx, "query", query)
 	runtime.EventsEmit(a.ctx, "result", result)
 	runtime.EventsEmit(a.ctx, "explian", explian)
@@ -93,42 +98,9 @@ func (a *App) startup(ctx context.Context) {
 				// x, y = x+10, y-10
 				runtime.WindowShow(ctx)
 				queryText, _ := runtime.ClipboardGetText(a.ctx)
-
 				if queryText != hook.GetQueryText() {
-					hook.SetQueryText(queryText)
-					// 加载动画loading
-					runtime.EventsEmit(a.ctx, "loading", "true")
-
-					transalteWay := translate.GetTransalteWay(config.Data.TranslateWay)
-
-					logrus.WithFields(logrus.Fields{
-						"queryText":    queryText,
-						"transalteWay": transalteWay.GetName(),
-					}).Info("Transalte")
-
-					curName := transalteWay.GetName()
-					// 使用 strings.Replace 替换 \r 和 \n 为空格
-					queryTextTmp := strings.ReplaceAll(queryText, "\r", "")
-					queryTextTmp = strings.ReplaceAll(queryTextTmp, "\n", "")
-
-					result, err := transalteWay.PostQuery(queryTextTmp)
-					if err != nil {
-						logrus.WithError(err).Error("PostQuery")
-						continue
-					}
-
-					logrus.WithFields(logrus.Fields{
-						"result": result,
-					}).Info("Transalte")
-
-					if len(result) >= 2 && curName == youdao.Way {
-						a.SendDataToJS(queryText, result[0], result[1])
-						continue
-					}
-					transalteRes := strings.Join(result, ",")
-					a.SendDataToJS(queryText, transalteRes, "")
+					a.Transalte(queryText)
 				}
-
 				// TODO 弹出窗口根据鼠标位置变动
 				// fmt.Println("or:", x, y, screenX, screenY, windowX, windowY)
 				// if y+windowY+20 >= screenY {
@@ -177,8 +149,44 @@ func (a *App) SetTransalteWay(translateWay string) {
 	config.Save()
 	logrus.WithField("config.Data.Translate", config.Data.Translate).Info("SetTransalteList")
 }
+
 func (a *App) GetTransalteWay() string {
 	return config.Data.TranslateWay
+}
+
+func (a *App) Transalte(queryText string) {
+	hook.SetQueryText(queryText)
+	// 加载动画loading
+	runtime.EventsEmit(a.ctx, "loading", "true")
+
+	transalteWay := translate.GetTransalteWay(config.Data.TranslateWay)
+
+	logrus.WithFields(logrus.Fields{
+		"queryText":    queryText,
+		"transalteWay": transalteWay.GetName(),
+	}).Info("Transalte")
+
+	curName := transalteWay.GetName()
+	// 使用 strings.Replace 替换 \r 和 \n 为空格
+	queryTextTmp := strings.ReplaceAll(queryText, "\r", "")
+	queryTextTmp = strings.ReplaceAll(queryTextTmp, "\n", "")
+
+	result, err := transalteWay.PostQuery(queryTextTmp)
+	if err != nil {
+		logrus.WithError(err).Error("PostQuery")
+	}
+
+	logrus.WithFields(logrus.Fields{
+		"result": result,
+	}).Info("Transalte")
+
+	if len(result) >= 2 && curName == youdao.Way {
+		a.SendDataToJS(queryText, result[0], result[1])
+	}
+
+	transalteRes := strings.Join(result, ",")
+	a.SendDataToJS(queryText, transalteRes, "")
+	// runtime.EventsEmit(a.ctx, "loading", "false")
 }
 
 func (a *App) Quit() {
