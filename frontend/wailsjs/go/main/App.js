@@ -38,6 +38,6 @@ export function Show() {
   return window['go']['main']['App']['Show']();
 }
 
-export function Transalte(arg1) {
-  return window['go']['main']['App']['Transalte'](arg1);
+export function Transalte(arg1, arg2, arg3) {
+  return window['go']['main']['App']['Transalte'](arg1, arg2, arg3);
 }

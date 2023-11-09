@@ -10,6 +10,7 @@ import (
 	"handy-translate/translate/youdao"
 	"handy-translate/utils"
 	"strings"
+	"time"
 
 	"github.com/getlantern/systray"
 	"github.com/sirupsen/logrus"
@@ -30,23 +31,31 @@ func (a *App) MyFetch(URL string, content map[string]interface{}) interface{} {
 	return utils.MyFetch(URL, content)
 }
 
+func (a *App) sendQueryText(queryText string) {
+	runtime.EventsEmit(a.ctx, "query", queryText)
+}
+
+func (a *App) sendResult(result, explian string) {
+	runtime.EventsEmit(a.ctx, "result", result)
+	runtime.EventsEmit(a.ctx, "explian", explian)
+}
+
 func (a *App) SendDataToJS(query, result, explian string) {
 	logrus.WithFields(logrus.Fields{
 		"query":   query,
 		"result":  result,
 		"explian": explian,
 	}).Info("SendDataToJS", query, result, explian)
-	//TODO
 
-	runtime.EventsEmit(a.ctx, "query", query)
-	runtime.EventsEmit(a.ctx, "result", result)
-	runtime.EventsEmit(a.ctx, "explian", explian)
+	a.sendQueryText(query)
+	a.sendResult(result, explian)
+
 }
 
 // test data
 func (a *App) onDomReady(ctx context.Context) {
 	runtime.WindowShow(ctx)
-	a.SendDataToJS("启动成功", "", "")
+	a.sendQueryText("启动成功")
 	// system tray 系统托盘
 	onReady := func() {
 		systray.SetIcon(appicon)
@@ -65,10 +74,10 @@ func (a *App) onDomReady(ctx context.Context) {
 			}
 		}
 	}
-	result := "模拟翻译结果\n模拟翻译结果\n模拟翻译结果\n模拟翻译结果\n模拟翻译结果"
-	runtime.EventsEmit(a.ctx, "result", result)
 	systray.Run(onReady, func() { logrus.Info("app quit") })
 }
+
+var fromLang, toLang = "auto", "zh"
 
 // startup is called when the app starts. The context is saved
 // so we can call the runtime methods
@@ -97,9 +106,24 @@ func (a *App) startup(ctx context.Context) {
 				// x, y := robotgo.GetMousePos()
 				// x, y = x+10, y-10
 				runtime.WindowShow(ctx)
+				runtime.EventsEmit(a.ctx, "notice", "translateType")
 				queryText, _ := runtime.ClipboardGetText(a.ctx)
+
+				a.sendQueryText(queryText)
+
 				if queryText != hook.GetQueryText() {
-					a.Transalte(queryText)
+					runtime.EventsOn(a.ctx, "translateType", func(optionalData ...interface{}) {
+
+						logrus.WithField("optionalData", optionalData).Info("translateType")
+
+						if len(optionalData) >= 2 {
+							fromLang = fmt.Sprintf("%v", optionalData[0])
+							toLang = fmt.Sprintf("%v", optionalData[1])
+						}
+					})
+
+					fmt.Println("optionalData", fromLang, toLang)
+					a.Transalte(queryText, fromLang, toLang)
 				}
 				// TODO 弹出窗口根据鼠标位置变动
 				// fmt.Println("or:", x, y, screenX, screenY, windowX, windowY)
@@ -154,16 +178,20 @@ func (a *App) GetTransalteWay() string {
 	return config.Data.TranslateWay
 }
 
-func (a *App) Transalte(queryText string) {
+func (a *App) Transalte(queryText, fromLang, toLang string) {
 	hook.SetQueryText(queryText)
 	// 加载动画loading
 	runtime.EventsEmit(a.ctx, "loading", "true")
+	time.Sleep(time.Second * 3)
+	defer runtime.EventsEmit(a.ctx, "loading", "false")
 
 	transalteWay := translate.GetTransalteWay(config.Data.TranslateWay)
 
 	logrus.WithFields(logrus.Fields{
 		"queryText":    queryText,
 		"transalteWay": transalteWay.GetName(),
+		"fromLang":     fromLang,
+		"toLang":       toLang,
 	}).Info("Transalte")
 
 	curName := transalteWay.GetName()
@@ -171,7 +199,7 @@ func (a *App) Transalte(queryText string) {
 	queryTextTmp := strings.ReplaceAll(queryText, "\r", "")
 	queryTextTmp = strings.ReplaceAll(queryTextTmp, "\n", "")
 
-	result, err := transalteWay.PostQuery(queryTextTmp)
+	result, err := transalteWay.PostQuery(queryTextTmp, fromLang, toLang)
 	if err != nil {
 		logrus.WithError(err).Error("PostQuery")
 	}
@@ -186,7 +214,7 @@ func (a *App) Transalte(queryText string) {
 
 	transalteRes := strings.Join(result, ",")
 	a.SendDataToJS(queryText, transalteRes, "")
-	// runtime.EventsEmit(a.ctx, "loading", "false")
+
 }
 
 func (a *App) Quit() {

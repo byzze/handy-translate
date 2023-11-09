@@ -22,7 +22,7 @@ func TestGetTransalteWay(t *testing.T) {
 func TestGetTransalteWayList(t *testing.T) {
 	config.Init(context.TODO())
 	v := GetTransalteWay(baidu.Way)
-	s, err := v.PostQuery("Software\r\nAnalytics\r\nArchiving and Digital Preservation (DP)\r\nAutomation\r\nBackup\r\nBlogging Platforms\r\nBooking and Scheduling")
+	s, err := v.PostQuery("Software\r\nAnalytics\r\nArchiving and Digital Preservation (DP)\r\nAutomation\r\nBackup\r\nBlogging Platforms\r\nBooking and Scheduling", "", "")
 	if err != nil {
 		t.Fatal(err)
 

@@ -13,7 +13,8 @@ import { WindowHide, WindowShow, EventsOn, ClipboardSetText } from "../../../../
 import { useConfig, useSyncAtom, useVoice, useToastStyle } from '../../../../hooks';
 import * as builtinTtsServices from '../../../../services/tts';
 import detect from '../../../../utils/lang_detect';
-import { Transalte } from "../../../../../wailsjs/go/main/App"
+
+import { sourceLanguageAtom } from "../LanguageArea";
 
 export const sourceTextAtom = atom('');
 export const detectLanguageAtom = atom('');
@@ -316,7 +317,6 @@ export default function SourceArea(props) {
                     onPress={() => {
                         detect_language(sourceText).then(() => {
                             syncSourceText();
-                            Transalte(sourceText)
                         });
                     }}
                 >

@@ -25,10 +25,11 @@ import { GiCycle } from 'react-icons/gi';
 import { sourceLanguageAtom, targetLanguageAtom } from '../LanguageArea';
 import { sourceTextAtom, detectLanguageAtom } from '../SourceArea';
 import { useConfig, useToastStyle, useVoice } from '../../../../hooks';
-import { WindowHide, EventsOn, ClipboardSetText } from "../../../../../wailsjs/runtime"
+import { WindowHide, EventsOn, EventsEmit, ClipboardSetText } from "../../../../../wailsjs/runtime"
+import { Transalte } from "../../../../../wailsjs/go/main/App"
+
 import * as builtinTtsServices from '../../../../services/tts';
 import * as builtinServices from '../../../../services/translate';
-
 
 
 export default function TargetArea(props) {
@@ -40,7 +41,7 @@ export default function TargetArea(props) {
     const [translateServiceName, setTranslateServiceName] = useState(name);
     const [clipboardMonitor] = useConfig('clipboard_monitor', false);
     const [hideWindow] = useConfig('translate_hide_window', false);
-    const [isLoading, setIsLoading, getIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(false)
     const sourceText = useAtomValue(sourceTextAtom);
     const sourceLanguage = useAtomValue(sourceLanguageAtom);
     const targetLanguage = useAtomValue(targetLanguageAtom);
@@ -54,11 +55,28 @@ export default function TargetArea(props) {
     const [error, setError] = useState('');
 
     useEffect(() => {
+        EventsOn("loading", (result) => {
+            setIsLoading(result == 'true')
+        })
+
+        EventsOn("result", (result) => {
+            setResult(result)
+            setIsLoading(false)
+        })
+
+        EventsOn("notice", (result) => {
+            console.log(sourceLanguage, targetLanguage)
+            const LanguageEnum = builtinServices[translateServiceName].Language;
+            if (sourceLanguage in LanguageEnum && targetLanguage in LanguageEnum) {
+                EventsEmit("translateType", LanguageEnum[sourceLanguage], LanguageEnum[targetLanguage])
+            }
+
+        })
+    }, [sourceLanguage, targetLanguage])
+
+    useEffect(() => {
         setResult('');
         setError('');
-        EventsOn("loading", (result) => {
-            setIsLoading(result);
-        })
         if (
             sourceText.trim() !== '' &&
             sourceLanguage &&
@@ -75,14 +93,14 @@ export default function TargetArea(props) {
                     }
                 });
             }
-
-            // setIsLoading(true)
-
+            console.log("translateServiceName", translateServiceName)
+            const LanguageEnum = builtinServices[translateServiceName].Language;
+            console.log("LanguageEnum", LanguageEnum)
+            if (sourceLanguage in LanguageEnum && targetLanguage in LanguageEnum) {
+                Transalte(sourceText, LanguageEnum[sourceLanguage], LanguageEnum[targetLanguage])
+                console.log("translate useEffect", LanguageEnum[sourceLanguage], LanguageEnum[targetLanguage])
+            }
             // translate();
-            EventsOn("result", (result) => {
-                setResult(result)
-                setIsLoading(false)
-            })
         }
     }, [sourceText, targetLanguage, sourceLanguage, autoCopy, hideWindow, translateServiceName, clipboardMonitor]);
 
@@ -125,6 +143,7 @@ export default function TargetArea(props) {
     }, [ttsServiceList]);
 
     useEffect(() => {
+        console.log("result,useEffect")
         if (textAreaRef.current !== null) {
             textAreaRef.current.style.height = '0px';
             if (result !== '') {

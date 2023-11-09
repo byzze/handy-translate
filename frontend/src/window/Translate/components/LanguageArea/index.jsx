@@ -8,8 +8,8 @@ import { languageList } from '../../../../utils/language';
 import { detectLanguageAtom } from '../SourceArea';
 import { useConfig } from '../../../../hooks';
 
-export const sourceLanguageAtom = atom("auto");
-export const targetLanguageAtom = atom("auto");
+export const sourceLanguageAtom = atom();
+export const targetLanguageAtom = atom();
 
 export default function LanguageArea() {
     const [rememberLanguage] = useConfig('translate_remember_language', false);
@@ -78,25 +78,26 @@ export default function LanguageArea() {
                             const oldSourceLanguage = sourceLanguage;
                             setSourceLanguage(targetLanguage);
                             setTargetLanguage(oldSourceLanguage);
-                            // if (sourceLanguage !== 'auto') {
-                            //     const oldSourceLanguage = sourceLanguage;
-                            //     setSourceLanguage(targetLanguage);
-                            //     setTargetLanguage(oldSourceLanguage);
-                            // } else {
-                            //     if (detectLanguage !== '') {
-                            //         if (targetLanguage === translateTargetLanguage) {
-                            //             setTargetLanguage(detectLanguage);
-                            //         } else {
-                            //             setTargetLanguage(translateTargetLanguage);
-                            //         }
-                            //     } else {
-                            //         if (targetLanguage === translateSecondLanguage) {
-                            //             setTargetLanguage(translateTargetLanguage);
-                            //         } else {
-                            //             setTargetLanguage(secondLanguage);
-                            //         }
-                            //     }
-                            // }
+
+                            if (sourceLanguage !== 'auto') {
+                                const oldSourceLanguage = sourceLanguage;
+                                setSourceLanguage(targetLanguage);
+                                setTargetLanguage(oldSourceLanguage);
+                            } else {
+                                if (detectLanguage !== '') {
+                                    if (targetLanguage === translateTargetLanguage) {
+                                        setTargetLanguage(detectLanguage);
+                                    } else {
+                                        setTargetLanguage(translateTargetLanguage);
+                                    }
+                                } else {
+                                    // if (targetLanguage === translateSecondLanguage) {
+                                    //     setTargetLanguage(translateTargetLanguage);
+                                    // } else {
+                                    //     setTargetLanguage(secondLanguage);
+                                    // }
+                                }
+                            }
                         }}
                     >
                         <BiTransferAlt />
