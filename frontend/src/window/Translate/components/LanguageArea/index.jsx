@@ -36,6 +36,7 @@ export default function LanguageArea() {
             setTranslateSourceLanguage(sourceLanguage);
             setTranslateTargetLanguage(targetLanguage);
         }
+
     }, [sourceLanguage, targetLanguage, rememberLanguage]);
 
     return (

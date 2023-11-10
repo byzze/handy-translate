@@ -15,6 +15,7 @@ import * as builtinTtsServices from '../../../../services/tts';
 import detect from '../../../../utils/lang_detect';
 
 import { sourceLanguageAtom } from "../LanguageArea";
+import { createWorker } from 'tesseract.js';
 
 export const sourceTextAtom = atom('');
 export const detectLanguageAtom = atom('');
@@ -52,9 +53,9 @@ export default function SourceArea(props) {
                 syncSourceText();
             });
         }
-        // if (event.key === 'Escape') {
-        //     WindowHide();
-        // }
+        if (event.key === 'Escape') {
+            WindowHide();
+        }
     };
 
     useEffect(() => {
@@ -62,113 +63,6 @@ export default function SourceArea(props) {
             setSourceText(result)
         })
     }, []);
-
-    const handleNewText = async (text) => {
-        text = text.trim();
-        if (hideWindow) {
-            // appWindow.hide();
-            WindowHide()
-        } else {
-            WindowShow()
-            // appWindow.show();
-            // appWindow.setFocus();
-        }
-        // 清空检测语言
-        setDetectLanguage('');
-        if (text === '[INPUT_TRANSLATE]') {
-            WindowShow()
-            // appWindow.show();
-            // appWindow.setFocus();
-            setSourceText('', true);
-        } else if (text === '[IMAGE_TRANSLATE]') {
-            // const base64 = await invoke('get_base64');
-            const base64 = "";
-            const serviceName = recognizeServiceList[0];
-            if (serviceName.startsWith('[plugin]')) {
-                if (recognizeLanguage in pluginList['recognize'][serviceName].language) {
-                    const pluginConfig = (await store.get(serviceName)) ?? {};
-                    // invoke('invoke_plugin', {
-                    //     name: serviceName,
-                    //     pluginType: 'recognize',
-                    //     source: base64,
-                    //     lang: pluginList['recognize'][serviceName].language[recognizeLanguage],
-                    //     needs: pluginConfig,
-                    // }).then(
-                    //     (v) => {
-                    //         let newText = v.trim();
-                    //         if (deleteNewline) {
-                    //             newText = v.replace(/\s+/g, ' ');
-                    //         } else {
-                    //             newText = v.trim();
-                    //         }
-                    //         if (incrementalTranslate) {
-                    //             setSourceText((old) => {
-                    //                 return old + ' ' + newText;
-                    //             });
-                    //         } else {
-                    //             setSourceText(newText);
-                    //         }
-                    //         detect_language(newText).then(() => {
-                    //             syncSourceText();
-                    //         });
-                    //     },
-                    //     (e) => {
-                    //         setSourceText(e.toString());
-                    //     }
-                    // );
-                } else {
-                    setSourceText('Language not supported');
-                }
-            } else {
-                // if (recognizeLanguage in recognizeServices[serviceName].Language) {
-                //     recognizeServices[serviceName]
-                //         .recognize(base64, recognizeServices[serviceName].Language[recognizeLanguage])
-                //         .then(
-                //             (v) => {
-                //                 let newText = v.trim();
-                //                 if (deleteNewline) {
-                //                     newText = v.replace(/\s+/g, ' ');
-                //                 } else {
-                //                     newText = v.trim();
-                //                 }
-                //                 if (incrementalTranslate) {
-                //                     setSourceText((old) => {
-                //                         return old + ' ' + newText;
-                //                     });
-                //                 } else {
-                //                     setSourceText(newText);
-                //                 }
-                //                 detect_language(newText).then(() => {
-                //                     syncSourceText();
-                //                 });
-                //             },
-                //             (e) => {
-                //                 setSourceText(e.toString());
-                //             }
-                //         );
-                // } else {
-                //     setSourceText('Language not supported');
-                // }
-            }
-        } else {
-            let newText = text.trim();
-            if (deleteNewline) {
-                newText = text.replace(/\s+/g, ' ');
-            } else {
-                newText = text.trim();
-            }
-            if (incrementalTranslate) {
-                setSourceText((old) => {
-                    return old + ' ' + newText;
-                });
-            } else {
-                setSourceText(newText);
-            }
-            detect_language(newText).then(() => {
-                syncSourceText();
-            });
-        }
-    };
 
     const handleSpeak = async () => {
         try {
@@ -315,9 +209,18 @@ export default function SourceArea(props) {
                     className='text-[14px] font-bold'
                     startContent={<HiTranslate className='text-[16px]' />}
                     onPress={() => {
-                        detect_language(sourceText).then(() => {
-                            syncSourceText();
-                        });
+                        console.log("resresresresr");
+                        (async () => {
+                            const worker = await createWorker('eng');
+                            const ret = await worker.recognize('https://tesseract.projectnaptha.com/img/eng_bw.png');
+                            console.log(ret.data.text);
+                            console.log("resresresresr");
+                            await worker.terminate();
+                        })();
+                        console.log("resresresresr");
+                        // detect_language(sourceText).then(() => {
+                        //     syncSourceText();
+                        // });
                     }}
                 >
                     {t('translate.translate')}

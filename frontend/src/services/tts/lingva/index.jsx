@@ -18,7 +18,7 @@ export async function tts(text, lang, options = {}) {
     const response = await fetch(`${requestPath}/api/v1/audio/${lang}/${encodeURIComponent(text)}`);
 
     const jsonData = await response.json();
-    console.log(jsonData)
+
     if (response.ok) {
         return jsonData['audio'];
     }

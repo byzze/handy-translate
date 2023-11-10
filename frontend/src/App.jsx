@@ -5,8 +5,10 @@ import { useTranslation } from 'react-i18next';
 import { useTheme } from 'next-themes';
 
 import Translate from './window/Translate';
+import Screenshot from './window/Screenshot';
 import { useConfig } from './hooks';
 // import { store } from './utils/store';
+import { WindowSetSystemDefaultTheme } from '../wailsjs/runtime';
 import './i18n';
 import './style.css';
 
@@ -16,9 +18,8 @@ function App() {
     const [appLanguage] = useConfig('app_language', 'zh_cn');
     const { setTheme } = useTheme();
     const { i18n } = useTranslation();
-
     useEffect(() => {
-        // store.load();
+        // WindowSetDarkTheme()
         if (appTheme !== null) {
             if (appTheme !== 'system') {
                 setTheme(appTheme);
@@ -46,7 +47,7 @@ function App() {
         }
     }, [appTheme, appLanguage]);
     return <BrowserRouter>
-        <Translate />
+        <Screenshot />
     </BrowserRouter>;
 }
 

@@ -55,7 +55,6 @@ func main() {
 			OnDomReady:        app.onDomReady,
 			HideWindowOnClose: true,
 			Frameless:         true,
-			StartHidden:       true,
 			Bind: []interface{}{
 				app,
 			},

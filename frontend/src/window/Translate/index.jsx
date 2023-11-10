@@ -1,8 +1,4 @@
-// import { readDir, BaseDirectory, readTextFile, exists } from '@tauri-apps/api/fs';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
-// import { appWindow, currentMonitor } from '@tauri-apps/api/window';
-// import { appConfigDir, join } from '@tauri-apps/api/path';
-// import { convertFileSrc } from '@tauri-apps/api/tauri';
 import { Spacer, Button } from '@nextui-org/react';
 import { AiFillCloseCircle } from 'react-icons/ai';
 import React, { useState, useEffect } from 'react';
@@ -12,6 +8,7 @@ import SourceArea from './components/SourceArea';
 import TargetArea from './components/TargetArea';
 import { useConfig } from '../../hooks';
 import { GetTransalteWay } from "../../../wailsjs/go/main/App"
+import { WindowHide, WindowSetAlwaysOnTop, EventsOn, EventsEmit, ClipboardSetText } from "../../../wailsjs/runtime"
 
 let blurTimeout = null;
 let resizeTimeout = null;
@@ -27,14 +24,8 @@ export default function Translate() {
     const [pined, setPined] = useState(false);
     const [serviceConfig, setServiceConfig] = useState(null);
 
-    // const [translateServiceList, setTranslateServiceList] = useConfig('translate_service_list', [
-    //     // 'deepl',
-    //     'youdao',
-    //     // 'yandex',
-    //     // 'google',
-    // ]);
-
     const [translateServiceList, setTranslateServiceList] = useState([])
+
     useEffect(() => {
         GetTransalteWay().then(result => {
             setTranslateServiceList([result]);
@@ -60,7 +51,6 @@ export default function Translate() {
         let config = {};
 
         for (const service of translateServiceList) {
-            console.log(service)
             config[service] = {}
             // config[service] = (await store.get(service)) ?? {};
         }
@@ -92,7 +82,7 @@ export default function Translate() {
             >
                 <div
                     className='fixed top-[5px] left-[5px] right-[5px] h-[30px]'
-                    data-tauri-drag-region='true'
+                    style={{ '--wails-draggable': 'drag' }}
                 />
                 <div className={`h-[35px] w-full flex ${osType === 'Darwin' ? 'justify-end' : 'justify-between'}`}>
                     <Button
@@ -103,13 +93,9 @@ export default function Translate() {
                         className='my-auto bg-transparent'
                         onPress={() => {
                             if (pined) {
-                                if (closeOnBlur) {
-                                    unlisten = listenBlur();
-                                }
-                                appWindow.setAlwaysOnTop(false);
+                                WindowSetAlwaysOnTop(false);
                             } else {
-                                unlistenBlur();
-                                appWindow.setAlwaysOnTop(true);
+                                WindowSetAlwaysOnTop(true)
                             }
                             setPined(!pined);
                         }}
@@ -123,7 +109,7 @@ export default function Translate() {
                         disableAnimation
                         className={`my-auto ${osType === 'Darwin' && 'hidden'} bg-transparent`}
                         onPress={() => {
-                            void appWindow.close();
+                            void WindowHide();
                         }}
                     >
                         <AiFillCloseCircle className='text-[20px] text-default-400' />

@@ -54,7 +54,6 @@ func (a *App) SendDataToJS(query, result, explian string) {
 
 // test data
 func (a *App) onDomReady(ctx context.Context) {
-	runtime.WindowShow(ctx)
 	a.sendQueryText("启动成功")
 	// system tray 系统托盘
 	onReady := func() {
@@ -79,13 +78,26 @@ func (a *App) onDomReady(ctx context.Context) {
 
 var fromLang, toLang = "auto", "zh"
 
+func eventFunc(ctc context.Context) {
+	runtime.EventsOn(ctc, "translateType", func(optionalData ...interface{}) {
+		logrus.WithField("optionalData", optionalData).Info("translateType")
+		if len(optionalData) >= 2 {
+			fromLang = fmt.Sprintf("%v", optionalData[0])
+			toLang = fmt.Sprintf("%v", optionalData[1])
+		}
+	})
+}
+
 // startup is called when the app starts. The context is saved
 // so we can call the runtime methods
 func (a *App) startup(ctx context.Context) {
+	a.ctx = ctx
 	config.Init(ctx)
 
 	go hook.DafaultHook()
 	go hook.WindowsHook()
+
+	eventFunc(ctx)
 	// scList, _ := runtime.ScreenGetAll(ctx)
 
 	// var screenX, screenY int
@@ -105,26 +117,42 @@ func (a *App) startup(ctx context.Context) {
 				// windowX, windowY := runtime.WindowGetSize(ctx)
 				// x, y := robotgo.GetMousePos()
 				// x, y = x+10, y-10
+				// i := 0
+				// bounds := screenshot.GetDisplayBounds(i)
+
+				// img, err := screenshot.CaptureRect(bounds)
+				// if err != nil {
+				// 	panic(err)
+				// }
+
+				// tn := time.Now().UnixNano()
+				// frontendName := fmt.Sprintf("screenshot/screenshot-%d.png", tn)
+				// fileName := fmt.Sprintf("./frontend/%s", frontendName)
+				// if _, err := os.Stat(fileName); err == nil {
+				// 	// 文件存在，删除它
+				// 	err := os.Remove(fileName)
+				// 	if err != nil {
+				// 		// 处理删除文件时的错误
+				// 		logrus.WithError(err).Error("os.Remove")
+				// 	}
+				// 	println("文件已删除")
+				// }
+
+				// file, _ := os.Create(fileName)
+				// defer file.Close()
+				// png.Encode(file, img)
+
+				// runtime.EventsEmit(a.ctx, "screenshot", frontendName)
 				runtime.WindowShow(ctx)
-				runtime.EventsEmit(a.ctx, "notice", "translateType")
-				queryText, _ := runtime.ClipboardGetText(a.ctx)
 
-				a.sendQueryText(queryText)
+				// queryText, _ := runtime.ClipboardGetText(a.ctx)
 
-				if queryText != hook.GetQueryText() {
-					runtime.EventsOn(a.ctx, "translateType", func(optionalData ...interface{}) {
+				// a.sendQueryText(queryText)
 
-						logrus.WithField("optionalData", optionalData).Info("translateType")
-
-						if len(optionalData) >= 2 {
-							fromLang = fmt.Sprintf("%v", optionalData[0])
-							toLang = fmt.Sprintf("%v", optionalData[1])
-						}
-					})
-
-					fmt.Println("optionalData", fromLang, toLang)
-					a.Transalte(queryText, fromLang, toLang)
-				}
+				// if queryText != hook.GetQueryText() {
+				// 	fmt.Println("GetQueryText================", fromLang, toLang)
+				// 	a.Transalte(queryText, fromLang, toLang)
+				// }
 				// TODO 弹出窗口根据鼠标位置变动
 				// fmt.Println("or:", x, y, screenX, screenY, windowX, windowY)
 				// if y+windowY+20 >= screenY {
@@ -139,7 +167,7 @@ func (a *App) startup(ctx context.Context) {
 			}
 		}
 	}()
-	a.ctx = ctx
+
 }
 
 // Greet returns a greeting for the given name

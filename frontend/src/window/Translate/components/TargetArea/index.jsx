@@ -64,44 +64,27 @@ export default function TargetArea(props) {
             setIsLoading(false)
         })
 
-        EventsOn("notice", (result) => {
+        const LanguageEnum = builtinServices[translateServiceName].Language;
+        if (sourceLanguage in LanguageEnum && targetLanguage in LanguageEnum) {
             console.log(sourceLanguage, targetLanguage)
-            const LanguageEnum = builtinServices[translateServiceName].Language;
-            if (sourceLanguage in LanguageEnum && targetLanguage in LanguageEnum) {
-                EventsEmit("translateType", LanguageEnum[sourceLanguage], LanguageEnum[targetLanguage])
-            }
-
-        })
+            EventsEmit("translateType", LanguageEnum[sourceLanguage], LanguageEnum[targetLanguage])
+        }
     }, [sourceLanguage, targetLanguage])
 
     useEffect(() => {
         setResult('');
         setError('');
-        if (
-            sourceText.trim() !== '' &&
+        if (sourceText !== '' &&
             sourceLanguage &&
-            targetLanguage &&
-            autoCopy !== null &&
-            hideWindow !== null &&
-            clipboardMonitor !== null
-        ) {
-            if (autoCopy === 'source' && !clipboardMonitor) {
-                ClipboardSetText(sourceText).then((e) => {
-                    toast.success(e.toString(), { style: toastStyle });
-                    if (hideWindow) {
-                        sendNotification({ title: t('common.write_clipboard'), body: sourceText });
-                    }
-                });
-            }
-            console.log("translateServiceName", translateServiceName)
+            targetLanguage) {
             const LanguageEnum = builtinServices[translateServiceName].Language;
-            console.log("LanguageEnum", LanguageEnum)
+
             if (sourceLanguage in LanguageEnum && targetLanguage in LanguageEnum) {
                 Transalte(sourceText, LanguageEnum[sourceLanguage], LanguageEnum[targetLanguage])
-                console.log("translate useEffect", LanguageEnum[sourceLanguage], LanguageEnum[targetLanguage])
             }
-            // translate();
         }
+
+
     }, [sourceText, targetLanguage, sourceLanguage, autoCopy, hideWindow, translateServiceName, clipboardMonitor]);
 
     const handleSpeak = async () => {
@@ -112,6 +95,7 @@ export default function TargetArea(props) {
             if (!(targetLanguage in ttsPluginInfo.language)) {
                 throw new Error('Language not supported');
             }
+
             let data = await invoke('invoke_plugin', {
                 name: serviceName,
                 pluginType: 'tts',
@@ -143,7 +127,6 @@ export default function TargetArea(props) {
     }, [ttsServiceList]);
 
     useEffect(() => {
-        console.log("result,useEffect")
         if (textAreaRef.current !== null) {
             textAreaRef.current.style.height = '0px';
             if (result !== '') {
@@ -412,7 +395,7 @@ export default function TargetArea(props) {
                             <MdContentCopy className='text-[16px]' />
                         </Button>
                     </Tooltip>
-                    <Tooltip content={t('translate.translate_back')}>
+                    {/* <Tooltip content={t('translate.translate_back')}>
                         <Button
                             isIconOnly
                             variant='light'
@@ -424,7 +407,7 @@ export default function TargetArea(props) {
                         >
                             <TbTransformFilled className='text-[16px]' />
                         </Button>
-                    </Tooltip>
+                    </Tooltip> */}
                     <Tooltip content={t('translate.retry')}>
                         <Button
                             isIconOnly
