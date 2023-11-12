@@ -1,14 +1,21 @@
 package hook
 
 import (
+	"bytes"
+	"context"
+	"encoding/base64"
 	"handy-translate/config"
+	"image"
+	"image/png"
 
 	"sync"
 	"time"
 
 	"github.com/go-vgo/robotgo"
+	"github.com/kbinani/screenshot"
 	hook "github.com/robotn/gohook"
 	"github.com/sirupsen/logrus"
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 var HookChan = make(chan struct{}, 1)
@@ -45,9 +52,48 @@ var keyboardhook = func(e hook.Event) {
 	}
 }
 
+// 将图像编码为Base64字符串
+func encodeImageToBase64(img image.Image) string {
+	// 创建一个缓冲区用于保存Base64编码的数据
+	var imgBytes []byte
+	buf := new(bytes.Buffer)
+	err := png.Encode(buf, img)
+	if err != nil {
+		panic(err)
+	}
+
+	imgBytes = buf.Bytes()
+
+	// 使用base64编码图像数据
+	base64Image := base64.StdEncoding.EncodeToString(imgBytes)
+
+	return base64Image
+}
+
+var OcrShow bool
+
 // Hook register hook event
-func DafaultHook() {
+func DafaultHook(ctx context.Context) {
 	hook.Register(hook.MouseDown, []string{}, defaulthook)
+	hook.Register(hook.KeyDown, []string{"ctrl", "shift", "1"}, func(e hook.Event) {
+		if pressLock.TryLock() {
+			runtime.EventsEmit(ctx, "ocrShow", true)
+			logrus.Info(e)
+			i := 0
+			bounds := screenshot.GetDisplayBounds(i)
+
+			img, err := screenshot.CaptureRect(bounds)
+			if err != nil {
+				panic(err)
+			}
+
+			base64Image := encodeImageToBase64(img)
+			runtime.EventsEmit(ctx, "screenshot", base64Image)
+			runtime.EventsOff(ctx, "screenshot")
+			time.Sleep(time.Millisecond * 100)
+			pressLock.Unlock()
+		}
+	})
 	s := hook.Start()
 	<-hook.Process(s)
 	// 这个会阻塞事件

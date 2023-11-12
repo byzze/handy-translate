@@ -60,6 +60,8 @@ export default function SourceArea(props) {
 
     useEffect(() => {
         EventsOn("query", (result) => {
+            EventsEmit("ocrShow", false)
+            console.log(result)
             setSourceText(result)
         })
     }, []);
@@ -209,18 +211,14 @@ export default function SourceArea(props) {
                     className='text-[14px] font-bold'
                     startContent={<HiTranslate className='text-[16px]' />}
                     onPress={() => {
-                        console.log("resresresresr");
                         (async () => {
                             const worker = await createWorker('eng');
                             const ret = await worker.recognize('https://tesseract.projectnaptha.com/img/eng_bw.png');
-                            console.log(ret.data.text);
-                            console.log("resresresresr");
                             await worker.terminate();
                         })();
-                        console.log("resresresresr");
-                        // detect_language(sourceText).then(() => {
-                        //     syncSourceText();
-                        // });
+                        detect_language(sourceText).then(() => {
+                            syncSourceText();
+                        });
                     }}
                 >
                     {t('translate.translate')}

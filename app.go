@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bytes"
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"handy-translate/config"
@@ -9,6 +11,9 @@ import (
 	"handy-translate/translate"
 	"handy-translate/translate/youdao"
 	"handy-translate/utils"
+	"image"
+	"image/png"
+	"os"
 	"strings"
 	"time"
 
@@ -52,38 +57,60 @@ func (a *App) SendDataToJS(query, result, explian string) {
 
 }
 
+var s bool
+
 // test data
 func (a *App) onDomReady(ctx context.Context) {
 	a.sendQueryText("启动成功")
-	// system tray 系统托盘
-	onReady := func() {
-		systray.SetIcon(appicon)
-		systray.SetTitle(config.Data.Appname)
-		systray.SetTooltip(config.Data.Appname + "便捷翻译工具")
-		mShow := systray.AddMenuItem("显示", "显示翻译工具")
-		mQuitOrig := systray.AddMenuItem("退出", "退出翻译工具")
-		// Sets the icon of a menu item. Only available on Mac and Windows.
-		mShow.SetIcon(appicon)
-		for {
-			select {
-			case <-mShow.ClickedCh:
-				a.Show()
-			case <-mQuitOrig.ClickedCh:
-				a.Quit()
+	if !s {
+		// system tray 系统托盘
+		onReady := func() {
+			systray.SetIcon(appicon)
+			systray.SetTitle(config.Data.Appname)
+			systray.SetTooltip(config.Data.Appname + "便捷翻译工具")
+			mShow := systray.AddMenuItem("显示", "显示翻译工具")
+			mQuitOrig := systray.AddMenuItem("退出", "退出翻译工具")
+			// Sets the icon of a menu item. Only available on Mac and Windows.
+			mShow.SetIcon(appicon)
+			for {
+				select {
+				case <-mShow.ClickedCh:
+					a.Show()
+				case <-mQuitOrig.ClickedCh:
+					a.Quit()
+				}
 			}
 		}
+		systray.Run(onReady, func() { logrus.Info("app quit") })
+		s = true
 	}
-	systray.Run(onReady, func() { logrus.Info("app quit") })
 }
 
 var fromLang, toLang = "auto", "zh"
 
-func eventFunc(ctc context.Context) {
-	runtime.EventsOn(ctc, "translateType", func(optionalData ...interface{}) {
+func eventFunc(ctx context.Context) {
+	runtime.EventsOn(ctx, "translateType", func(optionalData ...interface{}) {
 		logrus.WithField("optionalData", optionalData).Info("translateType")
 		if len(optionalData) >= 2 {
 			fromLang = fmt.Sprintf("%v", optionalData[0])
 			toLang = fmt.Sprintf("%v", optionalData[1])
+		}
+	})
+	runtime.EventsOn(ctx, "screenshotCapture", func(optionalData ...interface{}) {
+		logrus.WithField("screenshotCapture", optionalData).Info("translateType")
+		if len(optionalData) >= 1 {
+			base64String := fmt.Sprintf("%v", optionalData[0])
+			base64String = strings.TrimPrefix(base64String, "data:image/png;base64,")
+			logrus.WithField("base64String", base64String).Info("translateType")
+			filename := ".output.png" // 保存的文件名
+
+			err := saveBase64Image(base64String, filename)
+			if err != nil {
+				logrus.Fatal("保存图片出错: ", err)
+			}
+			logrus.Println("图片保存成功")
+			resut := ExecOCR(".\\RapidOCR-json.exe", filename)
+			runtime.EventsEmit(ctx, "query", resut)
 		}
 	})
 }
@@ -94,7 +121,7 @@ func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
 	config.Init(ctx)
 
-	go hook.DafaultHook()
+	go hook.DafaultHook(ctx)
 	go hook.WindowsHook()
 
 	eventFunc(ctx)
@@ -117,13 +144,6 @@ func (a *App) startup(ctx context.Context) {
 				// windowX, windowY := runtime.WindowGetSize(ctx)
 				// x, y := robotgo.GetMousePos()
 				// x, y = x+10, y-10
-				// i := 0
-				// bounds := screenshot.GetDisplayBounds(i)
-
-				// img, err := screenshot.CaptureRect(bounds)
-				// if err != nil {
-				// 	panic(err)
-				// }
 
 				// tn := time.Now().UnixNano()
 				// frontendName := fmt.Sprintf("screenshot/screenshot-%d.png", tn)
@@ -141,10 +161,10 @@ func (a *App) startup(ctx context.Context) {
 				// file, _ := os.Create(fileName)
 				// defer file.Close()
 				// png.Encode(file, img)
-
 				// runtime.EventsEmit(a.ctx, "screenshot", frontendName)
-				runtime.WindowShow(ctx)
-
+				// runtime.WindowFullscreen(ctx)
+				runtime.EventsEmit(ctx, "ocrShow", false)
+				// runtime.WindowShow(ctx)
 				// queryText, _ := runtime.ClipboardGetText(a.ctx)
 
 				// a.sendQueryText(queryText)
@@ -168,6 +188,61 @@ func (a *App) startup(ctx context.Context) {
 		}
 	}()
 
+}
+
+func saveBase64Image(base64String, filename string) error {
+	// 将Base64编码的字符串解码为字芴切片
+	data, err := base64.StdEncoding.DecodeString(base64String)
+	if err != nil {
+		return err
+	}
+
+	// 创建一个文件用于保存图片
+	file, err := os.Create(filename)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	// 写入数据到文件
+	_, err = file.Write(data)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// 将图像编码为Base64字符串
+func encodeImageToBase64(img image.Image) string {
+	// 创建一个缓冲区用于保存Base64编码的数据
+	var imgBytes []byte
+	buf := new(bytes.Buffer)
+	err := png.Encode(buf, img)
+	if err != nil {
+		panic(err)
+	}
+
+	imgBytes = buf.Bytes()
+
+	// 使用base64编码图像数据
+	base64Image := base64.StdEncoding.EncodeToString(imgBytes)
+
+	return base64Image
+}
+
+// 保存Base64字符串到文件（可选）
+func saveBase64ToFile(filename, base64Image string) {
+	file, err := os.Create(filename)
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+
+	_, err = file.WriteString(base64Image)
+	if err != nil {
+		panic(err)
+	}
 }
 
 // Greet returns a greeting for the given name

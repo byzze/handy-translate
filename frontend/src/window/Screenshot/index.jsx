@@ -6,22 +6,31 @@ import React, { useEffect, useState, useRef } from 'react';
 // import { emit } from '@tauri-apps/api/event';
 // import { warn } from 'tauri-plugin-log-api';
 // import { invoke } from '@tauri-apps/api';
-
+import toast, { Toaster } from 'react-hot-toast';
 import { WindowHide, WindowUnfullscreen, WindowFullscreen, WindowMaximise, WindowSetBackgroundColour, WindowShow, WindowSetSize, WindowSetAlwaysOnTop, WindowUnmaximise, WindowMinimise, EventsOn, EventsEmit, ClipboardSetText, Hide } from "../../../wailsjs/runtime"
+import { useConfig, useToastStyle, useVoice } from '../../hooks';
 
 export default function Screenshot() {
-    //screenshot/screenshot-1699605146407919600.png
-    const [imgurl, setImgurl] = useState('screenshot/screenshot.png');
+    const [imgurl, setImgurl] = useState('');
     const [isMoved, setIsMoved] = useState(false);
     const [isDown, setIsDown] = useState(false);
     const [mouseDownX, setMouseDownX] = useState(0);
     const [mouseDownY, setMouseDownY] = useState(0);
     const [mouseMoveX, setMouseMoveX] = useState(0);
     const [mouseMoveY, setMouseMoveY] = useState(0);
-
+    const toastStyle = useToastStyle();
     const imgRef = useRef();
-
     const canvasRef = useRef(null);
+
+    useEffect(() => {
+        EventsOn("screenshot", (result) => {
+            console.log("=====" + result)
+            setImgurl("data:image/png;base64," + result)
+        })
+        EventsOn("ocrText", (result) => {
+            console.log(result)
+        })
+    }, [])
 
     const captureScreenshot = (x, y, width, height) => {
         const canvas = canvasRef.current;
@@ -29,7 +38,7 @@ export default function Screenshot() {
 
         // 创建一个新的 Image 对象
         const image = new Image();
-        image.src = 'screenshot/screenshot.png'; // 替换为您的图片 URL
+        image.src = imgurl; // 替换为您的图片 URL
 
         image.onload = function () {
             // 设置截图的起始坐标和截图的宽度和高度
@@ -44,6 +53,9 @@ export default function Screenshot() {
             context.drawImage(image, x, y, width, height, 0, 0, width, height);
             const base64Data = canvas.toDataURL('image/png');
             console.log(base64Data)
+            // setImgurl(base64Data)
+            EventsEmit("ocrShow", false)
+            EventsEmit("screenshotCapture", base64Data)
         };
     }
 
@@ -52,7 +64,6 @@ export default function Screenshot() {
         //     WindowMaximise()
         //     setImgurl(result)
         // })
-        WindowMaximise()
         // WindowUnmaximise()
         console.log(mouseDownX, mouseDownY, mouseMoveX, mouseMoveY)
         // const position = monitor.position;
@@ -85,7 +96,8 @@ export default function Screenshot() {
                 draggable={false}
                 onLoad={() => {
                     if (imgurl !== '' && imgRef.current.complete) {
-                        // void WindowShow();
+                        void WindowMaximise();
+                        // void WindowShow()
                         // void appWindow.setFocus();
                         // void appWindow.setResizable(false);
                     }
@@ -108,6 +120,7 @@ export default function Screenshot() {
                         setMouseDownX(e.clientX);
                         setMouseDownY(e.clientY);
                     } else {
+                        WindowHide()
                         // void appWindow.close();
                     }
                 }}
@@ -119,12 +132,9 @@ export default function Screenshot() {
                     }
                 }}
                 onMouseUp={async (e) => {
-                    // WindowHide();
                     setIsDown(false);
                     setIsMoved(false);
 
-                    console.log({ mouseDownX })
-                    console.log(screen.width)
                     const imgWidth = imgRef.current.naturalWidth;
                     const dpi = imgWidth / screen.width;
                     const left = Math.floor(Math.min(mouseDownX, e.clientX) * dpi);
@@ -133,16 +143,20 @@ export default function Screenshot() {
                     const bottom = Math.floor(Math.max(mouseDownY, e.clientY) * dpi);
                     const width = right - left;
                     const height = bottom - top;
-                    captureScreenshot(left, top, width, height)
-                    console.log({ left, top, width, height })
+
+                    console.log(left, top, width, height)
                     if (width <= 0 || height <= 0) {
+                        toast.error('Screenshot area is too small', { style: toastStyle });
                         // warn('Screenshot area is too small');
                         // await appWindow.close();
                     } else {
+                        captureScreenshot(left, top, width, height)
                         // await invoke('cut_image', { left, top, width, height });
                         // await emit('success');
                         // await appWindow.close();
                     }
+                    WindowUnmaximise();
+                    // WindowHide()
                 }}
             />
         </>

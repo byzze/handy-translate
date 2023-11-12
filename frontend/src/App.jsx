@@ -8,7 +8,7 @@ import Translate from './window/Translate';
 import Screenshot from './window/Screenshot';
 import { useConfig } from './hooks';
 // import { store } from './utils/store';
-import { WindowSetSystemDefaultTheme } from '../wailsjs/runtime';
+import { WindowSetSystemDefaultTheme, WindowReloadApp, EventsOn } from '../wailsjs/runtime';
 import './i18n';
 import './style.css';
 
@@ -18,6 +18,14 @@ function App() {
     const [appLanguage] = useConfig('app_language', 'zh_cn');
     const { setTheme } = useTheme();
     const { i18n } = useTranslation();
+    const [isScreenshot, setIsScreenshot] = useState(false);
+    useEffect(() => {
+        EventsOn("ocrShow", (result) => {
+            console.log(result)
+            setIsScreenshot(result)
+        })
+    }, [])
+
     useEffect(() => {
         // WindowSetDarkTheme()
         if (appTheme !== null) {
@@ -47,7 +55,11 @@ function App() {
         }
     }, [appTheme, appLanguage]);
     return <BrowserRouter>
-        <Screenshot />
+        {isScreenshot ? (
+            <Screenshot />
+        ) : (
+            <Translate />
+        )}
     </BrowserRouter>;
 }
 
