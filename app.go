@@ -15,7 +15,7 @@ import (
 	"image/png"
 	"os"
 	"strings"
-	"time"
+	"sync"
 
 	"github.com/getlantern/systray"
 	"github.com/sirupsen/logrus"
@@ -57,33 +57,36 @@ func (a *App) SendDataToJS(query, result, explian string) {
 
 }
 
-var s bool
+var scSystray sync.Once
+
+func onExit() {
+	logrus.Info("onExit")
+	// 在这里执行清理和退出逻辑
+}
 
 // test data
 func (a *App) onDomReady(ctx context.Context) {
 	a.sendQueryText("启动成功")
-	if !s {
-		// system tray 系统托盘
-		onReady := func() {
-			systray.SetIcon(appicon)
-			systray.SetTitle(config.Data.Appname)
-			systray.SetTooltip(config.Data.Appname + "便捷翻译工具")
-			mShow := systray.AddMenuItem("显示", "显示翻译工具")
-			mQuitOrig := systray.AddMenuItem("退出", "退出翻译工具")
-			// Sets the icon of a menu item. Only available on Mac and Windows.
-			mShow.SetIcon(appicon)
-			for {
-				select {
-				case <-mShow.ClickedCh:
-					a.Show()
-				case <-mQuitOrig.ClickedCh:
-					a.Quit()
-				}
-			}
-		}
-		systray.Run(onReady, func() { logrus.Info("app quit") })
-		s = true
+	onReady := func() {
+		systray.SetIcon(appicon)
+		systray.SetTitle(config.Data.Appname)
+		systray.SetTooltip(config.Data.Appname + "便捷翻译工具")
+		mShow := systray.AddMenuItem("显示", "显示翻译工具")
+		mQuitOrig := systray.AddMenuItem("退出", "退出翻译工具")
+		// Sets the icon of a menu item. Only available on Mac and Windows.
+		mShow.SetIcon(appicon)
+
+		go func() {
+			<-mQuitOrig.ClickedCh
+			a.Quit()
+		}()
+
+		go func() {
+			<-mShow.ClickedCh
+			a.Show()
+		}()
 	}
+	systray.Run(onReady, onExit)
 }
 
 var fromLang, toLang = "auto", "zh"
@@ -96,13 +99,14 @@ func eventFunc(ctx context.Context) {
 			toLang = fmt.Sprintf("%v", optionalData[1])
 		}
 	})
+
 	runtime.EventsOn(ctx, "screenshotCapture", func(optionalData ...interface{}) {
 		logrus.WithField("screenshotCapture", optionalData).Info("translateType")
 		if len(optionalData) >= 1 {
 			base64String := fmt.Sprintf("%v", optionalData[0])
 			base64String = strings.TrimPrefix(base64String, "data:image/png;base64,")
 			logrus.WithField("base64String", base64String).Info("translateType")
-			filename := ".output.png" // 保存的文件名
+			filename := "screenshot.png" // 保存的文件名
 
 			err := saveBase64Image(base64String, filename)
 			if err != nil {
@@ -145,34 +149,16 @@ func (a *App) startup(ctx context.Context) {
 				// x, y := robotgo.GetMousePos()
 				// x, y = x+10, y-10
 
-				// tn := time.Now().UnixNano()
-				// frontendName := fmt.Sprintf("screenshot/screenshot-%d.png", tn)
-				// fileName := fmt.Sprintf("./frontend/%s", frontendName)
-				// if _, err := os.Stat(fileName); err == nil {
-				// 	// 文件存在，删除它
-				// 	err := os.Remove(fileName)
-				// 	if err != nil {
-				// 		// 处理删除文件时的错误
-				// 		logrus.WithError(err).Error("os.Remove")
-				// 	}
-				// 	println("文件已删除")
-				// }
-
-				// file, _ := os.Create(fileName)
-				// defer file.Close()
-				// png.Encode(file, img)
-				// runtime.EventsEmit(a.ctx, "screenshot", frontendName)
 				// runtime.WindowFullscreen(ctx)
 				runtime.EventsEmit(ctx, "ocrShow", false)
-				// runtime.WindowShow(ctx)
-				// queryText, _ := runtime.ClipboardGetText(a.ctx)
+				queryText, _ := runtime.ClipboardGetText(a.ctx)
 
-				// a.sendQueryText(queryText)
+				a.sendQueryText(queryText)
+				if queryText != hook.GetQueryText() {
+					fmt.Println("GetQueryText", fromLang, toLang)
+					a.Transalte(queryText, fromLang, toLang)
+				}
 
-				// if queryText != hook.GetQueryText() {
-				// 	fmt.Println("GetQueryText================", fromLang, toLang)
-				// 	a.Transalte(queryText, fromLang, toLang)
-				// }
 				// TODO 弹出窗口根据鼠标位置变动
 				// fmt.Println("or:", x, y, screenX, screenY, windowX, windowY)
 				// if y+windowY+20 >= screenY {
@@ -285,7 +271,6 @@ func (a *App) Transalte(queryText, fromLang, toLang string) {
 	hook.SetQueryText(queryText)
 	// 加载动画loading
 	runtime.EventsEmit(a.ctx, "loading", "true")
-	time.Sleep(time.Second * 3)
 	defer runtime.EventsEmit(a.ctx, "loading", "false")
 
 	transalteWay := translate.GetTransalteWay(config.Data.TranslateWay)
@@ -299,10 +284,8 @@ func (a *App) Transalte(queryText, fromLang, toLang string) {
 
 	curName := transalteWay.GetName()
 	// 使用 strings.Replace 替换 \r 和 \n 为空格
-	queryTextTmp := strings.ReplaceAll(queryText, "\r", "")
-	queryTextTmp = strings.ReplaceAll(queryTextTmp, "\n", "")
 
-	result, err := transalteWay.PostQuery(queryTextTmp, fromLang, toLang)
+	result, err := transalteWay.PostQuery(queryText, fromLang, toLang)
 	if err != nil {
 		logrus.WithError(err).Error("PostQuery")
 	}

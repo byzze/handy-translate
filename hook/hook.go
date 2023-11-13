@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/base64"
+	"fmt"
 	"handy-translate/config"
 	"image"
 	"image/png"
@@ -18,18 +19,21 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
+// HookChan
 var HookChan = make(chan struct{}, 1)
 
 var queryText string
 
 var lk sync.RWMutex
 
+// SetQueryText
 func SetQueryText(value string) {
 	lk.Lock()
 	queryText = value
 	lk.Unlock()
 }
 
+// GetQueryText
 func GetQueryText() string {
 	lk.RLock()
 	defer lk.RUnlock()
@@ -70,30 +74,32 @@ func encodeImageToBase64(img image.Image) string {
 	return base64Image
 }
 
-var OcrShow bool
-
-// Hook register hook event
+// DafaultHook register hook event
 func DafaultHook(ctx context.Context) {
 	hook.Register(hook.MouseDown, []string{}, defaulthook)
-	hook.Register(hook.KeyDown, []string{"ctrl", "shift", "1"}, func(e hook.Event) {
-		if pressLock.TryLock() {
-			runtime.EventsEmit(ctx, "ocrShow", true)
-			logrus.Info(e)
-			i := 0
-			bounds := screenshot.GetDisplayBounds(i)
+	hook.Register(hook.KeyDown, []string{"f", "ctrl", "shift"}, func(e hook.Event) {
+		logrus.Info(e)
+		i := 0
+		bounds := screenshot.GetDisplayBounds(i)
+		img, err := screenshot.CaptureRect(bounds)
 
-			img, err := screenshot.CaptureRect(bounds)
-			if err != nil {
-				panic(err)
-			}
-
-			base64Image := encodeImageToBase64(img)
-			runtime.EventsEmit(ctx, "screenshot", base64Image)
-			runtime.EventsOff(ctx, "screenshot")
-			time.Sleep(time.Millisecond * 100)
-			pressLock.Unlock()
+		if err != nil {
+			// 错误处理，输出错误信息并返回
+			fmt.Println("Error capturing screenshot:", err)
+			return
 		}
+
+		base64Image := encodeImageToBase64(img)
+		if base64Image == "" {
+			// 错误处理，未能生成Base64图像，返回
+			fmt.Println("Error encoding image to Base64")
+			return
+		}
+		runtime.EventsEmit(ctx, "ocrShow", true)
+
+		runtime.EventsEmit(ctx, "screenshot", base64Image)
 	})
+
 	s := hook.Start()
 	<-hook.Process(s)
 	// 这个会阻塞事件

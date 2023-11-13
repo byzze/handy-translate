@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os/exec"
 	"strings"
+	"syscall"
 )
 
 func ExecOCR(path, image string) string {
@@ -42,17 +43,19 @@ func ExecOCR(path, image string) string {
 		return ""
 	}
 
-	var text string
+	var text []string
 	// 打印解析后的结果
+
 	fmt.Printf("Code: %d\n", result.Code)
 	for i, item := range result.Data {
 		fmt.Printf("Item %d:\n", i+1)
 		fmt.Printf("  Box: %v\n", item.Box)
 		fmt.Printf("  Score: %f\n", item.Score)
 		fmt.Printf("  Text: %s\n", item.Text)
-		text += item.Text + "\n"
+		text = append(text, item.Text)
 	}
-	return text
+
+	return strings.Join(text, "\n")
 }
 
 type OCRResult struct {
@@ -78,7 +81,10 @@ func runExternalProgram(program ExternalProgram) ([]byte, error) {
 	// 创建一个字节缓冲区来捕获输出
 	var outputBuffer bytes.Buffer
 	cmd.Stdout = &outputBuffer
-
+	cmd.SysProcAttr = &syscall.SysProcAttr{
+		HideWindow:    true,
+		CreationFlags: 0x08000000,
+	}
 	// 启动外部进程
 	err := cmd.Start()
 	if err != nil {

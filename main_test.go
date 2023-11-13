@@ -246,5 +246,5 @@ func TestOCR(t *testing.T) {
 }
 
 func TestExec(t *testing.T) {
-	ExecOCR(".\\RapidOCR-json.exe", ".\\output.png")
+	ExecOCR(".\\RapidOCR-json.exe", "screenshot.png")
 }

@@ -24,11 +24,7 @@ export default function Screenshot() {
 
     useEffect(() => {
         EventsOn("screenshot", (result) => {
-            console.log("=====" + result)
             setImgurl("data:image/png;base64," + result)
-        })
-        EventsOn("ocrText", (result) => {
-            console.log(result)
         })
     }, [])
 
@@ -36,53 +32,28 @@ export default function Screenshot() {
         const canvas = canvasRef.current;
         const context = canvas.getContext('2d');
 
-        // 创建一个新的 Image 对象
+        // // 创建一个新的 Image 对象
         const image = new Image();
         image.src = imgurl; // 替换为您的图片 URL
+        // // 设置截图的起始坐标和截图的宽度和高度
 
-        image.onload = function () {
-            // 设置截图的起始坐标和截图的宽度和高度
-            // const x = 100; // 起始横坐标
-            // const y = 50; // 起始纵坐标
-            // const width = 200; // 截图宽度
-            // const height = 150; // 截图高度
+        // // 在 Canvas 上绘制截图
+        canvas.width = width;
+        canvas.height = height;
+        context.drawImage(image, x, y, width, height, 0, 0, width, height);
+        const base64Data = canvas.toDataURL('image/png');
+        EventsEmit("screenshotCapture", base64Data)
+        EventsEmit("ocrShow", false)
+        // image.onload = function () {
 
-            // 在 Canvas 上绘制截图
-            canvas.width = width;
-            canvas.height = height;
-            context.drawImage(image, x, y, width, height, 0, 0, width, height);
-            const base64Data = canvas.toDataURL('image/png');
-            console.log(base64Data)
-            // setImgurl(base64Data)
-            EventsEmit("ocrShow", false)
-            EventsEmit("screenshotCapture", base64Data)
-        };
+        // };
     }
-
-    useEffect(() => {
-        // EventsOn("screenshot", (result) => {
-        //     WindowMaximise()
-        //     setImgurl(result)
-        // })
-        // WindowUnmaximise()
-        console.log(mouseDownX, mouseDownY, mouseMoveX, mouseMoveY)
-        // const position = monitor.position;
-        // console.log(monitor.position)
-        // currentMonitor().then((monitor) => {
-        //     const position = monitor.position;
-        //     invoke('screenshot', { x: position.x, y: position.y }).then(() => {
-        //         appCacheDir().then((appCacheDirPath) => {
-        //             join(appCacheDirPath, 'pot_screenshot.png').then((filePath) => {
-        //                 setImgurl(convertFileSrc(filePath));
-        //             });
-        //         });
-        //     });
-        // });
-    }, []);
 
     const keyDown = (event) => {
         if (event.key === 'Escape') {
-            WindowUnmaximise();
+            WindowFullscreen();
+            WindowSetAlwaysOnTop(false)
+            WindowHide()
         }
     };
 
@@ -96,10 +67,9 @@ export default function Screenshot() {
                 draggable={false}
                 onLoad={() => {
                     if (imgurl !== '' && imgRef.current.complete) {
-                        void WindowMaximise();
-                        // void WindowShow()
-                        // void appWindow.setFocus();
-                        // void appWindow.setResizable(false);
+                        WindowFullscreen();
+                        WindowSetAlwaysOnTop(true)
+                        WindowShow()
                     }
                 }}
             />
@@ -121,7 +91,6 @@ export default function Screenshot() {
                         setMouseDownY(e.clientY);
                     } else {
                         WindowHide()
-                        // void appWindow.close();
                     }
                 }}
                 onMouseMove={(e) => {
@@ -132,31 +101,29 @@ export default function Screenshot() {
                     }
                 }}
                 onMouseUp={async (e) => {
+                    WindowHide()
                     setIsDown(false);
                     setIsMoved(false);
-
-                    const imgWidth = imgRef.current.naturalWidth;
-                    const dpi = imgWidth / screen.width;
-                    const left = Math.floor(Math.min(mouseDownX, e.clientX) * dpi);
-                    const top = Math.floor(Math.min(mouseDownY, e.clientY) * dpi);
-                    const right = Math.floor(Math.max(mouseDownX, e.clientX) * dpi);
-                    const bottom = Math.floor(Math.max(mouseDownY, e.clientY) * dpi);
-                    const width = right - left;
-                    const height = bottom - top;
-
-                    console.log(left, top, width, height)
-                    if (width <= 0 || height <= 0) {
-                        toast.error('Screenshot area is too small', { style: toastStyle });
-                        // warn('Screenshot area is too small');
-                        // await appWindow.close();
-                    } else {
-                        captureScreenshot(left, top, width, height)
-                        // await invoke('cut_image', { left, top, width, height });
-                        // await emit('success');
-                        // await appWindow.close();
+                    console.log(e, "xxxxx")
+                    if (e.button === 1 || e.button === 0) {
+                        const imgWidth = imgRef.current.naturalWidth;
+                        const dpi = imgWidth / screen.width;
+                        const left = Math.floor(Math.min(mouseDownX, e.clientX) * dpi);
+                        const top = Math.floor(Math.min(mouseDownY, e.clientY) * dpi);
+                        const right = Math.floor(Math.max(mouseDownX, e.clientX) * dpi);
+                        const bottom = Math.floor(Math.max(mouseDownY, e.clientY) * dpi);
+                        const width = right - left;
+                        const height = bottom - top;
+                        console.log(height, width)
+                        if (width <= 0 || height <= 0) {
+                            toast.error('Screenshot area is too small', { style: toastStyle });
+                            WindowHide()
+                        } else {
+                            captureScreenshot(left, top, width, height)
+                            WindowUnfullscreen();
+                            WindowSetAlwaysOnTop(false)
+                        }
                     }
-                    WindowUnmaximise();
-                    // WindowHide()
                 }}
             />
         </>

@@ -60,9 +60,8 @@ export default function SourceArea(props) {
 
     useEffect(() => {
         EventsOn("query", (result) => {
-            EventsEmit("ocrShow", false)
-            console.log(result)
             setSourceText(result)
+            WindowShow()
         })
     }, []);
 
