@@ -3,6 +3,7 @@ import { Spacer, ButtonGroup, Button, Modal, ModalContent, ModalHeader, ModalBod
 import { AiFillCloseCircle, AiFillMinusCircle, AiFillSetting, AiOutlineTranslation } from 'react-icons/ai';
 import React, { useState, useEffect } from 'react';
 import { BsPinFill } from 'react-icons/bs';
+import { IoHelpCircle } from "react-icons/io5";
 import LanguageArea from './components/LanguageArea';
 import SourceArea from './components/SourceArea';
 import TargetArea from './components/TargetArea';
@@ -108,6 +109,19 @@ export default function Translate() {
                         >
                             <AiFillSetting className={`text-[20px] ${pined ? 'text-primary' : 'text-default-400'}`} />
                         </Button> */}
+                        <Button
+                            isIconOnly
+                            size='sm'
+                            variant='flat'
+                            disableAnimation
+                            className='my-auto bg-transparent'
+                            onPress={() => {
+                                onTranslateOpen();
+                                setTranslate(!translate);
+                            }}
+                        >
+                            <IoHelpCircle className={`text-[20px] ${translate ? 'text-primary' : 'text-default-400'}`} />
+                        </Button>
                         <Button
                             isIconOnly
                             size='sm'

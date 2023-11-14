@@ -74,9 +74,27 @@ func encodeImageToBase64(img image.Image) string {
 	return base64Image
 }
 
+var lastKeyPressTime time.Time
+
 // DafaultHook register hook event
 func DafaultHook(ctx context.Context) {
 	hook.Register(hook.MouseDown, []string{}, defaulthook)
+
+	hook.Register(hook.KeyDown, []string{"ctrl", "c"}, func(e hook.Event) {
+		logrus.Info(e)
+		if pressLock.TryLock() {
+			lastKeyPressTime = time.Now()
+		} else {
+			elapsed := time.Since(lastKeyPressTime)
+			// Check if the time elapsed is greater than 500 milliseconds
+			if elapsed.Milliseconds() < 500 {
+				logrus.Info("=========", e)
+				HookChan <- struct{}{}
+			}
+			pressLock.Unlock()
+		}
+	})
+
 	hook.Register(hook.KeyDown, []string{"f", "ctrl", "shift"}, func(e hook.Event) {
 		logrus.Info(e)
 		i := 0
