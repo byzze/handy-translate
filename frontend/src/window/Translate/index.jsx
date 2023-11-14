@@ -12,7 +12,6 @@ import { WindowHide, WindowSetAlwaysOnTop, Quit, EventsOn, EventsEmit, Clipboard
 import { useConfig, useSyncAtom, useVoice, useToastStyle } from '../../hooks';
 import { translateServiceListAtom } from './components/Way';
 import { atom, useAtom, useAtomValue } from 'jotai';
-import { useSetRecoilState } from 'recoil';
 
 let blurTimeout = null;
 let resizeTimeout = null;
@@ -23,15 +22,18 @@ let osType = "Windows_NT"
 
 export default function Translate() {
     const { isOpen, onOpen, onOpenChange } = useDisclosure();
+    const { isOpen: isSettingOpen, onOpen: onSettingOpen, onOpenChange: onSettingOpenChange } = useDisclosure();
+    const { isOpen: isTranslateOpen, onOpen: onTranslateOpen, onOpenChange: onTranslateOpenChange } = useDisclosure();
     const [modalPlacement, setModalPlacement] = React.useState("auto");
     const [alwaysOnTop] = useConfig('translate_always_on_top', false);
     const [hideSource] = useConfig('hide_source', false);
     const [hideLanguage] = useConfig('hide_language', false);
     const [pined, setPined] = useState(false);
+    const [translate, setTranslate] = useState(false);
+    const [setting, setSetting] = useState(false);
     const [serviceConfig, setServiceConfig] = useState(null);
 
-    const translateServiceList = useAtomValue(translateServiceListAtom);
-    const setTranslateServiceList = useSetRecoilState(translateServiceListAtom);
+    const [translateServiceList, setTranslateServiceList] = useAtom(translateServiceListAtom);
 
     useEffect(() => {
         GetTransalteWay().then(result => {
@@ -93,23 +95,19 @@ export default function Translate() {
                 />
                 <div className={`h-[35px] w-full flex ${osType === 'Darwin' ? 'justify-end' : 'justify-between'}`}>
                     <ButtonGroup className='mr-[5px]'>
-                        <Button
+                        {/* <Button
                             isIconOnly
                             size='sm'
                             variant='flat'
                             disableAnimation
                             className='my-auto bg-transparent'
                             onPress={() => {
-                                if (pined) {
-                                    WindowSetAlwaysOnTop(false);
-                                } else {
-                                    WindowSetAlwaysOnTop(true)
-                                }
-                                setPined(!pined);
+                                onOpen();
+                                // setPined(!pined);
                             }}
                         >
                             <AiFillSetting className={`text-[20px] ${pined ? 'text-primary' : 'text-default-400'}`} />
-                        </Button>
+                        </Button> */}
                         <Button
                             isIconOnly
                             size='sm'
@@ -117,10 +115,11 @@ export default function Translate() {
                             disableAnimation
                             className='my-auto bg-transparent'
                             onPress={() => {
-                                onOpen()
+                                onTranslateOpen();
+                                setTranslate(!translate);
                             }}
                         >
-                            <AiOutlineTranslation className={`text-[20px] ${pined ? 'text-primary' : 'text-default-400'}`} />
+                            <AiOutlineTranslation className={`text-[20px] ${translate ? 'text-primary' : 'text-default-400'}`} />
                         </Button>
                     </ButtonGroup>
 
@@ -169,9 +168,12 @@ export default function Translate() {
                     </ButtonGroup>
 
                     <Modal
-                        isOpen={isOpen}
+                        isOpen={isTranslateOpen}
                         placement={modalPlacement}
-                        onOpenChange={onOpenChange}
+                        onOpenChange={() => {
+                            onTranslateOpenChange()
+                            setTranslate(!translate);
+                        }}
                     >
                         <ModalContent>
                             {(onClose) => (
@@ -181,7 +183,9 @@ export default function Translate() {
                                         <Way />
                                     </ModalBody>
                                     <ModalFooter>
-                                        <Button color="danger" variant="light" onPress={onClose} >
+                                        <Button color="danger" variant="light" onPress={() => {
+                                            onClose()
+                                        }} >
                                             取消
                                         </Button>
                                     </ModalFooter>
@@ -189,7 +193,8 @@ export default function Translate() {
                             )}
                         </ModalContent>
                     </Modal>
-                    {/* <Modal
+
+                    <Modal
                         isOpen={isOpen}
                         placement={modalPlacement}
                         onOpenChange={onOpenChange}
@@ -218,7 +223,7 @@ export default function Translate() {
                                 </>
                             )}
                         </ModalContent>
-                    </Modal> */}
+                    </Modal>
                 </div>
                 <div className={`${osType === 'Linux' ? 'h-[calc(100vh-37px)]' : 'h-[calc(100vh-35px)]'} px-[8px]`}>
                     <div className='h-full overflow-y-auto'>

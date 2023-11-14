@@ -6,17 +6,13 @@ import { GetTransalteMap, GetTransalteWay, SetTransalteWay } from "../../../../.
 import { useConfig, useToastStyle, useVoice, useSyncAtom } from '../../../../hooks';
 import { atom, useAtom, useAtomValue } from 'jotai';
 
-// import { translateServiceListAtom } from '../../../Translate';
-
 export const translateServiceListAtom = atom([]);
 
+let timer = null;
 export default function Way() {
     const [translateMap, setTranslateMap] = React.useState({});
 
     const [translateServiceList, setTranslateServiceList, syncTranslateServiceList] = useSyncAtom(translateServiceListAtom)
-
-    // const [translateServiceList, setTranslateServiceList] = useAtomValue(translateServiceListAtom);
-
 
     const [selected, setSelected] = React.useState("");
     const toastStyle = useToastStyle();
@@ -26,7 +22,6 @@ export default function Way() {
         //     setTranslateServiceList([result]);
         // });
 
-        console.log(translateServiceList)
         GetTransalteMap().then(result => {
             result = JSON.parse(result)
             setTranslateMap(result)
@@ -49,14 +44,15 @@ export default function Way() {
                     setSelected(value)
                     SetTransalteWay(value)
                     setTranslateServiceList([value])
+
+                    if (timer) {
+                        clearTimeout(timer);
+                    }
+
                     timer = setTimeout(() => {
                         syncTranslateServiceList()
-                    }, 1000);
+                    }, 100);
 
-                    console.log("test", translateServiceList)
-                    toast.success('切换翻译' + value + '成功', {
-                        style: toastStyle,
-                    });
                 })}
             >
 
@@ -65,12 +61,8 @@ export default function Way() {
                         return (<Radio key={key[0]} value={key[0]}>{key[1].name}</Radio>)
                     })
                 }
-                {/* // <Radio value="sydney">Sydney</Radio>
-                        // <Radio value="san-francisco">San Francisco</Radio>
-                        // <Radio value="london">London</Radio>
-                        // <Radio value="tokyo">Tokyo</Radio> */}
             </RadioGroup>
-            <p className="text-default-500 text-small">Selected: {selected}</p>
+            {/* <p className="text-default-500 text-small">Selected: {selected}</p> */}
         </div>
     );
 }

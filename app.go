@@ -1,9 +1,7 @@
 package main
 
 import (
-	"bytes"
 	"context"
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"handy-translate/config"
@@ -11,11 +9,7 @@ import (
 	"handy-translate/translate"
 	"handy-translate/translate/youdao"
 	"handy-translate/utils"
-	"image"
-	"image/png"
-	"os"
 	"strings"
-	"sync"
 
 	"github.com/sirupsen/logrus"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
@@ -56,46 +50,8 @@ func (a *App) SendDataToJS(query, result, explian string) {
 
 }
 
-var scSystray sync.Once
-
-func onExit() {
-	logrus.Info("onExit")
-	// 在这里执行清理和退出逻辑
-}
-
-// test data
 func (a *App) onDomReady(ctx context.Context) {
 	a.sendQueryText("启动成功")
-
-	// w.SetContent(widget.NewLabel("Fyne System Tray"))
-	// w.SetCloseIntercept(func() {
-	// 	w.Hide()
-	// })
-	// w.ShowAndRun()
-
-	/* onReady := func() {
-		systray.SetIcon(appicon)
-		systray.SetTitle(config.Data.Appname)
-		systray.SetTooltip(config.Data.Appname + "便捷翻译工具")
-		mShow := systray.AddMenuItem("显示", "显示翻译工具")
-		mQuitOrig := systray.AddMenuItem("退出", "退出翻译工具")
-		mURL := systray.AddMenuItem("Open UI", "my home")
-		// Sets the icon of a menu item. Only available on Mac and Windows.
-		mShow.SetIcon(appicon)
-
-		for {
-			select {
-			case <-mURL.ClickedCh:
-				open.Run("https://github.com/")
-			case <-mQuitOrig.ClickedCh:
-				a.Quit()
-			case <-mShow.ClickedCh:
-				a.Show()
-				return
-			}
-		}
-	}
-	systray.Run(onReady, onExit) */
 }
 
 var fromLang, toLang = "auto", "zh"
@@ -182,62 +138,6 @@ func (a *App) startup(ctx context.Context) {
 			}
 		}
 	}()
-
-}
-
-func saveBase64Image(base64String, filename string) error {
-	// 将Base64编码的字符串解码为字芴切片
-	data, err := base64.StdEncoding.DecodeString(base64String)
-	if err != nil {
-		return err
-	}
-
-	// 创建一个文件用于保存图片
-	file, err := os.Create(filename)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	// 写入数据到文件
-	_, err = file.Write(data)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// 将图像编码为Base64字符串
-func encodeImageToBase64(img image.Image) string {
-	// 创建一个缓冲区用于保存Base64编码的数据
-	var imgBytes []byte
-	buf := new(bytes.Buffer)
-	err := png.Encode(buf, img)
-	if err != nil {
-		panic(err)
-	}
-
-	imgBytes = buf.Bytes()
-
-	// 使用base64编码图像数据
-	base64Image := base64.StdEncoding.EncodeToString(imgBytes)
-
-	return base64Image
-}
-
-// 保存Base64字符串到文件（可选）
-func saveBase64ToFile(filename, base64Image string) {
-	file, err := os.Create(filename)
-	if err != nil {
-		panic(err)
-	}
-	defer file.Close()
-
-	_, err = file.WriteString(base64Image)
-	if err != nil {
-		panic(err)
-	}
 }
 
 // Greet returns a greeting for the given name

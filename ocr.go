@@ -2,11 +2,16 @@ package main
 
 import (
 	"bytes"
+	"encoding/base64"
 	"encoding/json"
-	"fmt"
+	"image"
+	"image/png"
+	"os"
 	"os/exec"
 	"strings"
 	"syscall"
+
+	"github.com/sirupsen/logrus"
 )
 
 func ExecOCR(path, image string) string {
@@ -22,14 +27,14 @@ func ExecOCR(path, image string) string {
 	// 使用结构体中的信息执行外部程序
 	output, err := runExternalProgram(program)
 	if err != nil {
-		fmt.Println("执行外部程序时发生错误：", err)
+		logrus.Error("执行外部程序时发生错误：", err)
 		return ""
 	}
-	fmt.Println(string(output))
+	logrus.Info(string(output))
 	// 查找第一个左大括号的位置
 	startIndex := strings.Index(string(output), "{")
 	if startIndex == -1 {
-		fmt.Println("无法找到 JSON 数据的起始位置")
+		logrus.Error("无法找到 JSON 数据的起始位置")
 		return ""
 	}
 
@@ -39,19 +44,13 @@ func ExecOCR(path, image string) string {
 	// 解析 JSON 数据
 	var result OCRResult
 	if err := json.Unmarshal([]byte(jsonStr), &result); err != nil {
-		fmt.Println("解析输出结果时发生错误：", err)
+		logrus.Error("解析输出结果时发生错误：", err)
 		return ""
 	}
 
 	var text []string
 	// 打印解析后的结果
-
-	fmt.Printf("Code: %d\n", result.Code)
-	for i, item := range result.Data {
-		fmt.Printf("Item %d:\n", i+1)
-		fmt.Printf("  Box: %v\n", item.Box)
-		fmt.Printf("  Score: %f\n", item.Score)
-		fmt.Printf("  Text: %s\n", item.Text)
+	for _, item := range result.Data {
 		text = append(text, item.Text)
 	}
 
@@ -94,4 +93,59 @@ func runExternalProgram(program ExternalProgram) ([]byte, error) {
 	// 等待外部进程完成
 	err = cmd.Wait()
 	return outputBuffer.Bytes(), nil
+}
+
+func saveBase64Image(base64String, filename string) error {
+	// 将Base64编码的字符串解码为字芴切片
+	data, err := base64.StdEncoding.DecodeString(base64String)
+	if err != nil {
+		return err
+	}
+
+	// 创建一个文件用于保存图片
+	file, err := os.Create(filename)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	// 写入数据到文件
+	_, err = file.Write(data)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// 将图像编码为Base64字符串
+func encodeImageToBase64(img image.Image) string {
+	// 创建一个缓冲区用于保存Base64编码的数据
+	var imgBytes []byte
+	buf := new(bytes.Buffer)
+	err := png.Encode(buf, img)
+	if err != nil {
+		panic(err)
+	}
+
+	imgBytes = buf.Bytes()
+
+	// 使用base64编码图像数据
+	base64Image := base64.StdEncoding.EncodeToString(imgBytes)
+
+	return base64Image
+}
+
+// 保存Base64字符串到文件（可选）
+func saveBase64ToFile(filename, base64Image string) {
+	file, err := os.Create(filename)
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+
+	_, err = file.WriteString(base64Image)
+	if err != nil {
+		panic(err)
+	}
 }

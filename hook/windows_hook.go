@@ -8,7 +8,7 @@ import (
 	"github.com/go-vgo/robotgo"
 )
 
-// 因为windows下的robotgo鼠标获取文本内容有些瑕疵，故这里用windows原生api加以修改
+// 因为windows下的robotgo鼠标获取文本内容有些瑕疵，故这里用windows原生api增强
 const (
 	WH_MOUSE_LL    = 14
 	WM_MOUSEMOVE   = 0x0200
@@ -75,7 +75,6 @@ func LowLevelMouseProc(nCode int, wParam uintptr, lParam uintptr) uintptr {
 }
 
 func WindowsHook() {
-
 	hHook, _, _ = setWindowsHookEx.Call(uintptr(WH_MOUSE_LL), syscall.NewCallback(LowLevelMouseProc), 0, 0)
 
 	defer unhookWindowsHookEx.Call(hHook)

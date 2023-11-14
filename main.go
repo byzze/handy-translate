@@ -48,13 +48,8 @@ func main() {
 			AssetServer: &assetserver.Options{
 				Assets: assets,
 			},
-			OnStartup:  app.startup,
-			OnDomReady: app.onDomReady,
-			// Windows: &windows.Options{
-			// 	WebviewIsTransparent: true,
-			// 	WindowIsTranslucent:  true,
-			// 	BackdropType:         windows.Auto,
-			// },
+			OnStartup:         app.startup,
+			OnDomReady:        app.onDomReady,
 			HideWindowOnClose: true,
 			Frameless:         true,
 			Bind: []interface{}{

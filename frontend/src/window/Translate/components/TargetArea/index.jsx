@@ -66,7 +66,7 @@ export default function TargetArea(props) {
 
         const LanguageEnum = builtinServices[translateServiceName].Language;
         if (sourceLanguage in LanguageEnum && targetLanguage in LanguageEnum) {
-            console.log(sourceLanguage, targetLanguage)
+            // console.log(sourceLanguage, targetLanguage)
             EventsEmit("translateType", LanguageEnum[sourceLanguage], LanguageEnum[targetLanguage])
         }
     }, [sourceLanguage, targetLanguage])
