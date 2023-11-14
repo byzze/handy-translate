@@ -17,7 +17,6 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/getlantern/systray"
 	"github.com/sirupsen/logrus"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
@@ -67,26 +66,36 @@ func onExit() {
 // test data
 func (a *App) onDomReady(ctx context.Context) {
 	a.sendQueryText("启动成功")
-	onReady := func() {
+
+	// w.SetContent(widget.NewLabel("Fyne System Tray"))
+	// w.SetCloseIntercept(func() {
+	// 	w.Hide()
+	// })
+	// w.ShowAndRun()
+
+	/* onReady := func() {
 		systray.SetIcon(appicon)
 		systray.SetTitle(config.Data.Appname)
 		systray.SetTooltip(config.Data.Appname + "便捷翻译工具")
 		mShow := systray.AddMenuItem("显示", "显示翻译工具")
 		mQuitOrig := systray.AddMenuItem("退出", "退出翻译工具")
+		mURL := systray.AddMenuItem("Open UI", "my home")
 		// Sets the icon of a menu item. Only available on Mac and Windows.
 		mShow.SetIcon(appicon)
 
-		go func() {
-			<-mQuitOrig.ClickedCh
-			a.Quit()
-		}()
-
-		go func() {
-			<-mShow.ClickedCh
-			a.Show()
-		}()
+		for {
+			select {
+			case <-mURL.ClickedCh:
+				open.Run("https://github.com/")
+			case <-mQuitOrig.ClickedCh:
+				a.Quit()
+			case <-mShow.ClickedCh:
+				a.Show()
+				return
+			}
+		}
 	}
-	systray.Run(onReady, onExit)
+	systray.Run(onReady, onExit) */
 }
 
 var fromLang, toLang = "auto", "zh"
@@ -305,7 +314,7 @@ func (a *App) Transalte(queryText, fromLang, toLang string) {
 
 func (a *App) Quit() {
 	runtime.Quit(a.ctx)
-	systray.Quit()
+	// systray.Quit()
 }
 
 func (a *App) Show() {

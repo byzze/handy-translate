@@ -1,6 +1,6 @@
 // import { fetch } from '@tauri-apps/api/http';
 // import { store } from '../../../utils/store';
-import CryptoJS from 'crypto-js';
+// import CryptoJS from 'crypto-js';
 import { nanoid } from 'nanoid';
 
 export async function translate(text, from, to, options = {}) {

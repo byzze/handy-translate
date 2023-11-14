@@ -6,7 +6,6 @@ import (
 	"runtime"
 	"sync"
 
-	"github.com/getlantern/systray"
 	"github.com/sirupsen/logrus"
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
@@ -38,8 +37,6 @@ func init() {
 var sc sync.Once
 
 func main() {
-	runtime.LockOSThread()
-	defer runtime.UnlockOSThread()
 	sc.Do(func() {
 		app := NewApp()
 
@@ -68,7 +65,5 @@ func main() {
 		if err != nil {
 			logrus.Error("Error:", err.Error())
 		}
-
-		systray.Quit()
 	})
 }

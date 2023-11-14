@@ -1,30 +1,37 @@
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
-import { Spacer, Button } from '@nextui-org/react';
-import { AiFillCloseCircle } from 'react-icons/ai';
+import { Spacer, ButtonGroup, Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from '@nextui-org/react';
+import { AiFillCloseCircle, AiFillMinusCircle, AiFillSetting, AiOutlineTranslation } from 'react-icons/ai';
 import React, { useState, useEffect } from 'react';
 import { BsPinFill } from 'react-icons/bs';
 import LanguageArea from './components/LanguageArea';
 import SourceArea from './components/SourceArea';
 import TargetArea from './components/TargetArea';
-import { useConfig } from '../../hooks';
+import Way from './components/Way';
 import { GetTransalteWay } from "../../../wailsjs/go/main/App"
-import { WindowHide, WindowSetAlwaysOnTop, EventsOn, EventsEmit, ClipboardSetText } from "../../../wailsjs/runtime"
+import { WindowHide, WindowSetAlwaysOnTop, Quit, EventsOn, EventsEmit, ClipboardSetText } from "../../../wailsjs/runtime"
+import { useConfig, useSyncAtom, useVoice, useToastStyle } from '../../hooks';
+import { translateServiceListAtom } from './components/Way';
+import { atom, useAtom, useAtomValue } from 'jotai';
+import { useSetRecoilState } from 'recoil';
 
 let blurTimeout = null;
 let resizeTimeout = null;
 let moveTimeout = null;
 let osType = "Windows_NT"
-// import { store } from '../../utils/store';
+
+
 
 export default function Translate() {
-
+    const { isOpen, onOpen, onOpenChange } = useDisclosure();
+    const [modalPlacement, setModalPlacement] = React.useState("auto");
     const [alwaysOnTop] = useConfig('translate_always_on_top', false);
     const [hideSource] = useConfig('hide_source', false);
     const [hideLanguage] = useConfig('hide_language', false);
     const [pined, setPined] = useState(false);
     const [serviceConfig, setServiceConfig] = useState(null);
 
-    const [translateServiceList, setTranslateServiceList] = useState([])
+    const translateServiceList = useAtomValue(translateServiceListAtom);
+    const setTranslateServiceList = useSetRecoilState(translateServiceListAtom);
 
     useEffect(() => {
         GetTransalteWay().then(result => {
@@ -44,12 +51,12 @@ export default function Translate() {
     const onDragEnd = async (result) => {
         if (!result.destination) return;
         const items = reorder(translateServiceList, result.source.index, result.destination.index);
-        setTranslateServiceList(items);
+        // setTranslateServiceList(items);
     };
 
     const getServiceConfig = async () => {
         let config = {};
-
+        console.log(translateServiceList)
         for (const service of translateServiceList) {
             config[service] = {}
             // config[service] = (await store.get(service)) ?? {};
@@ -85,35 +92,133 @@ export default function Translate() {
                     style={{ '--wails-draggable': 'drag' }}
                 />
                 <div className={`h-[35px] w-full flex ${osType === 'Darwin' ? 'justify-end' : 'justify-between'}`}>
-                    <Button
-                        isIconOnly
-                        size='sm'
-                        variant='flat'
-                        disableAnimation
-                        className='my-auto bg-transparent'
-                        onPress={() => {
-                            if (pined) {
-                                WindowSetAlwaysOnTop(false);
-                            } else {
-                                WindowSetAlwaysOnTop(true)
-                            }
-                            setPined(!pined);
-                        }}
+                    <ButtonGroup className='mr-[5px]'>
+                        <Button
+                            isIconOnly
+                            size='sm'
+                            variant='flat'
+                            disableAnimation
+                            className='my-auto bg-transparent'
+                            onPress={() => {
+                                if (pined) {
+                                    WindowSetAlwaysOnTop(false);
+                                } else {
+                                    WindowSetAlwaysOnTop(true)
+                                }
+                                setPined(!pined);
+                            }}
+                        >
+                            <AiFillSetting className={`text-[20px] ${pined ? 'text-primary' : 'text-default-400'}`} />
+                        </Button>
+                        <Button
+                            isIconOnly
+                            size='sm'
+                            variant='flat'
+                            disableAnimation
+                            className='my-auto bg-transparent'
+                            onPress={() => {
+                                onOpen()
+                            }}
+                        >
+                            <AiOutlineTranslation className={`text-[20px] ${pined ? 'text-primary' : 'text-default-400'}`} />
+                        </Button>
+                    </ButtonGroup>
+
+                    <ButtonGroup className='mr-[5px]'>
+                        <Button
+                            isIconOnly
+                            size='sm'
+                            variant='flat'
+                            disableAnimation
+                            className='my-auto bg-transparent'
+                            onPress={() => {
+                                if (pined) {
+                                    WindowSetAlwaysOnTop(false);
+                                } else {
+                                    WindowSetAlwaysOnTop(true)
+                                }
+                                setPined(!pined);
+                            }}
+                        >
+                            <BsPinFill className={`text-[20px] ${pined ? 'text-primary' : 'text-default-400'}`} />
+                        </Button>
+                        <Button
+                            isIconOnly
+                            size='sm'
+                            variant='flat'
+                            disableAnimation
+                            className={`my-auto ${osType === 'Darwin' && 'hidden'} bg-transparent`}
+                            onPress={() => {
+                                WindowHide()
+                            }}
+                        >
+                            <AiFillMinusCircle className='text-[20px] text-default-400' />
+                        </Button>
+                        <Button
+                            isIconOnly
+                            size='sm'
+                            variant='flat'
+                            disableAnimation
+                            className={`my-auto ${osType === 'Darwin' && 'hidden'} bg-transparent`}
+                            onPress={() => {
+                                onOpen()
+                            }}
+                        >
+                            <AiFillCloseCircle className='text-[20px] text-default-400' />
+                        </Button>
+                    </ButtonGroup>
+
+                    <Modal
+                        isOpen={isOpen}
+                        placement={modalPlacement}
+                        onOpenChange={onOpenChange}
                     >
-                        <BsPinFill className={`text-[20px] ${pined ? 'text-primary' : 'text-default-400'}`} />
-                    </Button>
-                    <Button
-                        isIconOnly
-                        size='sm'
-                        variant='flat'
-                        disableAnimation
-                        className={`my-auto ${osType === 'Darwin' && 'hidden'} bg-transparent`}
-                        onPress={() => {
-                            void WindowHide();
-                        }}
+                        <ModalContent>
+                            {(onClose) => (
+                                <>
+                                    <ModalHeader className="flex flex-col gap-1">翻译服务</ModalHeader>
+                                    <ModalBody>
+                                        <Way />
+                                    </ModalBody>
+                                    <ModalFooter>
+                                        <Button color="danger" variant="light" onPress={onClose} >
+                                            取消
+                                        </Button>
+                                    </ModalFooter>
+                                </>
+                            )}
+                        </ModalContent>
+                    </Modal>
+                    {/* <Modal
+                        isOpen={isOpen}
+                        placement={modalPlacement}
+                        onOpenChange={onOpenChange}
                     >
-                        <AiFillCloseCircle className='text-[20px] text-default-400' />
-                    </Button>
+                        <ModalContent>
+                            {(onClose) => (
+                                <>
+                                    <ModalHeader className="flex flex-col gap-1">退出</ModalHeader>
+                                    <ModalBody>
+                                        <p>
+                                            确认退出翻译工具吗？
+                                        </p>
+                                    </ModalBody>
+                                    <ModalFooter>
+                                        <Button color="danger" variant="light" onPress={() => {
+                                            onClose()
+                                        }} >
+                                            取消
+                                        </Button>
+                                        <Button color="primary" onPress={() => {
+                                            Quit()
+                                        }}>
+                                            确认
+                                        </Button>
+                                    </ModalFooter>
+                                </>
+                            )}
+                        </ModalContent>
+                    </Modal> */}
                 </div>
                 <div className={`${osType === 'Linux' ? 'h-[calc(100vh-37px)]' : 'h-[calc(100vh-35px)]'} px-[8px]`}>
                     <div className='h-full overflow-y-auto'>
