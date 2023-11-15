@@ -15,7 +15,6 @@ export default function LanguageArea() {
     const [rememberLanguage] = useConfig('translate_remember_language', false);
     const [translateSourceLanguage, setTranslateSourceLanguage] = useConfig('translate_source_language', 'auto');
     const [translateTargetLanguage, setTranslateTargetLanguage] = useConfig('translate_target_language', 'zh_cn');
-    // const [translateSecondLanguage] = useConfig('translate_second_language', 'en');
 
     const [sourceLanguage, setSourceLanguage] = useAtom(sourceLanguageAtom);
     const [targetLanguage, setTargetLanguage] = useAtom(targetLanguageAtom);

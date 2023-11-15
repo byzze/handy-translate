@@ -7,8 +7,7 @@ import { useTheme } from 'next-themes';
 import Translate from './window/Translate';
 import Screenshot from './window/Screenshot';
 import { useConfig } from './hooks';
-// import { store } from './utils/store';
-import { WindowSetSystemDefaultTheme, WindowReloadApp, EventsOn, WindowMaximise, WindowFullscreen } from '../wailsjs/runtime';
+import { EventsOn } from '../wailsjs/runtime';
 import './i18n';
 import './style.css';
 
@@ -53,6 +52,7 @@ function App() {
             i18n.changeLanguage(appLanguage);
         }
     }, [appTheme, appLanguage]);
+
     return <BrowserRouter>
         {isScreenshot ? (
             <Screenshot />

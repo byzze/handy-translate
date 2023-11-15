@@ -35,7 +35,7 @@ import * as builtinServices from '../../../../services/translate';
 export default function TargetArea(props) {
     const [collectionServiceList] = useConfig('collection_service_list', []);
     const [ttsServiceList] = useConfig('tts_service_list', ['lingva_tts']);
-    const { name, index, translateServiceList, pluginList, ...drag } = props;
+    const { name, index, translateServiceList, ...drag } = props;
     const [hide, setHide] = useState(false);
     const [autoCopy] = useConfig('translate_auto_copy', 'disable');
     const [translateServiceName, setTranslateServiceName] = useState(name);
@@ -156,7 +156,7 @@ export default function TargetArea(props) {
                                 startContent={
                                     translateServiceName.startsWith('[plugin]') ? (
                                         <img
-                                            src={pluginList['translate'][translateServiceName].icon}
+                                            src={[translateServiceName].icon}
                                             className='h-[20px] my-auto'
                                         />
                                     ) : (
@@ -168,7 +168,7 @@ export default function TargetArea(props) {
                                 }
                             >
                                 {translateServiceName.startsWith('[plugin]') ? (
-                                    <div className='my-auto'>{`${pluginList['translate'][translateServiceName].display} `}</div>
+                                    <div className='my-auto'>{`${[translateServiceName].display} `}</div>
                                 ) : (
                                     <div className='my-auto'>
                                         {t(`services.translate.${translateServiceName}.title`)}
@@ -190,7 +190,7 @@ export default function TargetArea(props) {
                                         startContent={
                                             x.startsWith('[plugin]') ? (
                                                 <img
-                                                    src={pluginList['translate'][x].icon}
+                                                    src={[x].icon}
                                                     className='h-[20px] my-auto'
                                                 />
                                             ) : (
@@ -202,7 +202,7 @@ export default function TargetArea(props) {
                                         }
                                     >
                                         {x.startsWith('[plugin]') ? (
-                                            <div className='my-auto'>{`${pluginList['translate'][x].display} `}</div>
+                                            <div className='my-auto'>{`${[x].display} `}</div>
                                         ) : (
                                             <div className='my-auto'>{t(`services.translate.${x}.title`)}</div>
                                         )}
@@ -469,7 +469,7 @@ export default function TargetArea(props) {
                                     <img
                                         src={
                                             serviceName.startsWith('[plugin]')
-                                                ? pluginList['collection'][serviceName].icon
+                                                ? [serviceName].icon
                                                 : builtinCollectionServices[serviceName].info.icon
                                         }
                                         className='h-[16px] w-[16px]'

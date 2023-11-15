@@ -2,12 +2,13 @@ import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import { Spacer, ButtonGroup, Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from '@nextui-org/react';
 import { AiFillCloseCircle, AiFillMinusCircle, AiFillSetting, AiOutlineTranslation } from 'react-icons/ai';
 import React, { useState, useEffect } from 'react';
-import { BsPinFill } from 'react-icons/bs';
+import { BsPinFill, BsTranslate, BsInfoSquareFill } from 'react-icons/bs';
 import { IoHelpCircle } from "react-icons/io5";
 import LanguageArea from './components/LanguageArea';
 import SourceArea from './components/SourceArea';
 import TargetArea from './components/TargetArea';
 import Way from './components/Way';
+import About from '../About';
 import { GetTransalteWay } from "../../../wailsjs/go/main/App"
 import { WindowHide, WindowSetAlwaysOnTop, Quit, EventsOn, EventsEmit, ClipboardSetText } from "../../../wailsjs/runtime"
 import { useConfig, useSyncAtom, useVoice, useToastStyle } from '../../hooks';
@@ -25,6 +26,7 @@ export default function Translate() {
     const { isOpen, onOpen, onOpenChange } = useDisclosure();
     const { isOpen: isSettingOpen, onOpen: onSettingOpen, onOpenChange: onSettingOpenChange } = useDisclosure();
     const { isOpen: isTranslateOpen, onOpen: onTranslateOpen, onOpenChange: onTranslateOpenChange } = useDisclosure();
+    const { isOpen: isAboutOpen, onOpen: onAboutOpen, onOpenChange: onAboutOpenChange } = useDisclosure();
     const [modalPlacement, setModalPlacement] = React.useState("auto");
     const [alwaysOnTop] = useConfig('translate_always_on_top', false);
     const [hideSource] = useConfig('hide_source', false);
@@ -32,6 +34,7 @@ export default function Translate() {
     const [pined, setPined] = useState(false);
     const [translate, setTranslate] = useState(false);
     const [setting, setSetting] = useState(false);
+    const [about, setAbout] = useState(false);
     const [serviceConfig, setServiceConfig] = useState(null);
 
     const [translateServiceList, setTranslateServiceList] = useAtom(translateServiceListAtom);
@@ -49,8 +52,6 @@ export default function Translate() {
         return result;
     };
 
-    const [pluginList, setPluginList] = useState(null);
-
     const onDragEnd = async (result) => {
         if (!result.destination) return;
         const items = reorder(translateServiceList, result.source.index, result.destination.index);
@@ -59,7 +60,6 @@ export default function Translate() {
 
     const getServiceConfig = async () => {
         let config = {};
-        console.log(translateServiceList)
         for (const service of translateServiceList) {
             config[service] = {}
             // config[service] = (await store.get(service)) ?? {};
@@ -78,8 +78,7 @@ export default function Translate() {
     // 是否默认置顶
     useEffect(() => {
         if (alwaysOnTop !== null && alwaysOnTop) {
-            // appWindow.setAlwaysOnTop(true);
-            // unlistenBlur();
+            WindowSetAlwaysOnTop(true);
             setPined(true);
         }
     }, [alwaysOnTop]);
@@ -116,11 +115,11 @@ export default function Translate() {
                             disableAnimation
                             className='my-auto bg-transparent'
                             onPress={() => {
-                                onTranslateOpen();
-                                setTranslate(!translate);
+                                onAboutOpen();
+                                setAbout(!about);
                             }}
                         >
-                            <IoHelpCircle className={`text-[20px] ${translate ? 'text-primary' : 'text-default-400'}`} />
+                            <BsInfoSquareFill className={`text-[20px] ${translate ? 'text-primary' : 'text-default-400'}`} />
                         </Button>
                         <Button
                             isIconOnly
@@ -133,7 +132,7 @@ export default function Translate() {
                                 setTranslate(!translate);
                             }}
                         >
-                            <AiOutlineTranslation className={`text-[20px] ${translate ? 'text-primary' : 'text-default-400'}`} />
+                            <BsTranslate className={`text-[20px] ${translate ? 'text-primary' : 'text-default-400'}`} />
                         </Button>
                     </ButtonGroup>
 
@@ -180,6 +179,33 @@ export default function Translate() {
                             <AiFillCloseCircle className='text-[20px] text-default-400' />
                         </Button>
                     </ButtonGroup>
+
+                    <Modal
+                        isOpen={isAboutOpen}
+                        placement={modalPlacement}
+                        onOpenChange={() => {
+                            onAboutOpenChange()
+                            setAbout(!about);
+                        }}
+                    >
+                        <ModalContent>
+                            {(onClose) => (
+                                <>
+                                    <ModalHeader className="flex flex-col gap-1">关于应用</ModalHeader>
+                                    <ModalBody>
+                                        <About />
+                                    </ModalBody>
+                                    <ModalFooter>
+                                        <Button color="danger" variant="light" onPress={() => {
+                                            onClose()
+                                        }} >
+                                            取消
+                                        </Button>
+                                    </ModalFooter>
+                                </>
+                            )}
+                        </ModalContent>
+                    </Modal>
 
                     <Modal
                         isOpen={isTranslateOpen}
@@ -242,7 +268,7 @@ export default function Translate() {
                 <div className={`${osType === 'Linux' ? 'h-[calc(100vh-37px)]' : 'h-[calc(100vh-35px)]'} px-[8px]`}>
                     <div className='h-full overflow-y-auto'>
                         <div className={`${hideSource && 'hidden'}`}>
-                            <SourceArea pluginList={pluginList} />
+                            <SourceArea />
                             <Spacer y={2} />
                         </div>
 
@@ -279,7 +305,6 @@ export default function Translate() {
                                                             >
                                                                 <TargetArea
                                                                     {...provided.dragHandleProps}
-                                                                    pluginList={pluginList}
                                                                     name={service}
                                                                     index={index}
                                                                     translateServiceList={translateServiceList}

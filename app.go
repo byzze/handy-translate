@@ -51,7 +51,7 @@ func (a *App) SendDataToJS(query, result, explian string) {
 }
 
 func (a *App) onDomReady(ctx context.Context) {
-	a.sendQueryText("启动成功")
+	a.sendQueryText("启动成功\n唤醒应用: 鼠标中键或者Ctrl+c+c\nOCR截图翻译: Ctrl+Shift+F ")
 }
 
 var fromLang, toLang = "auto", "zh"

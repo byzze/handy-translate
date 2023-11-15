@@ -86,8 +86,9 @@ func DafaultHook(ctx context.Context) {
 			lastKeyPressTime = time.Now()
 		} else {
 			elapsed := time.Since(lastKeyPressTime)
+			logrus.Info("xxxxxxx:", elapsed)
 			// Check if the time elapsed is greater than 500 milliseconds
-			if elapsed.Milliseconds() < 500 {
+			if elapsed.Milliseconds() < 800 {
 				logrus.Info("=========", e)
 				HookChan <- struct{}{}
 			}

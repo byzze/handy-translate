@@ -21,7 +21,6 @@ export const sourceTextAtom = atom('');
 export const detectLanguageAtom = atom('');
 
 export default function SourceArea(props) {
-    const { pluginList } = props;
     const [sourceText, setSourceText, syncSourceText] = useSyncAtom(sourceTextAtom);
     const [detectLanguage, setDetectLanguage] = useAtom(detectLanguageAtom);
     const [recognizeLanguage] = useConfig('recognize_language', 'auto');
@@ -74,17 +73,6 @@ export default function SourceArea(props) {
 
             const serviceName = ttsServiceList[0];
             if (serviceName.startsWith('[plugin]')) {
-                if (!(detectLanguage in ttsPluginInfo.language)) {
-                    throw new Error('Language not supported');
-                }
-                const config = (await store.get(serviceName)) ?? {};
-                const data = await invoke('invoke_plugin', {
-                    name: serviceName,
-                    pluginType: 'tts',
-                    source: sourceText,
-                    lang: ttsPluginInfo.language[lang],
-                    needs: config,
-                });
                 speak(data);
             } else {
                 if (!(lang in builtinTtsServices[serviceName].Language)) {
