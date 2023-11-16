@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bytes"
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"handy-translate/config"
@@ -9,8 +11,11 @@ import (
 	"handy-translate/translate"
 	"handy-translate/translate/youdao"
 	"handy-translate/utils"
+	"image"
+	"image/png"
 	"strings"
 
+	"github.com/kbinani/screenshot"
 	"github.com/sirupsen/logrus"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
@@ -48,6 +53,41 @@ func (a *App) SendDataToJS(query, result, explian string) {
 	a.sendQueryText(query)
 	a.sendResult(result, explian)
 
+}
+
+func (a *App) CaptureSelectedScreen(x, y, width, height int) (string, error) {
+	// 裁剪图片
+	rect := image.Rect(x, y, width, height)
+	if hook.IMG == nil {
+		bounds := screenshot.GetDisplayBounds(0)
+		img, err := screenshot.CaptureRect(bounds)
+
+		if err != nil {
+			// 错误处理，输出错误信息并返回
+			fmt.Println("Error capturing screenshot:", err)
+			return "", err
+		}
+		hook.IMG = img
+	}
+	croppedImg := hook.IMG.SubImage(rect)
+
+	var buf bytes.Buffer
+	err := png.Encode(&buf, croppedImg)
+	if err != nil {
+		return "", err
+	}
+
+	filename := "screenshot.png" // 保存的文件名
+	base64String := base64.StdEncoding.EncodeToString(buf.Bytes())
+
+	err = saveBase64Image(base64String, filename)
+	if err != nil {
+		logrus.Fatal("保存图片出错: ", err)
+	}
+
+	resut := ExecOCR(".\\RapidOCR-json.exe", filename)
+
+	return resut, nil
 }
 
 func (a *App) onDomReady(ctx context.Context) {

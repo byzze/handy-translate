@@ -76,6 +76,8 @@ func encodeImageToBase64(img image.Image) string {
 
 var lastKeyPressTime time.Time
 
+var IMG *image.RGBA
+
 // DafaultHook register hook event
 func DafaultHook(ctx context.Context) {
 	hook.Register(hook.MouseDown, []string{}, defaulthook)
@@ -98,8 +100,7 @@ func DafaultHook(ctx context.Context) {
 
 	hook.Register(hook.KeyDown, []string{"f", "ctrl", "shift"}, func(e hook.Event) {
 		logrus.Info(e)
-		i := 0
-		bounds := screenshot.GetDisplayBounds(i)
+		bounds := screenshot.GetDisplayBounds(0)
 		img, err := screenshot.CaptureRect(bounds)
 
 		if err != nil {
@@ -107,6 +108,7 @@ func DafaultHook(ctx context.Context) {
 			fmt.Println("Error capturing screenshot:", err)
 			return
 		}
+		IMG = img
 
 		base64Image := encodeImageToBase64(img)
 		if base64Image == "" {
@@ -114,6 +116,7 @@ func DafaultHook(ctx context.Context) {
 			fmt.Println("Error encoding image to Base64")
 			return
 		}
+
 		runtime.EventsEmit(ctx, "ocrShow", true)
 
 		runtime.EventsEmit(ctx, "screenshot", base64Image)

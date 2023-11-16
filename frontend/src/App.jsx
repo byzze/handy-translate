@@ -6,7 +6,7 @@ import { useTheme } from 'next-themes';
 
 import Translate from './window/Translate';
 import Screenshot from './window/Screenshot';
-import { useConfig } from './hooks';
+import { useConfig, useSyncAtom } from './hooks';
 import { EventsOn } from '../wailsjs/runtime';
 import './i18n';
 import './style.css';

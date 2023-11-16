@@ -8,7 +8,10 @@ import React, { useEffect, useState, useRef } from 'react';
 // import { invoke } from '@tauri-apps/api';
 import toast, { Toaster } from 'react-hot-toast';
 import { WindowHide, WindowUnfullscreen, WindowFullscreen, WindowMaximise, WindowSetBackgroundColour, WindowShow, WindowSetSize, WindowSetAlwaysOnTop, WindowUnmaximise, WindowMinimise, EventsOn, EventsEmit, ClipboardSetText, Hide } from "../../../wailsjs/runtime"
+import { CaptureSelectedScreen } from '../../../wailsjs/go/main/App'
 import { useConfig, useToastStyle, useVoice } from '../../hooks';
+import { atom, useAtom } from 'jotai';
+
 
 export default function Screenshot() {
     const [imgurl, setImgurl] = useState('');
@@ -29,20 +32,25 @@ export default function Screenshot() {
     }, [])
 
     const captureScreenshot = (x, y, width, height) => {
-        const canvas = canvasRef.current;
-        const context = canvas.getContext('2d');
+        // const canvas = canvasRef.current;
+        // const context = canvas.getContext('2d');
 
-        // // 创建一个新的 Image 对象
-        const image = new Image();
-        image.src = imgurl; // 替换为您的图片 URL
-        // // 设置截图的起始坐标和截图的宽度和高度
+        // // // 创建一个新的 Image 对象
+        // const image = new Image();
+        // image.src = imgurl; // 替换为您的图片 URL
+        // // // 设置截图的起始坐标和截图的宽度和高度
 
-        // // 在 Canvas 上绘制截图
-        canvas.width = width;
-        canvas.height = height;
-        context.drawImage(image, x, y, width, height, 0, 0, width, height);
-        const base64Data = canvas.toDataURL('image/png');
-        EventsEmit("screenshotCapture", base64Data)
+        // // // 在 Canvas 上绘制截图
+        // canvas.width = width;
+        // canvas.height = height;
+        // context.drawImage(image, x, y, width, height, 0, 0, width, height);
+        // const base64Data = canvas.toDataURL('image/png');
+        // EventsEmit("screenshotCapture", base64Data)
+        CaptureSelectedScreen(x, y, x + width, y + height).then((result) => {
+            console.log(result)
+            EventsEmit("query", result)
+        })
+        setImgurl("")
         EventsEmit("ocrShow", false)
         // image.onload = function () {
 
@@ -59,7 +67,7 @@ export default function Screenshot() {
 
     return (
         <>
-            <canvas ref={canvasRef}></canvas>
+            {/* <canvas ref={canvasRef}></canvas> */}
             <img
                 ref={imgRef}
                 className='fixed top-0 left-0 w-full select-none'
