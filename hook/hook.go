@@ -117,7 +117,7 @@ func DafaultHook(ctx context.Context) {
 			return
 		}
 
-		runtime.EventsEmit(ctx, "ocrShow", true)
+		runtime.EventsEmit(ctx, "appLabel", "screenshot")
 
 		runtime.EventsEmit(ctx, "screenshot", base64Image)
 	})

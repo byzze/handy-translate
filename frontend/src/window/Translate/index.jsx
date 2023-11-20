@@ -22,7 +22,7 @@ let osType = "Windows_NT"
 
 
 
-export default function Translate() {
+export default function Translate({ variable, onUpdateVariable }) {
     const { isOpen, onOpen, onOpenChange } = useDisclosure();
     const { isOpen: isSettingOpen, onOpen: onSettingOpen, onOpenChange: onSettingOpenChange } = useDisclosure();
     const { isOpen: isTranslateOpen, onOpen: onTranslateOpen, onOpenChange: onTranslateOpenChange } = useDisclosure();
@@ -95,19 +95,25 @@ export default function Translate() {
                 />
                 <div className={`h-[35px] w-full flex ${osType === 'Darwin' ? 'justify-end' : 'justify-between'}`}>
                     <ButtonGroup className='mr-[5px]'>
-                        {/* <Button
+                        <Button
                             isIconOnly
                             size='sm'
                             variant='flat'
                             disableAnimation
                             className='my-auto bg-transparent'
+                            onChange={() => {
+                                onAboutOpenChange()
+                            }}
                             onPress={() => {
-                                onOpen();
+                                // onOpen();
+                                // onUpdateVariable("home")
+                                onSettingOpen(!isSettingOpen)
+                                onSettingOpenChange()
                                 // setPined(!pined);
                             }}
                         >
-                            <AiFillSetting className={`text-[20px] ${pined ? 'text-primary' : 'text-default-400'}`} />
-                        </Button> */}
+                            <AiFillSetting className={`text-[20px] ${isSettingOpen ? 'text-primary' : 'text-default-400'}`} />
+                        </Button>
                         <Button
                             isIconOnly
                             size='sm'
@@ -119,7 +125,7 @@ export default function Translate() {
                                 setAbout(!about);
                             }}
                         >
-                            <BsInfoSquareFill className={`text-[20px] ${translate ? 'text-primary' : 'text-default-400'}`} />
+                            <BsInfoSquareFill className={`text-[20px] ${isAboutOpen ? 'text-primary' : 'text-default-400'}`} />
                         </Button>
                         <Button
                             isIconOnly

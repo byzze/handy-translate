@@ -6,10 +6,12 @@ import { useTheme } from 'next-themes';
 
 import Translate from './window/Translate';
 import Screenshot from './window/Screenshot';
+import Home from './window/Home';
 import { useConfig, useSyncAtom } from './hooks';
-import { EventsOn } from '../wailsjs/runtime';
+import { EventsOn, WindowGetSize, WindowSetSize, WindowFullscreen, WindowUnfullscreen, WindowIsFullscreen } from '../wailsjs/runtime';
 import './i18n';
 import './style.css';
+
 
 
 function App() {
@@ -17,13 +19,66 @@ function App() {
     const [appLanguage] = useConfig('app_language', 'zh_cn');
     const { setTheme } = useTheme();
     const { i18n } = useTranslation();
-    const [isScreenshot, setIsScreenshot] = useState(false);
+    const [appLabel, setAppLabel] = useState('translate');
+    const { width, setWidth } = useState(0)
+    const { height, setHeight } = useState(0)
+
+    // 共享的变量状态和更新方法
+    const [sharedVariable, setSharedVariable] = useState('');
+
+    // 更新共享变量的方法
+    const updateSharedVariable = (newValue) => {
+        setSharedVariable(newValue);
+        // setAppLabel(newValue)
+    };
+
+    const windowMap = {
+        translate: <Translate variable={sharedVariable} onUpdateVariable={updateSharedVariable} />,
+        screenshot: <Screenshot />,
+        home: <Home />,
+    };
 
     useEffect(() => {
-        EventsOn("ocrShow", (result) => {
-            setIsScreenshot(result)
+        console.log(sharedVariable)
+    }, [sharedVariable])
+
+
+    useEffect(() => {
+        EventsOn("appLabel", (result) => {
+            setAppLabel(result)
         })
     }, [])
+
+    useEffect(() => {
+        if (width == 0 && height == 0) {
+            if (appLabel == 'translate') {
+                WindowGetSize().then((w, h) => {
+                    setWidth(w)
+                    setHeight(h)
+                })
+            }
+        }
+    }, [])
+
+    useEffect(() => {
+        if (appLabel == 'translate') {
+            WindowIsFullscreen().then((r) => {
+                if (r) {
+                    WindowUnfullscreen()
+                }
+            })
+            WindowSetSize(460, 460)
+        }
+
+        if (appLabel == 'screenshot') {
+            WindowFullscreen()
+        }
+
+        if (appLabel == 'home') {
+            WindowSetSize(666, 666)
+        }
+
+    }, [appLabel]);
 
     useEffect(() => {
         if (appTheme !== null) {
@@ -54,11 +109,7 @@ function App() {
     }, [appTheme, appLanguage]);
 
     return <BrowserRouter>
-        {isScreenshot ? (
-            <Screenshot />
-        ) : (
-            <Translate />
-        )}
+        {windowMap[appLabel]}
     </BrowserRouter>;
 }
 

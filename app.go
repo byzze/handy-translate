@@ -155,7 +155,7 @@ func (a *App) startup(ctx context.Context) {
 				// x, y = x+10, y-10
 
 				// runtime.WindowFullscreen(ctx)
-				runtime.EventsEmit(ctx, "ocrShow", false)
+				runtime.EventsEmit(ctx, "appLabel", "translate")
 				queryText, _ := runtime.ClipboardGetText(a.ctx)
 
 				a.sendQueryText(queryText)

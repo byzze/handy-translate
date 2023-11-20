@@ -51,7 +51,7 @@ export default function Screenshot() {
             EventsEmit("query", result)
         })
         setImgurl("")
-        EventsEmit("ocrShow", false)
+        EventsEmit("appLabel", "translate")
         // image.onload = function () {
 
         // };
