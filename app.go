@@ -9,7 +9,6 @@ import (
 	"handy-translate/config"
 	"handy-translate/hook"
 	"handy-translate/translate"
-	"handy-translate/translate/youdao"
 	"handy-translate/utils"
 	"image"
 	"image/png"
@@ -231,7 +230,7 @@ func (a *App) Transalte(queryText, fromLang, toLang string) {
 		"toLang":       toLang,
 	}).Info("Transalte")
 
-	curName := transalteWay.GetName()
+	// curName := transalteWay.GetName()
 	// 使用 strings.Replace 替换 \r 和 \n 为空格
 
 	result, err := transalteWay.PostQuery(queryText, fromLang, toLang)
@@ -243,11 +242,12 @@ func (a *App) Transalte(queryText, fromLang, toLang string) {
 		"result": result,
 	}).Info("Transalte")
 
-	if len(result) >= 2 && curName == youdao.Way {
-		a.SendDataToJS(queryText, result[0], result[1])
-	}
+	// if len(result) >= 2 && curName == youdao.Way {
+	// 	a.SendDataToJS(queryText, result[0], result[1])
+	// 	return
+	// }
 
-	transalteRes := strings.Join(result, ",")
+	transalteRes := strings.Join(result, "\n")
 	a.SendDataToJS(queryText, transalteRes, "")
 
 }

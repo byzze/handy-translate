@@ -82,7 +82,7 @@ var IMG *image.RGBA
 func DafaultHook(ctx context.Context) {
 	hook.Register(hook.MouseDown, []string{}, defaulthook)
 
-	hook.Register(hook.KeyDown, []string{"ctrl", "c"}, func(e hook.Event) {
+	hook.Register(hook.KeyDown, []string{"ctrl", "c", "c"}, func(e hook.Event) {
 		logrus.Info(e)
 		if pressLock.TryLock() {
 			lastKeyPressTime = time.Now()
