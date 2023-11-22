@@ -5,9 +5,12 @@
 - [X] 选择文字翻译为中文
 - [X] 自定义快捷键
 - [X] 多种翻译源
+- [X] 支持OCR截图翻译
   
 # 效果展示
-按压鼠标中键
+按压*鼠标中键*或*CTRL+C+C*弹出窗口
+按压*CTRL+SHIFT+F*弹出窗口
+
 ![示例视频](https://raw.githubusercontent.com/byzze/oss/main/handly-translate/exp.gif)
 
 # 安装编译环境
@@ -18,13 +21,15 @@
 `wails doctor`
 
 # OCR models
-实现截图ocr解析文件模型，该模型有点大，大约75M
+实现截图ocr解析文件模型，该模型有点大，大约75M, 文件夹：models
 
 # 配置翻译源
 填写对应的翻译秘钥即可
+```text
 百度翻译源: https://docs.caiyunapp.com/blog/2021/12/30/hello-world
 有道翻译：https://ai.youdao.com/DOCSIRMA/html/trans/api/wbfy/index.html
 彩云翻译：https://docs.caiyunapp.com/blog/2021/12/30/hello-world
+```
 
 **修改配置名**
 `config.toml.bak -> config.toml`
