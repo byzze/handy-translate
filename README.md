@@ -1,5 +1,5 @@
 # 概述
-一款便捷翻译的工具，使用wails框架开发，wails支持Go+Vue, React等多种前端框架结合使用，同时也支持多平台Windows, Linux, Mac开发，该工具支持自定义快捷键，当鼠标选中的文本时，按压鼠标中键，弹出窗口渲染翻译结果，由于目前没有多余的开发设备，所以仅验证了Windows，wails生成的包容量相较于Electron的是相当的小了, 仅有10M左右
+借鉴优秀的开源软件，拓宽自己的技术视野，开发了一款便捷翻译的工具，使用wails框架开发，wails支持Go+Vue, React等多种前端框架结合使用，同时也支持多平台Windows, Linux, Mac开发，该工具支持自定义快捷键，当鼠标选中的文本时，按压鼠标中键，弹出窗口渲染翻译结果，由于目前没有多余的开发设备，所以仅验证了Windows，wails生成的包容量相较于Electron的是相当的小了, 仅有10M左右
 
 # 功能说明
 - [X] 选择文字翻译为中文
@@ -68,6 +68,5 @@ key = ''
 
 # 参考用到的工具组件链接
 https://wails.io (使用了Go+VUE)
-
 https://www.naiveui.com/zh-CN/os-theme/docs/installation (前端组件)
-
+https://github.com/pot-app/pot-desktop (一款优秀的翻译工具)
