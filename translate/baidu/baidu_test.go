@@ -16,7 +16,7 @@ func TestBaidu_PostQuery(t *testing.T) {
 			AppID: config.Data.Translate[Way].AppID,
 		},
 	}
-	target, err := baidu.PostQuery(source)
+	target, err := baidu.PostQuery(source, "", "")
 	fmt.Println(err)
 	fmt.Println(target)
 }

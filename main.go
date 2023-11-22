@@ -6,7 +6,6 @@ import (
 	"runtime"
 	"sync"
 
-	"github.com/getlantern/systray"
 	"github.com/sirupsen/logrus"
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
@@ -38,8 +37,6 @@ func init() {
 var sc sync.Once
 
 func main() {
-	runtime.LockOSThread()
-	defer runtime.UnlockOSThread()
 	sc.Do(func() {
 		app := NewApp()
 
@@ -47,7 +44,7 @@ func main() {
 		err := wails.Run(&options.App{
 			Title:  config.Data.Appname,
 			Width:  460,
-			Height: 410,
+			Height: 460,
 			AssetServer: &assetserver.Options{
 				Assets: assets,
 			},
@@ -55,7 +52,6 @@ func main() {
 			OnDomReady:        app.onDomReady,
 			HideWindowOnClose: true,
 			Frameless:         true,
-			StartHidden:       true,
 			Bind: []interface{}{
 				app,
 			},
@@ -64,6 +60,5 @@ func main() {
 		if err != nil {
 			logrus.Error("Error:", err.Error())
 		}
-		systray.Quit()
 	})
 }

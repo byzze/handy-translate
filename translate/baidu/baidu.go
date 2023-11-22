@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"handy-translate/config"
-	"handy-translate/utils"
 	"io"
 	"math/rand"
 	"net/http"
@@ -16,7 +15,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// https://docs.caiyunapp.com/blog/2021/12/30/hello-world
 const Way = "baidu"
 
 type Baidu struct {
@@ -43,30 +41,28 @@ type TransResult struct {
 	Src string `json:"src"`
 }
 
-func (b *Baidu) PostQuery(source string) ([]string, error) {
-	var toLang = "zh"
+func (b *Baidu) PostQuery(query, fromLang, toLang string) ([]string, error) {
+	logrus.WithFields(logrus.Fields{
+		"query": query, "fromLang": fromLang, "toLang": toLang,
+	}).Info("PostQuery")
 	endpoint := "http://api.fanyi.baidu.com"
 	path := "/api/trans/vip/translate"
 	uri := endpoint + path
 	appKey := b.Key
 	appID := b.AppID
 
-	query := source
-
 	// Generate salt and sign
 	salt := strconv.Itoa(rand.Intn(32768) + 32768)
 	sign := makeMD5(appID + query + salt + appKey)
 
-	zhcount, encount := utils.CountQueryStr(query)
-	if zhcount > encount {
-		toLang = "en"
-	}
 	// Build request
 	form := url.Values{}
 	form.Add("appid", appID)
 	form.Add("q", query)
 	form.Add("from", fromLang)
 	form.Add("to", toLang)
+	// form.Add("from", "en")
+	// form.Add("to", "zh")
 	form.Add("salt", salt)
 	form.Add("sign", sign)
 

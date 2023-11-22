@@ -85,6 +85,10 @@ Section
 
     File "..\..\..\config.toml"
 
+    File "..\..\..\RapidOCR-json.exe"
+
+    File /r "..\..\..\models"
+
     !insertmacro wails.files
 
     CreateShortcut "$SMPROGRAMS\${INFO_PRODUCTNAME}.lnk" "$INSTDIR\${PRODUCT_EXECUTABLE}"

@@ -9,7 +9,7 @@ import (
 
 type Translate interface {
 	GetName() string
-	PostQuery(value string) ([]string, error)
+	PostQuery(query, sourceLang, targetLang string) ([]string, error)
 }
 
 func GetTransalteWay(way string) Translate {

@@ -1,8 +1,9 @@
 *.log
-*.exe
+PaddleOCR-json.exe
 .hintrc
 build/bin
 node_modules
 frontend/dist
 frontend/pkg
 config.toml
+screenshot.png
