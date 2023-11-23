@@ -29,7 +29,6 @@ function App() {
     // 更新共享变量的方法
     const updateSharedVariable = (newValue) => {
         setSharedVariable(newValue);
-        // setAppLabel(newValue)
     };
 
     const windowMap = {

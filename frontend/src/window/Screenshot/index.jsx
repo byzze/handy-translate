@@ -1,11 +1,4 @@
 import React, { useEffect, useState, useRef } from 'react';
-// import { appCacheDir, join } from '@tauri-apps/api/path';
-// import { currentMonitor } from '@tauri-apps/api/window';
-// import { convertFileSrc } from '@tauri-apps/api/tauri';
-// import { appWindow } from '@tauri-apps/api/window';
-// import { emit } from '@tauri-apps/api/event';
-// import { warn } from 'tauri-plugin-log-api';
-// import { invoke } from '@tauri-apps/api';
 import toast, { Toaster } from 'react-hot-toast';
 import { WindowHide, WindowUnfullscreen, WindowFullscreen, WindowMaximise, WindowSetBackgroundColour, WindowShow, WindowSetSize, WindowSetAlwaysOnTop, WindowUnmaximise, WindowMinimise, EventsOn, EventsEmit, ClipboardSetText, Hide } from "../../../wailsjs/runtime"
 import { CaptureSelectedScreen } from '../../../wailsjs/go/main/App'

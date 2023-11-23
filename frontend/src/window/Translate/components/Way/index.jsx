@@ -18,10 +18,6 @@ export default function Way() {
     const toastStyle = useToastStyle();
 
     useEffect(() => {
-        // GetTransalteWay().then(result => {
-        //     setTranslateServiceList([result]);
-        // });
-
         GetTransalteMap().then(result => {
             result = JSON.parse(result)
             setTranslateMap(result)

@@ -53,16 +53,13 @@ export default function Translate({ variable, onUpdateVariable }) {
     };
 
     const onDragEnd = async (result) => {
-        if (!result.destination) return;
-        const items = reorder(translateServiceList, result.source.index, result.destination.index);
-        // setTranslateServiceList(items);
+
     };
 
     const getServiceConfig = async () => {
         let config = {};
         for (const service of translateServiceList) {
             config[service] = {}
-            // config[service] = (await store.get(service)) ?? {};
         }
         setServiceConfig({ ...config });
     };
@@ -105,11 +102,8 @@ export default function Translate({ variable, onUpdateVariable }) {
                                 onAboutOpenChange()
                             }}
                             onPress={() => {
-                                // onOpen();
-                                // onUpdateVariable("home")
                                 onSettingOpen(!isSettingOpen)
                                 onSettingOpenChange()
-                                // setPined(!pined);
                             }}
                         >
                             <AiFillSetting className={`text-[20px] ${isSettingOpen ? 'text-primary' : 'text-default-400'}`} />

@@ -66,7 +66,6 @@ export default function TargetArea(props) {
 
         const LanguageEnum = builtinServices[translateServiceName].Language;
         if (sourceLanguage in LanguageEnum && targetLanguage in LanguageEnum) {
-            // console.log(sourceLanguage, targetLanguage)
             EventsEmit("translateType", LanguageEnum[sourceLanguage], LanguageEnum[targetLanguage])
         }
     }, [sourceLanguage, targetLanguage])
@@ -74,9 +73,8 @@ export default function TargetArea(props) {
     useEffect(() => {
         setResult('');
         setError('');
-        if (sourceText !== '' &&
-            sourceLanguage &&
-            targetLanguage) {
+
+        if (sourceText !== '' && sourceLanguage && targetLanguage) {
             const LanguageEnum = builtinServices[translateServiceName].Language;
 
             if (sourceLanguage in LanguageEnum && targetLanguage in LanguageEnum) {
@@ -90,30 +88,12 @@ export default function TargetArea(props) {
     const handleSpeak = async () => {
         const serviceName = ttsServiceList[0];
 
-        if (serviceName.startsWith('[plugin]')) {
-            const config = (await store.get(serviceName)) ?? {};
-            if (!(targetLanguage in ttsPluginInfo.language)) {
-                throw new Error('Language not supported');
-            }
+        let data = await builtinTtsServices[serviceName].tts(
+            result,
+            builtinTtsServices[serviceName].Language[targetLanguage]
+        );
 
-            let data = await invoke('invoke_plugin', {
-                name: serviceName,
-                pluginType: 'tts',
-                source: result,
-                lang: ttsPluginInfo.language[targetLanguage],
-                needs: config,
-            });
-            speak(data);
-        } else {
-            if (!(targetLanguage in builtinTtsServices[serviceName].Language)) {
-                throw new Error('Language not supported');
-            }
-            let data = await builtinTtsServices[serviceName].tts(
-                result,
-                builtinTtsServices[serviceName].Language[targetLanguage]
-            );
-            speak(data);
-        }
+        speak(data);
     };
 
     useEffect(() => {

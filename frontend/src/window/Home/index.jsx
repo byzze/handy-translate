@@ -1,6 +1,5 @@
 import { useLocation, useRoutes } from 'react-router-dom';
 import React, { useEffect, useState } from 'react';
-// import { appWindow } from '@tauri-apps/api/window';
 import { Card, Divider } from '@nextui-org/react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@nextui-org/react';

@@ -1,15 +1,10 @@
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from '@nextui-org/react';
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from '@nextui-org/react';
-import { readDir, BaseDirectory, readTextFile, exists } from '@tauri-apps/api/fs';
 import { Textarea, Button, ButtonGroup } from '@nextui-org/react';
-import { appConfigDir, join } from '@tauri-apps/api/path';
-import { convertFileSrc } from '@tauri-apps/api/tauri';
 import React, { useEffect, useState } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 import { Pagination } from '@nextui-org/react';
 import { useTranslation } from 'react-i18next';
-import { invoke } from '@tauri-apps/api/tauri';
-import Database from 'tauri-plugin-sql-api';
 
 import * as builtinCollectionServices from '../../../../services/collection';
 import * as builtinServices from '../../../../services/translate';
@@ -164,8 +159,8 @@ export default function History() {
                                 <TableCell>
                                     <p
                                         className={`whitespace-nowrap ${osType === 'Linux'
-                                                ? 'w-[calc((100vw-287px-26px-60px-140px-30px)*0.5)]'
-                                                : 'w-[calc((100vw-287px-26px-60px-140px)*0.5)]'
+                                            ? 'w-[calc((100vw-287px-26px-60px-140px-30px)*0.5)]'
+                                            : 'w-[calc((100vw-287px-26px-60px-140px)*0.5)]'
                                             } text-ellipsis overflow-hidden`}
                                     >
                                         {item.text}
@@ -180,8 +175,8 @@ export default function History() {
                                 <TableCell>
                                     <p
                                         className={`whitespace-nowrap ${osType === 'Linux'
-                                                ? 'w-[calc((100vw-287px-26px-60px-140px-30px)*0.5)]'
-                                                : 'w-[calc((100vw-287px-26px-60px-140px)*0.5)]'
+                                            ? 'w-[calc((100vw-287px-26px-60px-140px-30px)*0.5)]'
+                                            : 'w-[calc((100vw-287px-26px-60px-140px)*0.5)]'
                                             } text-ellipsis overflow-hidden`}
                                     >
                                         {item.result}
