@@ -69,6 +69,14 @@ export default function SourceArea(props) {
             setIsSpeakLoading(true)
             let lang = await detect(sourceText);
             setDetectLanguage(lang)
+            const serviceName = ttsServiceList[0];
+            if (!(lang in builtinTtsServices[serviceName].Language)) {
+                throw new Error('Language not supported');
+            }
+            let data = await builtinTtsServices[serviceName].tts(
+                sourceText,
+                builtinTtsServices[serviceName].Language[lang]
+            );
             speak(data);
         } finally {
             setIsSpeakLoading(false)
