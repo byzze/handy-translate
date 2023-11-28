@@ -1,7 +1,6 @@
 package config
 
 import (
-	"context"
 	"fmt"
 	"io"
 	"os"
@@ -9,7 +8,6 @@ import (
 
 	"github.com/pelletier/go-toml/v2"
 	"github.com/sirupsen/logrus"
-	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 // Data config
@@ -31,21 +29,14 @@ type (
 )
 
 // Init  config
-func Init(ctx context.Context) {
+func Init(projectName string) {
 	filePath, _ := os.Getwd()
-	var projectName = "handy-translate"
 	b := strings.Index(filePath, projectName)
 	configPath := filePath[:b+len(projectName)]
 
 	configFile, err := os.Open(configPath + "/config.toml")
 	if err != nil {
 		logrus.WithError(err).Error("Open")
-		runtime.MessageDialog(ctx, runtime.MessageDialogOptions{
-			Type:    runtime.ErrorDialog,
-			Title:   "错误",
-			Message: "配置文件打开失败:" + err.Error(),
-			// DefaultButton: "No",
-		})
 		os.Exit(1)
 	}
 	defer configFile.Close()

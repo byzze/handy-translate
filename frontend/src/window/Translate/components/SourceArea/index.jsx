@@ -8,38 +8,48 @@ import { HiTranslate } from 'react-icons/hi';
 import { LuDelete } from 'react-icons/lu';
 import { MdContentCopy } from 'react-icons/md';
 import { MdSmartButton } from 'react-icons/md';
-import { WindowHide, WindowShow, EventsOn, ClipboardSetText } from "../../../../../wailsjs/runtime"
-
-import { useConfig, useSyncAtom, useVoice, useToastStyle } from '../../../../hooks';
-import * as builtinTtsServices from '../../../../services/tts';
-import detect from '../../../../utils/lang_detect';
-
-import { sourceLanguageAtom } from "../LanguageArea";
 import { createWorker } from 'tesseract.js';
+import { useAtomValue } from 'jotai';
+
+import detect from '../../../../utils/lang_detect';
+import * as builtinTtsServices from '../../../../services/tts';
+import * as builtinServices from '../../../../services/translate';
+import { useConfig, useSyncAtom, useVoice, useToastStyle } from '../../../../hooks';
+import { sourceLanguageAtom, targetLanguageAtom } from '../LanguageArea';
 
 export const sourceTextAtom = atom('');
 export const detectLanguageAtom = atom('');
 
 export default function SourceArea(props) {
+
     const [sourceText, setSourceText, syncSourceText] = useSyncAtom(sourceTextAtom);
     const [detectLanguage, setDetectLanguage] = useAtom(detectLanguageAtom);
-    const [recognizeLanguage] = useConfig('recognize_language', 'auto');
+
     const [ttsServiceList] = useConfig('tts_service_list', ['lingva_tts']);
     const [deleteNewline] = useConfig('translate_delete_newline', false);
     const [recognizeServiceList] = useConfig('recognize_service_list', ['system', 'tesseract']);
     const [dynamicTranslate] = useConfig('dynamic_translate', false);
+
+    const [isSpeakLoading, setIsSpeakLoading] = useState(false)
+
+
     const toastStyle = useToastStyle();
     const { t } = useTranslation();
 
-    const [isSpeakLoading, setIsSpeakLoading] = useState(false)
     const textAreaRef = useRef();
     const speak = useVoice();
+
+    useEffect(() => {
+        wails.Events.On("query", function (data) {
+            setSourceText(data.data)
+            wails.Window.Show()
+        })
+    }, []);
 
     useEffect(() => {
         textAreaRef.current.style.height = '50px';
         textAreaRef.current.style.height = textAreaRef.current.scrollHeight + 'px';
     }, [sourceText]);
-
 
     const detect_language = async (text) => {
         setDetectLanguage(await detect(text));
@@ -53,22 +63,24 @@ export default function SourceArea(props) {
             });
         }
         if (event.key === 'Escape') {
-            WindowHide();
+            wails.Window.Minimise();
         }
     };
-
-    useEffect(() => {
-        EventsOn("query", (result) => {
-            setSourceText(result)
-            WindowShow()
-        })
-    }, []);
 
     const handleSpeak = async () => {
         try {
             setIsSpeakLoading(true)
             let lang = await detect(sourceText);
             setDetectLanguage(lang)
+
+            const serviceName = ttsServiceList[0];
+            if (!(lang in builtinTtsServices[serviceName].Language)) {
+                throw new Error('Language not supported');
+            }
+            let data = await builtinTtsServices[serviceName].tts(
+                sourceText,
+                builtinTtsServices[serviceName].Language[lang]
+            );
             speak(data);
         } finally {
             setIsSpeakLoading(false)
@@ -128,7 +140,7 @@ export default function SourceArea(props) {
                                 variant='light'
                                 size='sm'
                                 onPress={() => {
-                                    ClipboardSetText(sourceText).then((e) => {
+                                    wails.Clipboard.SetText(sourceText).then((e) => {
                                         toast.success(e.toString(), { style: toastStyle });
                                     });
                                 }}
@@ -184,11 +196,6 @@ export default function SourceArea(props) {
                     className='text-[14px] font-bold'
                     startContent={<HiTranslate className='text-[16px]' />}
                     onPress={() => {
-                        (async () => {
-                            const worker = await createWorker('eng');
-                            const ret = await worker.recognize('https://tesseract.projectnaptha.com/img/eng_bw.png');
-                            await worker.terminate();
-                        })();
                         detect_language(sourceText).then(() => {
                             syncSourceText();
                         });

@@ -1,245 +1,83 @@
 package main
 
 import (
-	"bytes"
-	"context"
-	"encoding/base64"
 	"encoding/json"
-	"fmt"
 	"handy-translate/config"
-	"handy-translate/hook"
-	"handy-translate/translate"
+	"handy-translate/translate_service"
 	"handy-translate/utils"
-	"image"
-	"image/png"
 	"strings"
 
-	"github.com/go-vgo/robotgo"
-	"github.com/kbinani/screenshot"
 	"github.com/sirupsen/logrus"
-	"github.com/wailsapp/wails/v2/pkg/runtime"
+	"github.com/wailsapp/wails/v3/pkg/application"
 )
 
-// App struct
+var fromLang, toLang = "auto", "zh"
+
+type Person struct {
+	name string
+}
+
+// App is a service that greets people
 type App struct {
-	ctx context.Context
 }
 
-// NewApp creates a new App application struct
-func NewApp() *App {
-	return &App{}
+// Greet greets a person
+func (*App) Greet(name string) string {
+	return "Hello " + name
 }
 
+// GreetPerson greets a person
+func (*App) GreetPerson(person Person) string {
+	return "Hello " + person.name
+}
+
+// MyFetch URl
 func (a *App) MyFetch(URL string, content map[string]interface{}) interface{} {
 	return utils.MyFetch(URL, content)
 }
 
-func (a *App) sendQueryText(queryText string) {
-	runtime.EventsEmit(a.ctx, "query", queryText)
-}
-
-func (a *App) sendResult(result, explian string) {
-	runtime.EventsEmit(a.ctx, "result", result)
-	runtime.EventsEmit(a.ctx, "explian", explian)
-}
-
-func (a *App) SendDataToJS(query, result, explian string) {
+func (a *App) Transalte(queryText, fromLang, toLang string) {
 	logrus.WithFields(logrus.Fields{
-		"query":   query,
-		"result":  result,
-		"explian": explian,
-	}).Info("SendDataToJS", query, result, explian)
+		"queryText": queryText,
+		"fromLang":  fromLang,
+		"toLang":    toLang,
+	}).Info("Transalte")
 
-	a.sendQueryText(query)
-	a.sendResult(result, explian)
+	// 翻译loading
+	app.Events.Emit(&application.WailsEvent{Name: "loading", Data: "true"})
+	defer app.Events.Emit(&application.WailsEvent{Name: "loading", Data: "false"})
 
-}
+	transalteWay := translate_service.GetTransalteWay(config.Data.TranslateWay)
 
-func (a *App) CaptureSelectedScreen(x, y, width, height int) (string, error) {
-	// 裁剪图片
-	rect := image.Rect(x, y, width, height)
-	if hook.IMG == nil {
-		bounds := screenshot.GetDisplayBounds(0)
-		img, err := screenshot.CaptureRect(bounds)
+	// curName := transalteWay.GetName()
+	// 使用 strings.Replace 替换 \r 和 \n 为空格
 
-		if err != nil {
-			// 错误处理，输出错误信息并返回
-			fmt.Println("Error capturing screenshot:", err)
-			return "", err
-		}
-		hook.IMG = img
-	}
-	croppedImg := hook.IMG.SubImage(rect)
-
-	var buf bytes.Buffer
-	err := png.Encode(&buf, croppedImg)
+	result, err := transalteWay.PostQuery(queryText, fromLang, toLang)
 	if err != nil {
-		return "", err
+		logrus.WithError(err).Error("PostQuery")
 	}
 
-	filename := "screenshot.png" // 保存的文件名
-	base64String := base64.StdEncoding.EncodeToString(buf.Bytes())
+	logrus.WithFields(logrus.Fields{
+		"result":       result,
+		"transalteWay": transalteWay.GetName(),
+	}).Info("Transalte")
 
-	err = saveBase64Image(base64String, filename)
-	if err != nil {
-		logrus.Fatal("保存图片出错: ", err)
-	}
-
-	resut := ExecOCR(".\\RapidOCR-json.exe", filename)
-
-	return resut, nil
+	transalteRes := strings.Join(result, "\n")
+	sendDataToJS(queryText, transalteRes, "")
 }
 
-func (a *App) onDomReady(ctx context.Context) {
-	a.sendQueryText("启动成功\n唤醒应用: 鼠标中键或者Ctrl+c+c\nOCR截图翻译: Ctrl+Shift+F ")
-
-	runtime.WindowShow(ctx)
-	// w, h := runtime.WindowGetSize(ctx)
-	// runtime.WindowMaximise(ctx)
-	// _, mh := runtime.WindowGetSize(ctx)
-	// runtime.WindowUnmaximise(ctx)
-	// scList, _ := runtime.ScreenGetAll(ctx)
-
-	// var sw, sh int
-	// for _, v := range scList {
-	// 	if v.IsCurrent {
-	// 		sw = v.Width
-	// 		sh = v.Height
-	// 	}
-	// }
-	// dpiw := float64(w) / float64(sw)
-	// dpih := float64(h) / float64(sh)
-	// logrus.Info("w,h: ", w, h)
-	// logrus.Info("sw,sh: ", sw, sh)
-	// var dw, dh = int(float64(sw) * dpiw), int(float64(sh) * dpih)
-	// 460 460
-	// 2560 1600
-	// logrus.Info("dw,dh: ", dw, dh)
-	// logrus.Info("dpiw,dpih: ", dpiw, dpih)
-	// runtime.WindowSetSize(ctx, dw, dh)
-	// var dw, dh = w, h
-	// go func() {
-	// 	for {
-	// 		dh = dh + 10
-	// 		if dh >= mh {
-	// 			return
-	// 		}
-	// 		// runtime.WindowSetSize(ctx, dw, dh)
-	// 		logrus.Info("dw,dh: ", dw, dh)
-	// 		time.Sleep(time.Millisecond * 100)
-	// 	}
-	// }()
-
+func sendDataToJS(query, result, explian string) {
+	sendQueryText(query)
+	sendResult(result, explian)
 }
 
-var fromLang, toLang = "auto", "zh"
-
-func eventFunc(ctx context.Context) {
-	runtime.EventsOn(ctx, "translateType", func(optionalData ...interface{}) {
-		logrus.WithField("optionalData", optionalData).Info("translateType")
-		if len(optionalData) >= 2 {
-			fromLang = fmt.Sprintf("%v", optionalData[0])
-			toLang = fmt.Sprintf("%v", optionalData[1])
-		}
-	})
-
-	runtime.EventsOn(ctx, "screenshotCapture", func(optionalData ...interface{}) {
-		logrus.WithField("screenshotCapture", optionalData).Info("translateType")
-		if len(optionalData) >= 1 {
-			base64String := fmt.Sprintf("%v", optionalData[0])
-			base64String = strings.TrimPrefix(base64String, "data:image/png;base64,")
-			logrus.WithField("base64String", base64String).Info("translateType")
-			filename := "screenshot.png" // 保存的文件名
-
-			err := saveBase64Image(base64String, filename)
-			if err != nil {
-				logrus.Fatal("保存图片出错: ", err)
-			}
-			logrus.Println("图片保存成功")
-			resut := ExecOCR(".\\RapidOCR-json.exe", filename)
-			runtime.EventsEmit(ctx, "query", resut)
-		}
-	})
+func sendQueryText(queryText string) {
+	app.Events.Emit(&application.WailsEvent{Name: "query", Data: queryText})
 }
 
-// startup is called when the app starts. The context is saved
-// so we can call the runtime methods
-func (a *App) startup(ctx context.Context) {
-	a.ctx = ctx
-	config.Init(ctx)
-
-	go hook.DafaultHook(ctx)
-	// go hook.WindowsHook()
-
-	// eventFunc(ctx)
-	// scList, _ := runtime.ScreenGetAll(ctx)
-
-	// var screenX, screenY int
-	// for _, v := range scList {
-	// 	if v.IsCurrent {
-	// 		screenX = v.Width
-	// 		screenY = v.Height
-	// 	}
-	// }
-
-	runtime.WindowCenter(ctx)
-	go func() {
-
-		for {
-			select {
-			case <-hook.HookChan:
-				// robotgo.KeyTap("c", "ctrl")
-				// x, y := robotgo.GetMousePos()
-				// logrus.Info("===WindowGetPosition===: ", x, y)
-				// runtime.WindowSetPosition(ctx, x, y)
-				// logrus.Info("HookChan Process")
-				// runtime.WindowShow(ctx)
-				// windowX, windowY := runtime.WindowGetSize(ctx)
-				// x, y := robotgo.GetMousePos()
-				// x, y = x+10, y-10
-
-				// runtime.WindowFullscreen(ctx)
-				// runtime.EventsEmit(ctx, "appLabel", "translate")
-				queryText, _ := runtime.ClipboardGetText(ctx)
-				logrus.Info("===ClipboardGetText===: ", queryText)
-				x, y := robotgo.GetMousePos()
-				logrus.Info("===WindowGetPosition===: ", x, y)
-				runtime.WindowSetPosition(ctx, x+10, y+10)
-				a.sendQueryText(queryText)
-				if queryText != hook.GetQueryText() {
-					fmt.Println("GetQueryText", fromLang, toLang)
-					a.Transalte(queryText, fromLang, toLang)
-				}
-				runtime.WindowShow(ctx)
-				// TODO 弹出窗口根据鼠标位置变动
-				// fmt.Println("or:", x, y, screenX, screenY, windowX, windowY)
-				// if y+windowY+20 >= screenY {
-				// 	y = screenY - windowY - 20
-				// }
-
-				// if x+windowX >= screenX {
-				// 	x = screenX - windowX
-				// }
-				// fmt.Println("new:", x, y, screenX, screenY, windowX, windowY)
-				// runtime.WindowSetPosition(ctx, x, y)
-			}
-		}
-	}()
-}
-
-// Greet returns a greeting for the given name
-func (a *App) GetKeyBoard() []string {
-	if len(config.Data.Keyboard) == 0 {
-		config.Data.Keyboard = make([]string, 3)
-	}
-	return config.Data.Keyboard
-}
-
-func (a *App) SetKeyBoard(ctrl, shift, key string) {
-	config.Data.Keyboard = []string{ctrl, shift, key}
-	logrus.Info(config.Data.Keyboard)
-	config.Save()
-	go hook.Hook()
+func sendResult(result, explian string) {
+	app.Events.Emit(&application.WailsEvent{Name: "result", Data: result})
+	app.Events.Emit(&application.WailsEvent{Name: "explian", Data: explian})
 }
 
 func (a *App) GetTransalteMap() string {
@@ -252,59 +90,26 @@ func (a *App) GetTransalteMap() string {
 }
 
 func (a *App) SetTransalteWay(translateWay string) {
-	fmt.Println(translateWay)
 	config.Data.TranslateWay = translateWay
-	hook.SetQueryText("")
+	translate_service.SetQueryText("")
 	config.Save()
-	logrus.WithField("config.Data.Translate", config.Data.Translate).Info("SetTransalteList")
+	logrus.WithField("Translate", config.Data.Translate).Info("SetTransalteList")
 }
 
 func (a *App) GetTransalteWay() string {
 	return config.Data.TranslateWay
 }
 
-func (a *App) Transalte(queryText, fromLang, toLang string) {
-	hook.SetQueryText(queryText)
-	// 加载动画loading
-	runtime.EventsEmit(a.ctx, "loading", "true")
-	defer runtime.EventsEmit(a.ctx, "loading", "false")
-
-	transalteWay := translate.GetTransalteWay(config.Data.TranslateWay)
-
-	logrus.WithFields(logrus.Fields{
-		"queryText":    queryText,
-		"transalteWay": transalteWay.GetName(),
-		"fromLang":     fromLang,
-		"toLang":       toLang,
-	}).Info("Transalte")
-
-	// curName := transalteWay.GetName()
-	// 使用 strings.Replace 替换 \r 和 \n 为空格
-
-	result, err := transalteWay.PostQuery(queryText, fromLang, toLang)
-	if err != nil {
-		logrus.WithError(err).Error("PostQuery")
+// Show 通过名字控制窗口事件
+func (a *App) Show(windowName string) {
+	if w, ok := windowMap[windowName]; ok {
+		w.Show()
 	}
-
-	logrus.WithFields(logrus.Fields{
-		"result": result,
-	}).Info("Transalte")
-
-	// if len(result) >= 2 && curName == youdao.Way {
-	// 	a.SendDataToJS(queryText, result[0], result[1])
-	// 	return
-	// }
-
-	transalteRes := strings.Join(result, "\n")
-	a.SendDataToJS(queryText, transalteRes, "")
-
 }
 
-func (a *App) Quit() {
-	runtime.Quit(a.ctx)
-	// systray.Quit()
-}
-
-func (a *App) Show() {
-	runtime.WindowShow(a.ctx)
+// Hide 通过名字控制窗口事件
+func (a *App) Hide(windowName string) {
+	if w, ok := windowMap[windowName]; ok {
+		w.Hide()
+	}
 }

@@ -2,9 +2,7 @@ package hook
 
 import (
 	"bytes"
-	"context"
 	"encoding/base64"
-	"fmt"
 	"handy-translate/config"
 	"image"
 	"image/png"
@@ -13,32 +11,12 @@ import (
 	"time"
 
 	"github.com/go-vgo/robotgo"
-	"github.com/kbinani/screenshot"
 	hook "github.com/robotn/gohook"
 	"github.com/sirupsen/logrus"
-	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 // HookChan
 var HookChan = make(chan struct{}, 1)
-
-var queryText string
-
-var lk sync.RWMutex
-
-// SetQueryText
-func SetQueryText(value string) {
-	lk.Lock()
-	queryText = value
-	lk.Unlock()
-}
-
-// GetQueryText
-func GetQueryText() string {
-	lk.RLock()
-	defer lk.RUnlock()
-	return queryText
-}
 
 var defaulthook = func(e hook.Event) {
 	if e.Button == hook.MouseMap["center"] {
@@ -75,53 +53,54 @@ func encodeImageToBase64(img image.Image) string {
 }
 
 var lastKeyPressTime time.Time
+
 var lastMouseTime time.Time
 
 var IMG *image.RGBA
 
 // DafaultHook register hook event
-func DafaultHook(ctx context.Context) {
+func DafaultHook() {
+	// hook.Register(hook.KeyDown, []string{"ctrl", "c", "c"}, func(e hook.Event) {
+	// 	logrus.Info(e)
+	// 	if pressLock.TryLock() {
+	// 		lastKeyPressTime = time.Now()
+	// 	} else {
+	// 		elapsed := time.Since(lastKeyPressTime)
+	// 		// Check if the time elapsed is greater than 500 milliseconds
+	// 		if elapsed.Milliseconds() < 800 {
+	// 			// HookChan <- struct{}{}
+	// 		}
+	// 		pressLock.Unlock()
+	// 	}
+	// })
+
+	// hook.Register(hook.KeyDown, []string{"f", "ctrl", "shift"}, func(e hook.Event) {
+	// 	logrus.Info(e)
+	// 	bounds := screenshot.GetDisplayBounds(0)
+	// 	img, err := screenshot.CaptureRect(bounds)
+
+	// 	if err != nil {
+	// 		// 错误处理，输出错误信息并返回
+	// 		fmt.Println("Error capturing screenshot:", err)
+	// 		return
+	// 	}
+	// 	IMG = img
+
+	// 	base64Image := encodeImageToBase64(img)
+	// 	if base64Image == "" {
+	// 		// 错误处理，未能生成Base64图像，返回
+	// 		fmt.Println("Error encoding image to Base64")
+	// 		return
+	// 	}
+
+	// 	runtime.EventsEmit(ctx, "appLabel", "screenshot")
+
+	// 	runtime.EventsEmit(ctx, "screenshot", base64Image)
+	// })
+
 	hook.Register(hook.MouseDown, []string{}, defaulthook)
 
-	hook.Register(hook.KeyDown, []string{"ctrl", "c", "c"}, func(e hook.Event) {
-		logrus.Info(e)
-		if pressLock.TryLock() {
-			lastKeyPressTime = time.Now()
-		} else {
-			elapsed := time.Since(lastKeyPressTime)
-			// Check if the time elapsed is greater than 500 milliseconds
-			if elapsed.Milliseconds() < 800 {
-				// HookChan <- struct{}{}
-			}
-			pressLock.Unlock()
-		}
-	})
-
-	hook.Register(hook.KeyDown, []string{"f", "ctrl", "shift"}, func(e hook.Event) {
-		logrus.Info(e)
-		bounds := screenshot.GetDisplayBounds(0)
-		img, err := screenshot.CaptureRect(bounds)
-
-		if err != nil {
-			// 错误处理，输出错误信息并返回
-			fmt.Println("Error capturing screenshot:", err)
-			return
-		}
-		IMG = img
-
-		base64Image := encodeImageToBase64(img)
-		if base64Image == "" {
-			// 错误处理，未能生成Base64图像，返回
-			fmt.Println("Error encoding image to Base64")
-			return
-		}
-
-		runtime.EventsEmit(ctx, "appLabel", "screenshot")
-
-		runtime.EventsEmit(ctx, "screenshot", base64Image)
-	})
-
-	// 鼠标操作
+	// 鼠标操作 左键
 	hook.Register(hook.MouseDown, []string{}, func(e hook.Event) {
 		if e.Button == hook.MouseMap["left"] {
 			elapsed := time.Since(lastMouseTime)
@@ -131,12 +110,13 @@ func DafaultHook(ctx context.Context) {
 		}
 	})
 
+	// 鼠标操作 左键hold
 	hook.Register(hook.MouseHold, []string{}, func(e hook.Event) {
 		if e.Button == hook.MouseMap["left"] {
 			lastMouseTime = time.Now()
 		}
 	})
-
+	// 鼠标操作 左键双击 左键三击
 	hook.Register(hook.MouseUp, []string{}, func(e hook.Event) {
 		if e.Button == hook.MouseMap["left"] && (e.Clicks == 2 || e.Clicks == 3) {
 			robotgo.KeyTap("c", "ctrl")
@@ -145,20 +125,6 @@ func DafaultHook(ctx context.Context) {
 
 	s := hook.Start()
 	<-hook.Process(s)
-	// 这个会阻塞事件
-	/* centerBtn := robotgo.AddEvent("center")
-	// mouse center press
-	for {
-		if centerBtn {
-			if pressLock.TryLock() {
-				HookChan <- struct{}{}
-				robotgo.MilliSleep(100)
-				pressLock.Unlock()
-			}
-		}
-		centerBtn = robotgo.AddEvent("center")
-	}
-	*/
 }
 
 var pressLock sync.RWMutex
@@ -167,7 +133,6 @@ var pressLock sync.RWMutex
 func Hook() {
 	logrus.Info("--- Please wait hook starting ---")
 	hook.End()
-	SetQueryText("")
 	if len(config.Data.Keyboard) == 0 || config.Data.Keyboard[0] == "center" {
 		hook.Register(hook.MouseDown, []string{}, defaulthook)
 	} else {

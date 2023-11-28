@@ -22,30 +22,32 @@ import { HiOutlineVolumeUp } from 'react-icons/hi';
 import { MdContentCopy } from 'react-icons/md';
 import { GiCycle } from 'react-icons/gi';
 
-import { sourceLanguageAtom, targetLanguageAtom } from '../LanguageArea';
-import { sourceTextAtom, detectLanguageAtom } from '../SourceArea';
-import { useConfig, useToastStyle, useVoice } from '../../../../hooks';
-import { WindowHide, EventsOn, EventsEmit, ClipboardSetText } from "../../../../../wailsjs/runtime"
-import { Transalte } from "../../../../../wailsjs/go/main/App"
-
 import * as builtinTtsServices from '../../../../services/tts';
 import * as builtinServices from '../../../../services/translate';
+import { useConfig, useToastStyle, useVoice } from '../../../../hooks';
+import { sourceTextAtom, detectLanguageAtom } from '../SourceArea';
+import { sourceLanguageAtom, targetLanguageAtom } from '../LanguageArea';
 
 
 export default function TargetArea(props) {
+    const { name, index, translateServiceList, ...drag } = props;
+
     const [collectionServiceList] = useConfig('collection_service_list', []);
     const [ttsServiceList] = useConfig('tts_service_list', ['lingva_tts']);
-    const { name, index, translateServiceList, ...drag } = props;
-    const [hide, setHide] = useState(false);
     const [autoCopy] = useConfig('translate_auto_copy', 'disable');
-    const [translateServiceName, setTranslateServiceName] = useState(name);
     const [clipboardMonitor] = useConfig('clipboard_monitor', false);
     const [hideWindow] = useConfig('translate_hide_window', false);
+
+    const [hide, setHide] = useState(false);
+    const [isSpeakLoading, setIsSpeakLoading] = useState(false)
+
+    const [translateServiceName, setTranslateServiceName] = useState(name);
     const [isLoading, setIsLoading] = useState(false)
     const sourceText = useAtomValue(sourceTextAtom);
     const sourceLanguage = useAtomValue(sourceLanguageAtom);
     const targetLanguage = useAtomValue(targetLanguageAtom);
     const detectLanguage = useAtomValue(detectLanguageAtom);
+
     const speak = useVoice();
     const toastStyle = useToastStyle();
 
@@ -55,20 +57,20 @@ export default function TargetArea(props) {
     const [error, setError] = useState('');
 
     useEffect(() => {
-        EventsOn("loading", (result) => {
-            setIsLoading(result == 'true')
+        wails.Events.On("loading", function (data) {
+            setIsLoading(data.data == 'true')
         })
 
-        // EventsOn("result", (result) => {
-        //     setResult(result)
-        //     setIsLoading(false)
-        // })
+        wails.Events.On("result", function (data) {
+            setResult(data.data)
+            setIsLoading(false)
+        })
 
         const LanguageEnum = builtinServices[translateServiceName].Language;
         if (sourceLanguage in LanguageEnum && targetLanguage in LanguageEnum) {
-            EventsEmit("translateType", LanguageEnum[sourceLanguage], LanguageEnum[targetLanguage])
+            wails.Events.Emit({ name: "translateType", data: [LanguageEnum[sourceLanguage], LanguageEnum[targetLanguage]] })
         }
-    }, [sourceLanguage, targetLanguage])
+    }, [targetLanguage, sourceLanguage])
 
     useEffect(() => {
         setResult('');
@@ -78,33 +80,25 @@ export default function TargetArea(props) {
             const LanguageEnum = builtinServices[translateServiceName].Language;
 
             if (sourceLanguage in LanguageEnum && targetLanguage in LanguageEnum) {
-                Transalte(sourceText, LanguageEnum[sourceLanguage], LanguageEnum[targetLanguage])
+                window.go.main.App.Transalte(sourceText, LanguageEnum[sourceLanguage], LanguageEnum[targetLanguage])
             }
         }
-
-
     }, [sourceText, targetLanguage, sourceLanguage, autoCopy, hideWindow, translateServiceName, clipboardMonitor]);
 
     const handleSpeak = async () => {
-        const serviceName = ttsServiceList[0];
+        try {
+            setIsSpeakLoading(true)
+            const serviceName = ttsServiceList[0];
+            let data = await builtinTtsServices[serviceName].tts(
+                result,
+                builtinTtsServices[serviceName].Language[targetLanguage]
+            );
 
-        let data = await builtinTtsServices[serviceName].tts(
-            result,
-            builtinTtsServices[serviceName].Language[targetLanguage]
-        );
-
-        speak(data);
-    };
-
-    useEffect(() => {
-        if (ttsServiceList && ttsServiceList[0].startsWith('[plugin]')) {
-            readTextFile(`plugins/tts/${ttsServiceList[0]}/info.json`, {
-                dir: BaseDirectory.AppConfig,
-            }).then((infoStr) => {
-                setTtsPluginInfo(JSON.parse(infoStr));
-            });
+            speak(data);
+        } finally {
+            setIsSpeakLoading(false)
         }
-    }, [ttsServiceList]);
+    };
 
     useEffect(() => {
         if (textAreaRef.current !== null) {
@@ -357,7 +351,7 @@ export default function TargetArea(props) {
                                 });
                             }}
                         >
-                            <HiOutlineVolumeUp className='text-[16px]' />
+                            {isSpeakLoading ? <Spinner size="sm" color="default" /> : <HiOutlineVolumeUp className='text-[16px]' />}
                         </Button>
                     </Tooltip>
                     <Tooltip content={t('translate.copy')}>
@@ -367,7 +361,7 @@ export default function TargetArea(props) {
                             size='sm'
                             isDisabled={typeof result !== 'string' || result === ''}
                             onPress={() => {
-                                ClipboardSetText(result).then((e) => {
+                                wails.Clipboard.SetText(result).then((e) => {
                                     toast.success(e.toString(), { style: toastStyle });
                                 });
                             }}
@@ -375,19 +369,6 @@ export default function TargetArea(props) {
                             <MdContentCopy className='text-[16px]' />
                         </Button>
                     </Tooltip>
-                    {/* <Tooltip content={t('translate.translate_back')}>
-                        <Button
-                            isIconOnly
-                            variant='light'
-                            size='sm'
-                            isDisabled={typeof result !== 'string' || result === ''}
-                            onPress={async () => {
-
-                            }}
-                        >
-                            <TbTransformFilled className='text-[16px]' />
-                        </Button>
-                    </Tooltip> */}
                     <Tooltip content={t('translate.retry')}>
                         <Button
                             isIconOnly

@@ -1,16 +1,14 @@
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import { Spacer, ButtonGroup, Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from '@nextui-org/react';
-import { AiFillCloseCircle, AiFillMinusCircle, AiFillSetting, AiOutlineTranslation } from 'react-icons/ai';
+import { AiFillCloseCircle, AiFillMinusCircle, AiFillSetting } from 'react-icons/ai';
 import React, { useState, useEffect } from 'react';
 import { BsPinFill, BsTranslate, BsInfoSquareFill } from 'react-icons/bs';
-import { IoHelpCircle } from "react-icons/io5";
 import LanguageArea from './components/LanguageArea';
 import SourceArea from './components/SourceArea';
 import TargetArea from './components/TargetArea';
 import Way from './components/Way';
-import About from '../About';
-import { GetTransalteWay } from "../../../wailsjs/go/main/App"
-import { WindowHide, WindowSetAlwaysOnTop, Quit, EventsOn, EventsEmit, ClipboardSetText } from "../../../wailsjs/runtime"
+import About from './components/About';
+
 import { useConfig, useSyncAtom, useVoice, useToastStyle } from '../../hooks';
 import { translateServiceListAtom } from './components/Way';
 import { atom, useAtom, useAtomValue } from 'jotai';
@@ -20,13 +18,13 @@ let resizeTimeout = null;
 let moveTimeout = null;
 let osType = "Windows_NT"
 
-
-
 export default function Translate({ variable, onUpdateVariable }) {
+
     const { isOpen, onOpen, onOpenChange } = useDisclosure();
     const { isOpen: isSettingOpen, onOpen: onSettingOpen, onOpenChange: onSettingOpenChange } = useDisclosure();
     const { isOpen: isTranslateOpen, onOpen: onTranslateOpen, onOpenChange: onTranslateOpenChange } = useDisclosure();
     const { isOpen: isAboutOpen, onOpen: onAboutOpen, onOpenChange: onAboutOpenChange } = useDisclosure();
+
     const [modalPlacement, setModalPlacement] = React.useState("auto");
     const [alwaysOnTop] = useConfig('translate_always_on_top', false);
     const [hideSource] = useConfig('hide_source', false);
@@ -40,21 +38,10 @@ export default function Translate({ variable, onUpdateVariable }) {
     const [translateServiceList, setTranslateServiceList] = useAtom(translateServiceListAtom);
 
     useEffect(() => {
-        GetTransalteWay().then(result => {
+        window.go.main.App.GetTransalteWay().then(result => {
             setTranslateServiceList([result]);
         });
     }, []);
-
-    const reorder = (list, startIndex, endIndex) => {
-        const result = Array.from(list);
-        const [removed] = result.splice(startIndex, 1);
-        result.splice(endIndex, 0, removed);
-        return result;
-    };
-
-    const onDragEnd = async (result) => {
-
-    };
 
     const getServiceConfig = async () => {
         let config = {};
@@ -63,22 +50,15 @@ export default function Translate({ variable, onUpdateVariable }) {
         }
         setServiceConfig({ ...config });
     };
+    const onDragEnd = async (result) => {
 
-
+    };
 
     useEffect(() => {
         if (translateServiceList !== null) {
             getServiceConfig();
         }
     }, [translateServiceList]);
-
-    // 是否默认置顶
-    useEffect(() => {
-        if (alwaysOnTop !== null && alwaysOnTop) {
-            WindowSetAlwaysOnTop(true);
-            setPined(true);
-        }
-    }, [alwaysOnTop]);
 
     return (
         (
@@ -92,7 +72,7 @@ export default function Translate({ variable, onUpdateVariable }) {
                 />
                 <div className={`h-[35px] w-full flex ${osType === 'Darwin' ? 'justify-end' : 'justify-between'}`}>
                     <ButtonGroup className='mr-[5px]'>
-                        <Button
+                        {/* <Button
                             isIconOnly
                             size='sm'
                             variant='flat'
@@ -107,7 +87,7 @@ export default function Translate({ variable, onUpdateVariable }) {
                             }}
                         >
                             <AiFillSetting className={`text-[20px] ${isSettingOpen ? 'text-primary' : 'text-default-400'}`} />
-                        </Button>
+                        </Button> */}
                         <Button
                             isIconOnly
                             size='sm'
@@ -116,7 +96,7 @@ export default function Translate({ variable, onUpdateVariable }) {
                             className='my-auto bg-transparent'
                             onPress={() => {
                                 onAboutOpen();
-                                setAbout(!about);
+                                setAbout(about);
                             }}
                         >
                             <BsInfoSquareFill className={`text-[20px] ${isAboutOpen ? 'text-primary' : 'text-default-400'}`} />
@@ -145,9 +125,9 @@ export default function Translate({ variable, onUpdateVariable }) {
                             className='my-auto bg-transparent'
                             onPress={() => {
                                 if (pined) {
-                                    WindowSetAlwaysOnTop(false);
+                                    wails.Window.SetAlwaysOnTop(false);
                                 } else {
-                                    WindowSetAlwaysOnTop(true)
+                                    wails.Window.SetAlwaysOnTop(true);
                                 }
                                 setPined(!pined);
                             }}
@@ -161,7 +141,7 @@ export default function Translate({ variable, onUpdateVariable }) {
                             disableAnimation
                             className={`my-auto ${osType === 'Darwin' && 'hidden'} bg-transparent`}
                             onPress={() => {
-                                WindowHide()
+                                wails.Window.Minimise();
                             }}
                         >
                             <AiFillMinusCircle className='text-[20px] text-default-400' />
@@ -255,7 +235,7 @@ export default function Translate({ variable, onUpdateVariable }) {
                                             取消
                                         </Button>
                                         <Button color="primary" onPress={() => {
-                                            Quit()
+                                            wails.Window.Close();
                                         }}>
                                             确认
                                         </Button>

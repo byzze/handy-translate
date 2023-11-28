@@ -2,28 +2,28 @@ import React from "react";
 import { RadioGroup, Radio } from "@nextui-org/react";
 import { useEffect } from "react";
 import toast, { Toaster } from 'react-hot-toast';
-import { GetTransalteMap, GetTransalteWay, SetTransalteWay } from "../../../../../wailsjs/go/main/App"
-import { useConfig, useToastStyle, useVoice, useSyncAtom } from '../../../../hooks';
 import { atom, useAtom, useAtomValue } from 'jotai';
+
+import { useSyncAtom } from '../../../../hooks';
 
 export const translateServiceListAtom = atom([]);
 
 let timer = null;
+
 export default function Way() {
     const [translateMap, setTranslateMap] = React.useState({});
 
     const [translateServiceList, setTranslateServiceList, syncTranslateServiceList] = useSyncAtom(translateServiceListAtom)
 
     const [selected, setSelected] = React.useState("");
-    const toastStyle = useToastStyle();
 
     useEffect(() => {
-        GetTransalteMap().then(result => {
+        window.go.main.App.GetTransalteMap().then(result => {
             result = JSON.parse(result)
             setTranslateMap(result)
         })
 
-        GetTransalteWay().then(result => {
+        window.go.main.App.GetTransalteWay().then(result => {
             setSelected(result)
         })
     }, [])
@@ -38,7 +38,7 @@ export default function Way() {
                 onValueChange={(value => {
                     console.log(value)
                     setSelected(value)
-                    SetTransalteWay(value)
+                    window.go.main.App.SetTransalteWay(value)
                     setTranslateServiceList([value])
 
                     if (timer) {
@@ -51,14 +51,12 @@ export default function Way() {
 
                 })}
             >
-
                 {translateMap &&
                     Object.entries(translateMap).map((key) => {
                         return (<Radio key={key[0]} value={key[0]}>{key[1].name}</Radio>)
                     })
                 }
             </RadioGroup>
-            {/* <p className="text-default-500 text-small">Selected: {selected}</p> */}
         </div>
     );
 }
