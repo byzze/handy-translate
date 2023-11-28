@@ -59,10 +59,10 @@ export default function TargetArea(props) {
             setIsLoading(result == 'true')
         })
 
-        EventsOn("result", (result) => {
-            setResult(result)
-            setIsLoading(false)
-        })
+        // EventsOn("result", (result) => {
+        //     setResult(result)
+        //     setIsLoading(false)
+        // })
 
         const LanguageEnum = builtinServices[translateServiceName].Language;
         if (sourceLanguage in LanguageEnum && targetLanguage in LanguageEnum) {

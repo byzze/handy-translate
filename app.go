@@ -14,6 +14,7 @@ import (
 	"image/png"
 	"strings"
 
+	"github.com/go-vgo/robotgo"
 	"github.com/kbinani/screenshot"
 	"github.com/sirupsen/logrus"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
@@ -91,6 +92,44 @@ func (a *App) CaptureSelectedScreen(x, y, width, height int) (string, error) {
 
 func (a *App) onDomReady(ctx context.Context) {
 	a.sendQueryText("启动成功\n唤醒应用: 鼠标中键或者Ctrl+c+c\nOCR截图翻译: Ctrl+Shift+F ")
+
+	runtime.WindowShow(ctx)
+	// w, h := runtime.WindowGetSize(ctx)
+	// runtime.WindowMaximise(ctx)
+	// _, mh := runtime.WindowGetSize(ctx)
+	// runtime.WindowUnmaximise(ctx)
+	// scList, _ := runtime.ScreenGetAll(ctx)
+
+	// var sw, sh int
+	// for _, v := range scList {
+	// 	if v.IsCurrent {
+	// 		sw = v.Width
+	// 		sh = v.Height
+	// 	}
+	// }
+	// dpiw := float64(w) / float64(sw)
+	// dpih := float64(h) / float64(sh)
+	// logrus.Info("w,h: ", w, h)
+	// logrus.Info("sw,sh: ", sw, sh)
+	// var dw, dh = int(float64(sw) * dpiw), int(float64(sh) * dpih)
+	// 460 460
+	// 2560 1600
+	// logrus.Info("dw,dh: ", dw, dh)
+	// logrus.Info("dpiw,dpih: ", dpiw, dpih)
+	// runtime.WindowSetSize(ctx, dw, dh)
+	// var dw, dh = w, h
+	// go func() {
+	// 	for {
+	// 		dh = dh + 10
+	// 		if dh >= mh {
+	// 			return
+	// 		}
+	// 		// runtime.WindowSetSize(ctx, dw, dh)
+	// 		logrus.Info("dw,dh: ", dw, dh)
+	// 		time.Sleep(time.Millisecond * 100)
+	// 	}
+	// }()
+
 }
 
 var fromLang, toLang = "auto", "zh"
@@ -130,9 +169,9 @@ func (a *App) startup(ctx context.Context) {
 	config.Init(ctx)
 
 	go hook.DafaultHook(ctx)
-	go hook.WindowsHook()
+	// go hook.WindowsHook()
 
-	eventFunc(ctx)
+	// eventFunc(ctx)
 	// scList, _ := runtime.ScreenGetAll(ctx)
 
 	// var screenX, screenY int
@@ -145,24 +184,33 @@ func (a *App) startup(ctx context.Context) {
 
 	runtime.WindowCenter(ctx)
 	go func() {
+
 		for {
 			select {
 			case <-hook.HookChan:
-				logrus.Info("HookChan Process")
+				// robotgo.KeyTap("c", "ctrl")
+				// x, y := robotgo.GetMousePos()
+				// logrus.Info("===WindowGetPosition===: ", x, y)
+				// runtime.WindowSetPosition(ctx, x, y)
+				// logrus.Info("HookChan Process")
+				// runtime.WindowShow(ctx)
 				// windowX, windowY := runtime.WindowGetSize(ctx)
 				// x, y := robotgo.GetMousePos()
 				// x, y = x+10, y-10
 
 				// runtime.WindowFullscreen(ctx)
-				runtime.EventsEmit(ctx, "appLabel", "translate")
-				queryText, _ := runtime.ClipboardGetText(a.ctx)
-
+				// runtime.EventsEmit(ctx, "appLabel", "translate")
+				queryText, _ := runtime.ClipboardGetText(ctx)
+				logrus.Info("===ClipboardGetText===: ", queryText)
+				x, y := robotgo.GetMousePos()
+				logrus.Info("===WindowGetPosition===: ", x, y)
+				runtime.WindowSetPosition(ctx, x+10, y+10)
 				a.sendQueryText(queryText)
 				if queryText != hook.GetQueryText() {
 					fmt.Println("GetQueryText", fromLang, toLang)
 					a.Transalte(queryText, fromLang, toLang)
 				}
-
+				runtime.WindowShow(ctx)
 				// TODO 弹出窗口根据鼠标位置变动
 				// fmt.Println("or:", x, y, screenX, screenY, windowX, windowY)
 				// if y+windowY+20 >= screenY {

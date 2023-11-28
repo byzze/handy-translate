@@ -75,6 +75,7 @@ func encodeImageToBase64(img image.Image) string {
 }
 
 var lastKeyPressTime time.Time
+var lastMouseTime time.Time
 
 var IMG *image.RGBA
 
@@ -90,7 +91,7 @@ func DafaultHook(ctx context.Context) {
 			elapsed := time.Since(lastKeyPressTime)
 			// Check if the time elapsed is greater than 500 milliseconds
 			if elapsed.Milliseconds() < 800 {
-				HookChan <- struct{}{}
+				// HookChan <- struct{}{}
 			}
 			pressLock.Unlock()
 		}
@@ -118,6 +119,28 @@ func DafaultHook(ctx context.Context) {
 		runtime.EventsEmit(ctx, "appLabel", "screenshot")
 
 		runtime.EventsEmit(ctx, "screenshot", base64Image)
+	})
+
+	// 鼠标操作
+	hook.Register(hook.MouseDown, []string{}, func(e hook.Event) {
+		if e.Button == hook.MouseMap["left"] {
+			elapsed := time.Since(lastMouseTime)
+			if elapsed.Milliseconds() > 300 {
+				robotgo.KeyTap("c", "ctrl")
+			}
+		}
+	})
+
+	hook.Register(hook.MouseHold, []string{}, func(e hook.Event) {
+		if e.Button == hook.MouseMap["left"] {
+			lastMouseTime = time.Now()
+		}
+	})
+
+	hook.Register(hook.MouseUp, []string{}, func(e hook.Event) {
+		if e.Button == hook.MouseMap["left"] && (e.Clicks == 2 || e.Clicks == 3) {
+			robotgo.KeyTap("c", "ctrl")
+		}
 	})
 
 	s := hook.Start()

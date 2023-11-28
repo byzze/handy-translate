@@ -5,8 +5,10 @@ import { useTranslation } from 'react-i18next';
 import { useTheme } from 'next-themes';
 
 import Translate from './window/Translate';
+import Handy from './window/Translate/components/Handy';
 import Screenshot from './window/Screenshot';
 import Home from './window/Home';
+import TinyHome from './window/TinyHome'
 import { useConfig, useSyncAtom } from './hooks';
 import { EventsOn, WindowGetSize, WindowSetSize, WindowFullscreen, WindowUnfullscreen, WindowIsFullscreen } from '../wailsjs/runtime';
 import './i18n';
@@ -19,7 +21,7 @@ function App() {
     const [appLanguage] = useConfig('app_language', 'zh_cn');
     const { setTheme } = useTheme();
     const { i18n } = useTranslation();
-    const [appLabel, setAppLabel] = useState('translate');
+    const [appLabel, setAppLabel] = useState('tinyHome');
     const { width, setWidth } = useState(0)
     const { height, setHeight } = useState(0)
 
@@ -35,6 +37,8 @@ function App() {
         translate: <Translate variable={sharedVariable} onUpdateVariable={updateSharedVariable} />,
         screenshot: <Screenshot />,
         home: <Home />,
+        handy: <Handy />,
+        tinyHome: <TinyHome />,
     };
 
     useEffect(() => {

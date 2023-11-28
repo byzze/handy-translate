@@ -105,7 +105,6 @@ export default function Screenshot() {
                     WindowHide()
                     setIsDown(false);
                     setIsMoved(false);
-                    console.log(e, "xxxxx")
                     if (e.button === 1 || e.button === 0) {
                         const imgWidth = imgRef.current.naturalWidth;
                         const dpi = imgWidth / screen.width;
@@ -115,7 +114,6 @@ export default function Screenshot() {
                         const bottom = Math.floor(Math.max(mouseDownY, e.clientY) * dpi);
                         const width = right - left;
                         const height = bottom - top;
-                        console.log(height, width)
                         if (width <= 0 || height <= 0) {
                             toast.error('Screenshot area is too small', { style: toastStyle });
                             WindowHide()
