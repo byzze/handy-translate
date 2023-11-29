@@ -57,18 +57,18 @@ export default function TargetArea(props) {
     const [error, setError] = useState('');
 
     useEffect(() => {
-        wails.Events.On("loading", function (data) {
-            setIsLoading(data.data == 'true')
-        })
-
-        wails.Events.On("result", function (data) {
-            setResult(data.data)
-            setIsLoading(false)
-        })
+        /*         wails.Events.On("loading", function (data) {
+                    setIsLoading(data.data == 'true')
+                })
+        
+                wails.Events.On("result", function (data) {
+                    setResult(data.data)
+                    setIsLoading(false)
+                }) */
 
         const LanguageEnum = builtinServices[translateServiceName].Language;
         if (sourceLanguage in LanguageEnum && targetLanguage in LanguageEnum) {
-            wails.Events.Emit({ name: "translateType", data: [LanguageEnum[sourceLanguage], LanguageEnum[targetLanguage]] })
+            wails.Events.Emit({ name: "translateLang", data: [LanguageEnum[sourceLanguage], LanguageEnum[targetLanguage]] })
         }
     }, [targetLanguage, sourceLanguage])
 

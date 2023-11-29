@@ -21,13 +21,10 @@ export const sourceTextAtom = atom('');
 export const detectLanguageAtom = atom('');
 
 export default function SourceArea(props) {
-
     const [sourceText, setSourceText, syncSourceText] = useSyncAtom(sourceTextAtom);
     const [detectLanguage, setDetectLanguage] = useAtom(detectLanguageAtom);
 
     const [ttsServiceList] = useConfig('tts_service_list', ['lingva_tts']);
-    const [deleteNewline] = useConfig('translate_delete_newline', false);
-    const [recognizeServiceList] = useConfig('recognize_service_list', ['system', 'tesseract']);
     const [dynamicTranslate] = useConfig('dynamic_translate', false);
 
     const [isSpeakLoading, setIsSpeakLoading] = useState(false)
@@ -38,13 +35,6 @@ export default function SourceArea(props) {
 
     const textAreaRef = useRef();
     const speak = useVoice();
-
-    useEffect(() => {
-        wails.Events.On("query", function (data) {
-            setSourceText(data.data)
-            wails.Window.Show()
-        })
-    }, []);
 
     useEffect(() => {
         textAreaRef.current.style.height = '50px';

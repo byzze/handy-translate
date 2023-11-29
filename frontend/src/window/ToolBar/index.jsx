@@ -7,8 +7,10 @@ import { BsTranslate } from "react-icons/bs";
 export default function ToolBar() {
     const [result, setResult] = useState("")
     const textAreaRef = useRef();
+
     useEffect(() => {
         wails.Events.On("result", function (data) {
+            console.log("result", data)
             setResult(data.data)
         })
     }, [])
@@ -26,11 +28,18 @@ export default function ToolBar() {
         <div >
             <Card>
                 <CardHeader>
-                    <Button isIconOnly color="danger" aria-label="Like" onPress={() => {
-                        window.go.main.App.Show("translate")
-                    }}>
-                        <BsTranslate />
-                    </Button>
+                    <div className="flex gap-4 items-center">
+                        <Button isIconOnly color="danger" aria-label="Like" onPress={() => {
+                            window.go.main.App.Show("translate")
+                        }}>
+                            显示
+                        </Button>
+                        <Button isIconOnly color="danger" aria-label="Like" onPress={() => {
+                            window.go.main.App.Hide("translate")
+                        }}>
+                            隐藏
+                        </Button>
+                    </div>
                 </CardHeader>
                 <CardBody>
                     <textarea

@@ -68,7 +68,7 @@ export default function Translate({ variable, onUpdateVariable }) {
             >
                 <div
                     className='fixed top-[5px] left-[5px] right-[5px] h-[30px]'
-                    style={{ '--wails-draggable': 'drag' }}
+                    style={{ '--webkit-app-region': 'drag' }}
                 />
                 <div className={`h-[35px] w-full flex ${osType === 'Darwin' ? 'justify-end' : 'justify-between'}`}>
                     <ButtonGroup className='mr-[5px]'>
@@ -153,7 +153,8 @@ export default function Translate({ variable, onUpdateVariable }) {
                             disableAnimation
                             className={`my-auto ${osType === 'Darwin' && 'hidden'} bg-transparent`}
                             onPress={() => {
-                                onOpen()
+                                wails.Window.Hide();
+                                // onOpen()
                             }}
                         >
                             <AiFillCloseCircle className='text-[20px] text-default-400' />

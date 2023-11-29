@@ -102,14 +102,15 @@ func (a *App) GetTransalteWay() string {
 
 // Show 通过名字控制窗口事件
 func (a *App) Show(windowName string) {
-	if w, ok := windowMap[windowName]; ok {
-		w.Show()
+	if _, ok := windowMap[windowName]; ok {
+		windowMap[windowName].Center()
+		windowMap[windowName].Show()
 	}
 }
 
 // Hide 通过名字控制窗口事件
 func (a *App) Hide(windowName string) {
-	if w, ok := windowMap[windowName]; ok {
-		w.Hide()
+	if _, ok := windowMap[windowName]; ok {
+		windowMap[windowName].Hide()
 	}
 }
