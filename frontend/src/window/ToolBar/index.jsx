@@ -7,11 +7,15 @@ import { BsTranslate } from "react-icons/bs";
 export default function ToolBar() {
     const [result, setResult] = useState("")
     const textAreaRef = useRef();
+    const [isLoading, setIsLoading] = useState(false)
 
     useEffect(() => {
+        // wails.Events.On("loading", function (data) {
+        //     setIsLoading(data.data == 'true')
+        // })
         wails.Events.On("result", function (data) {
-            console.log("result", data)
-            setResult(data.data)
+            let result = data.data
+            setResult(result)
         })
     }, [])
 

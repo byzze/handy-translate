@@ -5,7 +5,11 @@ vars:
   BIN_DIR: "bin"
 
 tasks:
-
+  dev:
+    deps:
+      - task: build:frontend
+    cmds:
+      - wails3 generate bindings -d frontend && go run .
   ## -------------------------- Build -------------------------- ##
 
   build:

@@ -2,11 +2,14 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"handy-translate/config"
 	"handy-translate/translate_service"
 	"handy-translate/utils"
 	"strings"
+	"time"
 
+	"github.com/go-vgo/robotgo"
 	"github.com/sirupsen/logrus"
 	"github.com/wailsapp/wails/v3/pkg/application"
 )
@@ -36,7 +39,7 @@ func (a *App) MyFetch(URL string, content map[string]interface{}) interface{} {
 	return utils.MyFetch(URL, content)
 }
 
-func (a *App) Transalte(queryText, fromLang, toLang string) {
+func (a *App) Transalte(queryText, fromLang, toLang string) string {
 	logrus.WithFields(logrus.Fields{
 		"queryText": queryText,
 		"fromLang":  fromLang,
@@ -62,8 +65,26 @@ func (a *App) Transalte(queryText, fromLang, toLang string) {
 		"transalteWay": transalteWay.GetName(),
 	}).Info("Transalte")
 
+	go func() {
+		sc, _ := W1.GetScreen()
+		logrus.Info(sc.Size.Width, sc.Size.Height)
+		logrus.Info(sc.Scale)
+		logrus.Info(sc.X, sc.Y)
+		_, y := robotgo.Location()
+		h := 250 + W1.Height()
+
+		for h < sc.Size.Height-y {
+			fmt.Println(h)
+			h = h + 30
+			W1.SetSize(W1.Width(), h)
+			time.Sleep(time.Millisecond * 300)
+		}
+	}()
+
 	transalteRes := strings.Join(result, "\n")
 	sendDataToJS(queryText, transalteRes, "")
+
+	return transalteRes
 }
 
 func sendDataToJS(query, result, explian string) {

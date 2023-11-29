@@ -8,7 +8,6 @@ import (
 	"handy-translate/hook"
 	"handy-translate/translate_service"
 	"log"
-	"time"
 
 	"github.com/go-vgo/robotgo"
 	"github.com/sirupsen/logrus"
@@ -46,11 +45,14 @@ func main() {
 	W1 = app.NewWebviewWindowWithOptions(application.WebviewWindowOptions{
 		Title:  "ToolBar",
 		Width:  300,
-		Height: 500,
+		Height: 100,
 		ShouldClose: func(window *application.WebviewWindow) bool {
 			app.Quit()
 			return true
 		},
+		// Windows: application.WindowsWindow{
+		// 	HiddenOnTaskbar: true,
+		// },
 		URL: "index.html",
 	})
 
@@ -60,7 +62,8 @@ func main() {
 		Height:    500,
 		Frameless: true,
 		Hidden:    true,
-		URL:       "translate.html",
+
+		URL: "translate.html",
 	})
 
 	win2.On(events.Common.WindowClosing, func(e *application.WindowEvent) {
@@ -81,6 +84,27 @@ func main() {
 		}
 	})
 
+	W1.On(events.Common.WindowLostFocus, func(event *application.WindowEvent) {
+		logrus.Info("WindowLostFocus")
+		W1.Hide()
+	})
+
+	W1.On(events.Common.WindowShow, func(event *application.WindowEvent) {
+		logrus.Info("events.Common.WindowShow")
+		/* sc, _ := app.CurrentWindow().GetScreen()
+		logrus.Info(sc.Size.Width, sc.Size.Height)
+		logrus.Info(sc.Scale)
+		logrus.Info(sc.X, sc.Y)
+		_, y := robotgo.Location()
+		var h = 0
+		for h+770 < sc.Size.Height-y {
+			h = h + 30
+			fmt.Println(h)
+			W1.SetSize(300, h)
+			time.Sleep(time.Second * 1)
+		} */
+	})
+
 	windowMap["index"] = W1
 	windowMap["translate"] = win2
 
@@ -88,6 +112,22 @@ func main() {
 		config.Init(projectName)
 		go ProcessHook()
 		go hook.DafaultHook()
+		go hook.WindowsHook()
+	})
+
+	systemTray := app.NewSystemTray()
+	myMenu := app.NewMenu()
+	myMenu.Add("Show").OnClick(func(ctx *application.Context) {
+		W1.Show()
+	})
+
+	myMenu.Add("Quit").OnClick(func(ctx *application.Context) {
+		app.Quit()
+	})
+
+	systemTray.SetMenu(myMenu)
+	systemTray.OnClick(func() {
+		app.CurrentWindow().Show()
 	})
 
 	err := app.Run()
@@ -97,33 +137,23 @@ func main() {
 }
 
 func ProcessHook() {
-	time.Sleep(time.Second * 3)
 	for {
 		select {
 		case <-hook.HookChan:
-			robotgo.KeyTap("c", "ctrl")
-			// // x, y := robotgo.GetMousePos()
-			// // logrus.Info("===WindowGetPosition===: ", x, y)
-			// // runtime.WindowSetPosition(ctx, x, y)
-			// // logrus.Info("HookChan Process")
-			// // runtime.WindowShow(ctx)
-			// // windowX, windowY := runtime.WindowGetSize(ctx)
-			// // x, y := robotgo.GetMousePos()
-			// // x, y = x+10, y-10
-
-			// // runtime.WindowFullscreen(ctx)
-			// // runtime.EventsEmit(ctx, "appLabel", "translate")
-			queryText, _ := robotgo.ReadAll()
-			logrus.Info("===ClipboardGetText===: ", queryText)
 			x, y := robotgo.Location()
 			logrus.Info("===WindowGetPosition===: ", x, y)
+			W1.SetSize(300, 100)
 			W1.SetAbsolutePosition(x+10, y+10)
+			W1.SetAlwaysOnTop(true).Show()
+			robotgo.KeyTap("c", "ctrl")
+			queryText, _ := robotgo.ReadAll()
+			logrus.Info("===ClipboardGetText===: ", queryText)
 			sendQueryText(queryText)
 			if queryText != translate_service.GetQueryText() {
 				fmt.Println("GetQueryText", fromLang, toLang)
 				appInfo.Transalte(queryText, fromLang, toLang)
 			}
-			W1.Show()
+			fmt.Println("processhook")
 			// TODO 弹出窗口根据鼠标位置变动
 			// fmt.Println("or:", x, y, screenX, screenY, windowX, windowY)
 			// if y+windowY+20 >= screenY {
