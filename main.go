@@ -31,7 +31,7 @@ func main() {
 	app = application.New(application.Options{
 		Name: projectName,
 		Bind: []any{
-			appInfo,
+			&App{},
 		},
 		Assets: application.AssetOptions{
 			FS: assets,
@@ -135,7 +135,6 @@ func ProcessHook() {
 				fmt.Println("GetQueryText", fromLang, toLang)
 				appInfo.Transalte(queryText, fromLang, toLang)
 			}
-			W1.SetAlwaysOnTop(true).Show()
 			// TODO 弹出窗口根据鼠标位置变动
 			// fmt.Println("or:", x, y, screenX, screenY, windowX, windowY)
 			// if y+windowY+20 >= screenY {

@@ -22,9 +22,13 @@ export default function ToolBar() {
     useEffect(() => {
         if (textAreaRef.current !== null) {
             textAreaRef.current.style.height = '0px';
+            let height = 0
             if (result !== '') {
+                height = textAreaRef.current.scrollHeight + 40 + 55
                 textAreaRef.current.style.height = textAreaRef.current.scrollHeight + 'px';
             }
+
+            window.go.main.App.TranslateShow(height)
         }
     }, [result]);
 

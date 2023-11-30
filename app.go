@@ -65,31 +65,32 @@ func (a *App) Transalte(queryText, fromLang, toLang string) string {
 
 	transalteRes := strings.Join(result, "\n")
 
-	resLen := len([]rune(transalteRes))
+	sendDataToJS(queryText, transalteRes, "")
+	return transalteRes
+}
 
-	if len(result) == 0 {
-		W1.SetSize(W1.Width(), 55)
+func (a *App) TranslateShow(height float64) {
+	h := int(height)
+	if h > 600 {
+		h = 600
 	}
-	if len(result) != 0 && resLen < 100 {
-		W1.SetSize(W1.Width(), 400)
-	}
-	if resLen > 200 {
-		W1.SetSize(W1.Width(), 600)
+	if h == 0 {
+		h = 55
 	}
 
+	W1.SetSize(W1.Width(), h)
 	x, y := robotgo.Location()
 	logrus.Info("===WindowGetPosition===: ", x, y)
 	sc, _ := W1.GetScreen()
 	logrus.Info("===GetScreen===: ", sc.Size.Width, sc.Size.Height)
+
 	if y+W1.Height() >= sc.Size.Height {
 		gap := y + W1.Height() - sc.Size.Height
 		W1.SetAbsolutePosition(x+10, y-gap-50)
 	} else {
 		W1.SetAbsolutePosition(x+10, y+10)
 	}
-
-	sendDataToJS(queryText, transalteRes, "")
-	return transalteRes
+	W1.SetAlwaysOnTop(true).Show()
 }
 
 func sendDataToJS(query, result, explian string) {

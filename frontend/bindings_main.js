@@ -82,8 +82,16 @@ window.go.main = {
 		 * @param queryText {string}
  * @param fromLang {string}
  * @param toLang {string}
-		 * @returns {Promise<void>}
+		 * @returns {Promise<string>}
 		 **/
 	    Transalte: function(queryText, fromLang, toLang) { return wails.CallByID(3553729015, ...Array.prototype.slice.call(arguments, 0)); },
+
+		/**
+		 * App.TranslateShow
+		 *
+		 * @param height {number}
+		 * @returns {Promise<void>}
+		 **/
+	    TranslateShow: function(height) { return wails.CallByID(1077762948, ...Array.prototype.slice.call(arguments, 0)); },
     },
 };
