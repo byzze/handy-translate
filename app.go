@@ -2,12 +2,10 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"handy-translate/config"
 	"handy-translate/translate_service"
 	"handy-translate/utils"
 	"strings"
-	"time"
 
 	"github.com/go-vgo/robotgo"
 	"github.com/sirupsen/logrus"
@@ -65,25 +63,32 @@ func (a *App) Transalte(queryText, fromLang, toLang string) string {
 		"transalteWay": transalteWay.GetName(),
 	}).Info("Transalte")
 
-	go func() {
-		sc, _ := W1.GetScreen()
-		logrus.Info(sc.Size.Width, sc.Size.Height)
-		logrus.Info(sc.Scale)
-		logrus.Info(sc.X, sc.Y)
-		_, y := robotgo.Location()
-		h := 250 + W1.Height()
-
-		for h < sc.Size.Height-y {
-			fmt.Println(h)
-			h = h + 30
-			W1.SetSize(W1.Width(), h)
-			time.Sleep(time.Millisecond * 300)
-		}
-	}()
-
 	transalteRes := strings.Join(result, "\n")
-	sendDataToJS(queryText, transalteRes, "")
 
+	resLen := len([]rune(transalteRes))
+
+	if len(result) == 0 {
+		W1.SetSize(W1.Width(), 55)
+	}
+	if len(result) != 0 && resLen < 100 {
+		W1.SetSize(W1.Width(), 400)
+	}
+	if resLen > 200 {
+		W1.SetSize(W1.Width(), 600)
+	}
+
+	x, y := robotgo.Location()
+	logrus.Info("===WindowGetPosition===: ", x, y)
+	sc, _ := W1.GetScreen()
+	logrus.Info("===GetScreen===: ", sc.Size.Width, sc.Size.Height)
+	if y+W1.Height() >= sc.Size.Height {
+		gap := y + W1.Height() - sc.Size.Height
+		W1.SetAbsolutePosition(x+10, y-gap-50)
+	} else {
+		W1.SetAbsolutePosition(x+10, y+10)
+	}
+
+	sendDataToJS(queryText, transalteRes, "")
 	return transalteRes
 }
 

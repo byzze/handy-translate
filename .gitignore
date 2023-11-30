@@ -7,3 +7,5 @@ frontend/dist
 frontend/pkg
 config.toml
 screenshot.png
+.task
+bin

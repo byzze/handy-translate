@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { Button, Card, CardBody, CardHeader } from "@nextui-org/react";
+import { Button, Card, CardBody, CardHeader, Divider } from "@nextui-org/react";
 import { HeartIcon } from './HeartIcon';
 import { CameraIcon } from './CameraIcon';
 import { BsTranslate } from "react-icons/bs";
@@ -30,30 +30,34 @@ export default function ToolBar() {
 
     return (
         <div >
-            <Card>
+            <Card shadow='none'
+                className='rounded-[10px]'>
                 <CardHeader>
                     <div className="flex gap-4 items-center">
-                        <Button isIconOnly color="danger" aria-label="Like" onPress={() => {
+                        <Button size="sm" isIconOnly color="danger" aria-label="Like" onPress={() => {
                             window.go.main.App.Show("translate")
                         }}>
-                            显示
+                            <BsTranslate />
                         </Button>
-                        <Button isIconOnly color="danger" aria-label="Like" onPress={() => {
+                        {/* <Button size="sm" isIconOnly color="danger" aria-label="Like" onPress={() => {
                             window.go.main.App.Hide("translate")
                         }}>
                             隐藏
-                        </Button>
+                        </Button> */}
                     </div>
                 </CardHeader>
-                <CardBody>
-                    <textarea
-                        ref={textAreaRef}
-                        className='h-0 resize-none bg-transparent select-text outline-none'
-                        readOnly
-                        value={result}
-                    />
-                </CardBody>
-            </Card>
-        </div>
+                <Divider />
+                <div className="flex w-full flex-wrap md:flex-nowrap mb-6 md:mb-0 gap-4">
+                    <CardBody className={`p-[12px] pb-0 `}>
+                        <textarea
+                            ref={textAreaRef}
+                            className='h-0 resize-none bg-transparent select-text outline-none'
+                            readOnly
+                            value={result}
+                        />
+                    </CardBody>
+                </div>
+            </Card >
+        </div >
     );
 }

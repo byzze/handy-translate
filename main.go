@@ -36,16 +36,16 @@ func main() {
 		Assets: application.AssetOptions{
 			FS: assets,
 		},
-		Mac: application.MacOptions{
-			ApplicationShouldTerminateAfterLastWindowClosed: true,
-		},
 	})
 
 	// Create window
 	W1 = app.NewWebviewWindowWithOptions(application.WebviewWindowOptions{
-		Title:  "ToolBar",
-		Width:  300,
-		Height: 100,
+		Title:     "ToolBar",
+		Width:     300,
+		Height:    55,
+		Centered:  true,
+		Focused:   true,
+		Frameless: true,
 		ShouldClose: func(window *application.WebviewWindow) bool {
 			app.Quit()
 			return true
@@ -91,18 +91,6 @@ func main() {
 
 	W1.On(events.Common.WindowShow, func(event *application.WindowEvent) {
 		logrus.Info("events.Common.WindowShow")
-		/* sc, _ := app.CurrentWindow().GetScreen()
-		logrus.Info(sc.Size.Width, sc.Size.Height)
-		logrus.Info(sc.Scale)
-		logrus.Info(sc.X, sc.Y)
-		_, y := robotgo.Location()
-		var h = 0
-		for h+770 < sc.Size.Height-y {
-			h = h + 30
-			fmt.Println(h)
-			W1.SetSize(300, h)
-			time.Sleep(time.Second * 1)
-		} */
 	})
 
 	windowMap["index"] = W1
@@ -127,7 +115,7 @@ func main() {
 
 	systemTray.SetMenu(myMenu)
 	systemTray.OnClick(func() {
-		app.CurrentWindow().Show()
+		W1.Show()
 	})
 
 	err := app.Run()
@@ -140,12 +128,6 @@ func ProcessHook() {
 	for {
 		select {
 		case <-hook.HookChan:
-			x, y := robotgo.Location()
-			logrus.Info("===WindowGetPosition===: ", x, y)
-			W1.SetSize(300, 100)
-			W1.SetAbsolutePosition(x+10, y+10)
-			W1.SetAlwaysOnTop(true).Show()
-			robotgo.KeyTap("c", "ctrl")
 			queryText, _ := robotgo.ReadAll()
 			logrus.Info("===ClipboardGetText===: ", queryText)
 			sendQueryText(queryText)
@@ -153,7 +135,7 @@ func ProcessHook() {
 				fmt.Println("GetQueryText", fromLang, toLang)
 				appInfo.Transalte(queryText, fromLang, toLang)
 			}
-			fmt.Println("processhook")
+			W1.SetAlwaysOnTop(true).Show()
 			// TODO 弹出窗口根据鼠标位置变动
 			// fmt.Println("or:", x, y, screenX, screenY, windowX, windowY)
 			// if y+windowY+20 >= screenY {

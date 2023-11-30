@@ -1,7 +1,7 @@
 version: '3'
 
 vars:
-  APP_NAME: "myproject"
+  APP_NAME: "handy-translate"
   BIN_DIR: "bin"
 
 tasks:
@@ -35,7 +35,7 @@ tasks:
         vars:
           ARCH: '{{.ARCH}}'
     cmds:
-      - go build {{.BUILD_FLAGS}} -o {{.BIN_DIR}}/myproject.exe
+      - go build {{.BUILD_FLAGS}} -o {{.BIN_DIR}}/handy-translate.exe
     vars:
       BUILD_FLAGS: '{{if eq .PRODUCTION "true"}}-tags production -ldflags="-w -s -H windowsgui"{{else}}-gcflags=all="-N -l"{{end}}'
     env:
@@ -135,7 +135,7 @@ tasks:
         vars:
           ARCH: '{{.ARCH}}'
     cmds:
-      - go build {{.BUILD_FLAGS}} -o {{.BIN_DIR}}/myproject
+      - go build {{.BUILD_FLAGS}} -o {{.BIN_DIR}}/handy-translate
     vars:
       BUILD_FLAGS: '{{if eq .PRODUCTION "true"}}-tags production -ldflags="-w -s"{{else}}-gcflags=all="-N -l"{{end}}'
     env:

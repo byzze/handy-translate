@@ -37,6 +37,17 @@ export default function SourceArea(props) {
     const speak = useVoice();
 
     useEffect(() => {
+        // wails.Events.On("loading", function (data) {
+        //     setIsLoading(data.data == 'true')
+        // })
+        wails.Events.On("query", function (data) {
+            let result = data.data
+            setSourceText(result)
+        })
+    }, [])
+
+
+    useEffect(() => {
         textAreaRef.current.style.height = '50px';
         textAreaRef.current.style.height = textAreaRef.current.scrollHeight + 'px';
     }, [sourceText]);

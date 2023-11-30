@@ -60,7 +60,10 @@ export default function TargetArea(props) {
         // wails.Events.On("loading", function (data) {
         //     setIsLoading(data.data == 'true')
         // })
-
+        wails.Events.On("result", function (data) {
+            let result = data.data
+            setResult(result)
+        })
         const LanguageEnum = builtinServices[translateServiceName].Language;
         if (sourceLanguage in LanguageEnum && targetLanguage in LanguageEnum) {
             wails.Events.Emit({ name: "translateLang", data: [LanguageEnum[sourceLanguage], LanguageEnum[targetLanguage]] })
