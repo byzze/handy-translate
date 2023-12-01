@@ -72,22 +72,6 @@ export default function Translate({ variable, onUpdateVariable }) {
                 />
                 <div className={`h-[35px] w-full flex ${osType === 'Darwin' ? 'justify-end' : 'justify-between'}`}>
                     <ButtonGroup className='mr-[5px]'>
-                        {/* <Button
-                            isIconOnly
-                            size='sm'
-                            variant='flat'
-                            disableAnimation
-                            className='my-auto bg-transparent'
-                            onChange={() => {
-                                onAboutOpenChange()
-                            }}
-                            onPress={() => {
-                                onSettingOpen(!isSettingOpen)
-                                onSettingOpenChange()
-                            }}
-                        >
-                            <AiFillSetting className={`text-[20px] ${isSettingOpen ? 'text-primary' : 'text-default-400'}`} />
-                        </Button> */}
                         <Button
                             isIconOnly
                             size='sm'
@@ -154,7 +138,6 @@ export default function Translate({ variable, onUpdateVariable }) {
                             className={`my-auto ${osType === 'Darwin' && 'hidden'} bg-transparent`}
                             onPress={() => {
                                 wails.Window.Hide();
-                                // onOpen()
                             }}
                         >
                             <AiFillCloseCircle className='text-[20px] text-default-400' />

@@ -1,4 +1,4 @@
-package hook
+package windows
 
 import (
 	"runtime"

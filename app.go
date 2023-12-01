@@ -2,9 +2,12 @@ package main
 
 import (
 	"encoding/json"
+	"handy-translate/api/windows"
 	"handy-translate/config"
+	"handy-translate/hook"
 	"handy-translate/translate_service"
 	"handy-translate/utils"
+	"log/slog"
 	"strings"
 
 	"github.com/go-vgo/robotgo"
@@ -12,24 +15,10 @@ import (
 	"github.com/wailsapp/wails/v3/pkg/application"
 )
 
-var fromLang, toLang = "auto", "zh"
-
-type Person struct {
-	name string
-}
+// 和js绑定的go方法集合
 
 // App is a service that greets people
 type App struct {
-}
-
-// Greet greets a person
-func (*App) Greet(name string) string {
-	return "Hello " + name
-}
-
-// GreetPerson greets a person
-func (*App) GreetPerson(person Person) string {
-	return "Hello " + person.name
 }
 
 // MyFetch URl
@@ -37,12 +26,13 @@ func (a *App) MyFetch(URL string, content map[string]interface{}) interface{} {
 	return utils.MyFetch(URL, content)
 }
 
+// Transalte 翻译逻辑
 func (a *App) Transalte(queryText, fromLang, toLang string) string {
-	logrus.WithFields(logrus.Fields{
-		"queryText": queryText,
-		"fromLang":  fromLang,
-		"toLang":    toLang,
-	}).Info("Transalte")
+
+	app.Logger.Info("Transalte",
+		slog.Any("queryText", queryText),
+		slog.Any("toLang", toLang),
+		slog.Any("fromLang", fromLang))
 
 	// 翻译loading
 	app.Events.Emit(&application.WailsEvent{Name: "loading", Data: "true"})
@@ -50,18 +40,14 @@ func (a *App) Transalte(queryText, fromLang, toLang string) string {
 
 	transalteWay := translate_service.GetTransalteWay(config.Data.TranslateWay)
 
-	// curName := transalteWay.GetName()
-	// 使用 strings.Replace 替换 \r 和 \n 为空格
-
 	result, err := transalteWay.PostQuery(queryText, fromLang, toLang)
 	if err != nil {
 		logrus.WithError(err).Error("PostQuery")
 	}
 
-	logrus.WithFields(logrus.Fields{
-		"result":       result,
-		"transalteWay": transalteWay.GetName(),
-	}).Info("Transalte")
+	app.Logger.Info("Transalte",
+		slog.Any("result", result),
+		slog.Any("transalteWay", transalteWay.GetName()))
 
 	transalteRes := strings.Join(result, "\n")
 
@@ -69,44 +55,7 @@ func (a *App) Transalte(queryText, fromLang, toLang string) string {
 	return transalteRes
 }
 
-func (a *App) TranslateShow(height float64) {
-	h := int(height)
-	if h > 600 {
-		h = 600
-	}
-	if h == 0 {
-		h = 55
-	}
-
-	W1.SetSize(W1.Width(), h)
-	x, y := robotgo.Location()
-	logrus.Info("===WindowGetPosition===: ", x, y)
-	sc, _ := W1.GetScreen()
-	logrus.Info("===GetScreen===: ", sc.Size.Width, sc.Size.Height)
-
-	if y+W1.Height() >= sc.Size.Height {
-		gap := y + W1.Height() - sc.Size.Height
-		W1.SetAbsolutePosition(x+10, y-gap-50)
-	} else {
-		W1.SetAbsolutePosition(x+10, y+10)
-	}
-	W1.SetAlwaysOnTop(true).Show()
-}
-
-func sendDataToJS(query, result, explian string) {
-	sendQueryText(query)
-	sendResult(result, explian)
-}
-
-func sendQueryText(queryText string) {
-	app.Events.Emit(&application.WailsEvent{Name: "query", Data: queryText})
-}
-
-func sendResult(result, explian string) {
-	app.Events.Emit(&application.WailsEvent{Name: "result", Data: result})
-	app.Events.Emit(&application.WailsEvent{Name: "explian", Data: explian})
-}
-
+// GetTransalteMap 获取所有翻译配置
 func (a *App) GetTransalteMap() string {
 	var translateList = config.Data.Translate
 	bTranslate, err := json.Marshal(translateList)
@@ -116,6 +65,7 @@ func (a *App) GetTransalteMap() string {
 	return string(bTranslate)
 }
 
+// SetTransalteWay 设置当前翻译服务
 func (a *App) SetTransalteWay(translateWay string) {
 	config.Data.TranslateWay = translateWay
 	translate_service.SetQueryText("")
@@ -123,6 +73,7 @@ func (a *App) SetTransalteWay(translateWay string) {
 	logrus.WithField("Translate", config.Data.Translate).Info("SetTransalteList")
 }
 
+// GetTransalteWay 获取当前翻译的服务
 func (a *App) GetTransalteWay() string {
 	return config.Data.TranslateWay
 }
@@ -139,5 +90,55 @@ func (a *App) Show(windowName string) {
 func (a *App) Hide(windowName string) {
 	if _, ok := windowMap[windowName]; ok {
 		windowMap[windowName].Hide()
+	}
+}
+
+// ToolBarShow 显示工具弹窗，控制大小，布局
+func (a *App) ToolBarShow(height float64) {
+	app.Logger.Info("ToolBarShow", slog.Float64("height", height))
+
+	h := int(height)
+	if h > 600 {
+		h = 600
+	}
+
+	if h == 0 {
+		h = 55
+	}
+
+	if w, ok := windowMap["index"]; ok {
+		w.SetSize(w.Width(), h)
+		x, y := robotgo.Location()
+		logrus.Info("===WindowGetPosition===: ", x, y)
+		sc, _ := w.GetScreen()
+		logrus.Info("===GetScreen===: ", sc.Size.Width, sc.Size.Height)
+
+		if y+w.Height() >= sc.Size.Height {
+			gap := y + w.Height() - sc.Size.Height
+			w.SetAbsolutePosition(x+10, y-gap-50)
+		} else {
+			w.SetAbsolutePosition(x+10, y+10)
+		}
+		windows.ShowForWindows("ToolBar")
+	}
+}
+
+// ProcessHook 处理鼠标事件
+func ProcessHook() {
+	go hook.DafaultHook()    // 使用robotgo处理
+	go windows.WindowsHook() // 完善，处理robotgo处理不完美
+	for {
+		select {
+		case <-hook.HookChan:
+			queryText, _ := robotgo.ReadAll()
+			sendQueryText(queryText)
+			if queryText != translate_service.GetQueryText() {
+				app.Logger.Info("GetQueryText",
+					slog.String("queryText", queryText),
+					slog.String("queryText", fromLang),
+					slog.String("queryText", toLang))
+				appInfo.Transalte(queryText, fromLang, toLang)
+			}
+		}
 	}
 }

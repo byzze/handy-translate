@@ -100,36 +100,13 @@ func DafaultHook() {
 
 	hook.Register(hook.MouseDown, []string{}, defaulthook)
 
-	// // 鼠标操作 左键
-	// hook.Register(hook.MouseDown, []string{}, func(e hook.Event) {
-	// 	if e.Button == hook.MouseMap["left"] {
-	// 		elapsed := time.Since(lastMouseTime)
-	// 		if elapsed.Milliseconds() > 300 {
-	// 			robotgo.KeyTap("c", "ctrl")
-	// 		}
-	// 	}
-	// })
-
-	// // 鼠标操作 左键hold
-	// hook.Register(hook.MouseHold, []string{}, func(e hook.Event) {
-	// 	if e.Button == hook.MouseMap["left"] {
-	// 		lastMouseTime = time.Now()
-	// 	}
-	// })
-	// // 鼠标操作 左键双击 左键三击
-	// hook.Register(hook.MouseUp, []string{}, func(e hook.Event) {
-	// 	if e.Button == hook.MouseMap["left"] && (e.Clicks == 2 || e.Clicks == 3) {
-	// 		robotgo.KeyTap("c", "ctrl")
-	// 	}
-	// })
-
 	s := hook.Start()
 	<-hook.Process(s)
 }
 
 var pressLock sync.RWMutex
 
-// Hook register hook event
+// Hook register hook event 用于配置快捷键 TODO
 func Hook() {
 	logrus.Info("--- Please wait hook starting ---")
 	hook.End()

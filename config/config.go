@@ -57,13 +57,6 @@ func Init(projectName string) {
 
 func Save() {
 	filePath := "./config.toml"
-	// 使用Toml库编码并保存数据
-	// 使用ioutil.WriteFile()函数将数据写入文件
-	// err := ioutil.WriteFile("./config.toml", data, 0644)
-	// if err != nil {
-	// 	fmt.Println(err)
-	// 	return
-	// }
 	data, err := toml.Marshal(&Data)
 	if err != nil {
 		logrus.WithError(err).Error("Marshal")

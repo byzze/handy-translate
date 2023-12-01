@@ -10,9 +10,6 @@ export default function ToolBar() {
     const [isLoading, setIsLoading] = useState(false)
 
     useEffect(() => {
-        // wails.Events.On("loading", function (data) {
-        //     setIsLoading(data.data == 'true')
-        // })
         wails.Events.On("result", function (data) {
             let result = data.data
             setResult(result)
@@ -27,8 +24,7 @@ export default function ToolBar() {
                 height = textAreaRef.current.scrollHeight + 40 + 55
                 textAreaRef.current.style.height = textAreaRef.current.scrollHeight + 'px';
             }
-
-            window.go.main.App.TranslateShow(height)
+            window.go.main.App.ToolBarShow(height)
         }
     }, [result]);
 

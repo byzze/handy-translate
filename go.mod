@@ -6,6 +6,7 @@ require (
 	github.com/OwO-Network/gdeeplx v0.0.1
 	github.com/go-vgo/robotgo v0.110.0
 	github.com/gorilla/websocket v1.5.1
+	github.com/lxn/win v0.0.0-20210218163916-a377121e959e
 	github.com/pelletier/go-toml/v2 v2.1.0
 	github.com/robotn/gohook v0.41.0
 	github.com/sirupsen/logrus v1.4.1
@@ -39,7 +40,6 @@ require (
 	github.com/leaanthony/u v1.1.0 // indirect
 	github.com/lmittmann/tint v1.0.0 // indirect
 	github.com/lufia/plan9stats v0.0.0-20230326075908-cb1d2100619a // indirect
-	github.com/lxn/win v0.0.0-20210218163916-a377121e959e // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.19 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect

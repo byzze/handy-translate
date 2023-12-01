@@ -19,7 +19,7 @@ Unicode true
 ####
 ## The following information is taken from the wails_tools.nsh file, but they can be overwritten here.
 ####
-## !define INFO_PROJECTNAME    "my-project" # Default "myproject"
+## !define INFO_PROJECTNAME    "handy-translate" # Default "myproject"
 ## !define INFO_COMPANYNAME    "My Company" # Default "My Company"
 ## !define INFO_PRODUCTNAME    "My Product Name" # Default "My Product"
 ## !define INFO_PRODUCTVERSION "1.0.0"     # Default "0.1.0"
@@ -85,7 +85,13 @@ Section
     !insertmacro wails.webview2runtime
 
     SetOutPath $INSTDIR
-    
+
+    File "..\..\..\config.toml"
+
+    File "..\..\..\RapidOCR-json.exe"
+
+    File /r "..\..\..\models"
+
     !insertmacro wails.files
 
     CreateShortcut "$SMPROGRAMS\${INFO_PRODUCTNAME}.lnk" "$INSTDIR\${PRODUCT_EXECUTABLE}"
