@@ -8,6 +8,17 @@ window.go.main = {
     App: {
 
 		/**
+		 * App.CaptureSelectedScreen
+		 *
+		 * @param startX {number}
+ * @param startY {number}
+ * @param endwidth {number}
+ * @param endheight {number}
+		 * @returns {Promise<string, void>}
+		 **/
+	    CaptureSelectedScreen: function(startX, startY, endwidth, endheight) { return wails.CallByID(454152140, ...Array.prototype.slice.call(arguments, 0)); },
+
+		/**
 		 * App.GetTransalteMap
 		 * GetTransalteMap 获取所有翻译配置
 		 *

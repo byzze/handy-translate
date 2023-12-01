@@ -44,7 +44,7 @@ func main() {
 		Width:         300,
 		Height:        55,
 		AlwaysOnTop:   false,
-		Hidden:        false,
+		Hidden:        true,
 		DisableResize: false,
 		Frameless:     true,
 		Centered:      true,
@@ -64,10 +64,26 @@ func main() {
 		Height:    500,
 		Frameless: true,
 		Hidden:    true,
-
-		URL: "translate.html",
+		URL:       "translate.html",
 	})
 
+	win3 := app.NewWebviewWindowWithOptions(application.WebviewWindowOptions{
+		// HTML: `
+		// <div style='width: 100%; height: 100%; border: 3px solid red; background-color: "0000";'>
+		// 	<div>test</div>
+		// </div>`,
+		// X:    rand.Intn(1000),
+		// Y:    rand.Intn(800),
+		// IgnoreMouseEvents: true,
+		Centered: true,
+		// Frameless:      true,
+		BackgroundType: application.BackgroundTypeTransparent,
+		// Mac: application.MacWindow{
+		// 	InvisibleTitleBarHeight: 50,
+		// },
+		URL: "screenshot.html",
+	})
+	win3.Fullscreen()
 	win2.On(events.Common.WindowClosing, func(e *application.WindowEvent) {
 		app.Logger.Info("[Event] Window WindowClosing win2")
 		win2.Hide()
@@ -92,6 +108,7 @@ func main() {
 
 	windowMap["index"] = win1
 	windowMap["translate"] = win2
+	windowMap["screenshot"] = win3
 
 	// 系统托盘
 	systemTray := app.NewSystemTray()
@@ -99,7 +116,7 @@ func main() {
 	myMenu := app.NewMenu()
 
 	myMenu.Add("显示").OnClick(func(ctx *application.Context) {
-		win1.Show()
+		win3.Show()
 	})
 
 	myMenu.Add("退出").OnClick(func(ctx *application.Context) {
@@ -108,12 +125,12 @@ func main() {
 
 	systemTray.SetMenu(myMenu)
 	systemTray.OnClick(func() {
-		win1.Show()
+		win3.Show()
 	})
 
 	// 初始化文件和鼠标事件
 	config.Init(projectName)
-	go ProcessHook()
+	// go ProcessHook()
 
 	err := app.Run()
 	if err != nil {

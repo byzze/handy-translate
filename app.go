@@ -1,16 +1,22 @@
 package main
 
 import (
+	"bytes"
+	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"handy-translate/api/windows"
 	"handy-translate/config"
 	"handy-translate/hook"
 	"handy-translate/translate_service"
 	"handy-translate/utils"
+	"image"
+	"image/png"
 	"log/slog"
 	"strings"
 
 	"github.com/go-vgo/robotgo"
+	"github.com/kbinani/screenshot"
 	"github.com/sirupsen/logrus"
 	"github.com/wailsapp/wails/v3/pkg/application"
 )
@@ -121,6 +127,42 @@ func (a *App) ToolBarShow(height float64) {
 		}
 		windows.ShowForWindows("ToolBar")
 	}
+}
+
+func (a *App) CaptureSelectedScreen(startX, startY, endwidth, endheight float64) (string, error) {
+	x, y, width, height := int(startX), int(startY), int(endwidth), int(endheight)
+	// 裁剪图片
+	rect := image.Rect(x, y, width, height)
+	if hook.IMG == nil {
+		bounds := screenshot.GetDisplayBounds(0)
+		img, err := screenshot.CaptureRect(bounds)
+
+		if err != nil {
+			// 错误处理，输出错误信息并返回
+			fmt.Println("Error capturing screenshot:", err)
+			return "", err
+		}
+		hook.IMG = img
+	}
+	croppedImg := hook.IMG.SubImage(rect)
+
+	var buf bytes.Buffer
+	err := png.Encode(&buf, croppedImg)
+	if err != nil {
+		return "", err
+	}
+
+	filename := "screenshot.png" // 保存的文件名
+	base64String := base64.StdEncoding.EncodeToString(buf.Bytes())
+
+	err = saveBase64Image(base64String, filename)
+	if err != nil {
+		logrus.Fatal("保存图片出错: ", err)
+	}
+
+	resut := "" //ExecOCR(".\\RapidOCR-json.exe", filename)
+
+	return resut, nil
 }
 
 // ProcessHook 处理鼠标事件

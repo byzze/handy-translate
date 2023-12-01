@@ -10,6 +10,7 @@ export default defineConfig({
       input: {
         index: resolve(__dirname, 'index.html'),
         translate: resolve(__dirname, 'translate.html'),
+        screenshot: resolve(__dirname, 'screenshot.html'),
       },
     },
   }

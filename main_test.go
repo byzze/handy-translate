@@ -12,3 +12,8 @@ func TestShowForWindows(t *testing.T) {
 	win.TrackMouseEvent(&t1)
 	select {}
 }
+
+func TestCaptureSelectedScreen(t *testing.T) {
+	a := App{}
+	a.CaptureSelectedScreen(30, 30, 300, 300)
+}
