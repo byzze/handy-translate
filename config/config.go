@@ -16,7 +16,7 @@ var Data config
 type (
 	config struct {
 		Appname      string               `toml:"appname"`
-		Keyboard     []string             `toml:"keyboard"`
+		Keyboards    map[string][]string  `toml:"keyboards"`
 		TranslateWay string               `toml:"translate_way"`
 		Translate    map[string]Translate `toml:"translate"`
 	}
@@ -46,7 +46,6 @@ func Init(projectName string) {
 		logrus.WithError(err).Error("ReadAll")
 		os.Exit(1)
 	}
-
 	err = toml.Unmarshal(fd, &Data)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)

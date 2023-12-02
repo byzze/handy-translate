@@ -4,26 +4,21 @@ import (
 	"bytes"
 	"encoding/base64"
 	"encoding/json"
-	"fmt"
-	"handy-translate/api/windows"
 	"handy-translate/config"
-	"handy-translate/hook"
+	"handy-translate/os_api/windows"
+	"handy-translate/screenshot"
 	"handy-translate/translate_service"
 	"handy-translate/utils"
-	"image"
 	"image/png"
 	"log/slog"
-	"strings"
 
 	"github.com/go-vgo/robotgo"
-	"github.com/kbinani/screenshot"
 	"github.com/sirupsen/logrus"
-	"github.com/wailsapp/wails/v3/pkg/application"
 )
 
 // 和js绑定的go方法集合
 
-// App is a service that greets people
+// App is a service
 type App struct {
 }
 
@@ -33,32 +28,17 @@ func (a *App) MyFetch(URL string, content map[string]interface{}) interface{} {
 }
 
 // Transalte 翻译逻辑
-func (a *App) Transalte(queryText, fromLang, toLang string) string {
-
+func (a *App) Transalte(queryText, fromLang, toLang string) {
 	app.Logger.Info("Transalte",
 		slog.Any("queryText", queryText),
 		slog.Any("toLang", toLang),
 		slog.Any("fromLang", fromLang))
 
-	// 翻译loading
-	app.Events.Emit(&application.WailsEvent{Name: "loading", Data: "true"})
-	defer app.Events.Emit(&application.WailsEvent{Name: "loading", Data: "false"})
+	/* 	// 翻译loading
+	   	app.Events.Emit(&application.WailsEvent{Name: "loading", Data: "true"})
+	   	defer app.Events.Emit(&application.WailsEvent{Name: "loading", Data: "false"}) */
 
-	transalteWay := translate_service.GetTransalteWay(config.Data.TranslateWay)
-
-	result, err := transalteWay.PostQuery(queryText, fromLang, toLang)
-	if err != nil {
-		logrus.WithError(err).Error("PostQuery")
-	}
-
-	app.Logger.Info("Transalte",
-		slog.Any("result", result),
-		slog.Any("transalteWay", transalteWay.GetName()))
-
-	transalteRes := strings.Join(result, "\n")
-
-	sendDataToJS(queryText, transalteRes, "")
-	return transalteRes
+	processTranslate(queryText)
 }
 
 // GetTransalteMap 获取所有翻译配置
@@ -115,9 +95,7 @@ func (a *App) ToolBarShow(height float64) {
 	if w, ok := windowMap["index"]; ok {
 		w.SetSize(w.Width(), h)
 		x, y := robotgo.Location()
-		logrus.Info("===WindowGetPosition===: ", x, y)
 		sc, _ := w.GetScreen()
-		logrus.Info("===GetScreen===: ", sc.Size.Width, sc.Size.Height)
 
 		if y+w.Height() >= sc.Size.Height {
 			gap := y + w.Height() - sc.Size.Height
@@ -125,31 +103,23 @@ func (a *App) ToolBarShow(height float64) {
 		} else {
 			w.SetAbsolutePosition(x+10, y+10)
 		}
-		windows.ShowForWindows("ToolBar")
+		// windows.FindWindow("ToolBar").ShowForWindows() // 使用原生showwindow，wails3版本有些问题，无法正常显示
+		windows.ShowForWindows("ToolBar") // 使用原生showwindow，wails3版本有些问题，无法正常显示
 	}
 }
 
-func (a *App) CaptureSelectedScreen(startX, startY, endwidth, endheight float64) (string, error) {
-	x, y, width, height := int(startX), int(startY), int(endwidth), int(endheight)
-	// 裁剪图片
-	rect := image.Rect(x, y, width, height)
-	if hook.IMG == nil {
-		bounds := screenshot.GetDisplayBounds(0)
-		img, err := screenshot.CaptureRect(bounds)
-
-		if err != nil {
-			// 错误处理，输出错误信息并返回
-			fmt.Println("Error capturing screenshot:", err)
-			return "", err
-		}
-		hook.IMG = img
+// CaptureSelectedScreen 截取选中的区域
+func (a *App) CaptureSelectedScreen(startX, startY, width, height float64) {
+	croppedImg := screenshot.CaptureSelectedScreen(int(startX), int(startY), int(width), int(height))
+	if croppedImg == nil {
+		return
 	}
-	croppedImg := hook.IMG.SubImage(rect)
 
 	var buf bytes.Buffer
 	err := png.Encode(&buf, croppedImg)
 	if err != nil {
-		return "", err
+		slog.Error("png.Encode", err)
+		return
 	}
 
 	filename := "screenshot.png" // 保存的文件名
@@ -160,27 +130,8 @@ func (a *App) CaptureSelectedScreen(startX, startY, endwidth, endheight float64)
 		logrus.Fatal("保存图片出错: ", err)
 	}
 
-	resut := "" //ExecOCR(".\\RapidOCR-json.exe", filename)
-
-	return resut, nil
-}
-
-// ProcessHook 处理鼠标事件
-func ProcessHook() {
-	go hook.DafaultHook()    // 使用robotgo处理
-	go windows.WindowsHook() // 完善，处理robotgo处理不完美
-	for {
-		select {
-		case <-hook.HookChan:
-			queryText, _ := robotgo.ReadAll()
-			sendQueryText(queryText)
-			if queryText != translate_service.GetQueryText() {
-				app.Logger.Info("GetQueryText",
-					slog.String("queryText", queryText),
-					slog.String("queryText", fromLang),
-					slog.String("queryText", toLang))
-				appInfo.Transalte(queryText, fromLang, toLang)
-			}
-		}
-	}
+	// OCR解析文本
+	ocrres := ExecOCR(".\\RapidOCR-json.exe", filename)
+	// 翻译文本
+	processTranslate(ocrres)
 }

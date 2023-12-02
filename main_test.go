@@ -15,5 +15,5 @@ func TestShowForWindows(t *testing.T) {
 
 func TestCaptureSelectedScreen(t *testing.T) {
 	a := App{}
-	a.CaptureSelectedScreen(30, 30, 300, 300)
+	a.CaptureSelectedScreen(403, 495, 907, 753)
 }

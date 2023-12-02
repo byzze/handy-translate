@@ -21,10 +21,12 @@ export default function ToolBar() {
             textAreaRef.current.style.height = '0px';
             let height = 0
             if (result !== '') {
+                // textAreaRef.current.scrollHeight 文本高度
+                // 40 + 55 窗口空白区域+翻译图标区域
                 height = textAreaRef.current.scrollHeight + 40 + 55
                 textAreaRef.current.style.height = textAreaRef.current.scrollHeight + 'px';
+                window.go.main.App.ToolBarShow(height)
             }
-            window.go.main.App.ToolBarShow(height)
         }
     }, [result]);
 

@@ -9,14 +9,14 @@ window.go.main = {
 
 		/**
 		 * App.CaptureSelectedScreen
-		 *
+		 * CaptureSelectedScreen 截取选中的区域
 		 * @param startX {number}
  * @param startY {number}
- * @param endwidth {number}
- * @param endheight {number}
-		 * @returns {Promise<string, void>}
+ * @param width {number}
+ * @param height {number}
+		 * @returns {Promise<void>}
 		 **/
-	    CaptureSelectedScreen: function(startX, startY, endwidth, endheight) { return wails.CallByID(454152140, ...Array.prototype.slice.call(arguments, 0)); },
+	    CaptureSelectedScreen: function(startX, startY, width, height) { return wails.CallByID(454152140, ...Array.prototype.slice.call(arguments, 0)); },
 
 		/**
 		 * App.GetTransalteMap
@@ -81,7 +81,7 @@ window.go.main = {
 		 * @param queryText {string}
  * @param fromLang {string}
  * @param toLang {string}
-		 * @returns {Promise<string>}
+		 * @returns {Promise<void>}
 		 **/
 	    Transalte: function(queryText, fromLang, toLang) { return wails.CallByID(3553729015, ...Array.prototype.slice.call(arguments, 0)); },
     },

@@ -8,6 +8,7 @@ import (
 	"strings"
 )
 
+// MyFetch 封装请求，因为从前端发起http请求会出现跨域
 func MyFetch(URL string, content map[string]interface{}) interface{} {
 	client := &http.Client{}
 	var req *http.Request

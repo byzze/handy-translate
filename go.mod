@@ -6,6 +6,7 @@ require (
 	github.com/OwO-Network/gdeeplx v0.0.1
 	github.com/go-vgo/robotgo v0.110.0
 	github.com/gorilla/websocket v1.5.1
+	github.com/kbinani/screenshot v0.0.0-20230812210009-b87d31814237
 	github.com/lxn/win v0.0.0-20210218163916-a377121e959e
 	github.com/pelletier/go-toml/v2 v2.1.0
 	github.com/robotn/gohook v0.41.0
@@ -32,7 +33,6 @@ require (
 	github.com/jchv/go-winloader v0.0.0-20210711035445-715c2860da7e // indirect
 	github.com/jezek/xgb v1.1.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
-	github.com/kbinani/screenshot v0.0.0-20230812210009-b87d31814237 // indirect
 	github.com/kevinburke/ssh_config v0.0.0-20201106050909-4977a11b4351 // indirect
 	github.com/konsorten/go-windows-terminal-sequences v1.0.1 // indirect
 	github.com/kr/pretty v0.3.0 // indirect

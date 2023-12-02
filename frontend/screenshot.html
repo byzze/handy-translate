@@ -4,12 +4,14 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <style>
         body {
             margin: 0;
             overflow: hidden;
+            border: 3px solid red;
+            cursor: crosshair;
         }
 
         #select-box {
@@ -22,74 +24,62 @@
         }
     </style>
     <title>Selectable Area</title>
+
 </head>
 
 <body>
-
+    <div id="select-box"></div>
     <script type="module" src="bindings_main.js"></script>
     <script src="/wails/ipc.js"></script>
     <script src="/wails/runtime.js"></script>
-    <div id="select-box"></div>
-
     <script>
-        let isDragging = false;
+        let isDrawing = false;
         let startX, startY, endX, endY;
-
         const selectBox = document.getElementById('select-box');
 
         document.addEventListener('mousedown', (e) => {
-            startX = e.clientX * getDpiFactorX() + window.pageXOffset;
-            startY = e.clientY * getDpiFactorY() + window.pageYOffset;
-            isDragging = true;
-
-            selectBox.style.width = '0';
-            selectBox.style.height = '0';
-            selectBox.style.left = startX + 'px';
-            selectBox.style.top = startY + 'px';
-            selectBox.style.display = 'block';
+            if (e.button === 0) {
+                isDrawing = true;
+                startX = e.clientX;
+                startY = e.clientY;
+                selectBox.style.display = 'block';
+                updateSelectBox(startX, startY, startX, startY);
+            } else {
+                wails.Window.Hide()
+            }
         });
 
         document.addEventListener('mousemove', (e) => {
-            if (!isDragging) return;
+            if (!isDrawing) return;
 
-            endX = e.clientX * getDpiFactorX() + window.pageXOffset;
-            endY = e.clientY * getDpiFactorY() + window.pageYOffset;
+            endX = e.clientX;
+            endY = e.clientY;
 
-            const width = endX - startX;
-            const height = endY - startY;
-
-            selectBox.style.width = width + 'px';
-            selectBox.style.height = height + 'px';
+            updateSelectBox(startX, startY, endX, endY);
         });
 
-        document.addEventListener('mouseup', () => {
-            isDragging = false;
+        document.addEventListener('mouseup', (e) => {
+            isDrawing = false;
             selectBox.style.display = 'none';
-
-            // 获取选中区域的坐标信息
-            const selectedArea = {
-                startX: startX,
-                startY: startY,
-                endX: endX,
-                endY: endY
-            };
-            window.go.main.App.CaptureSelectedScreen(startX, startY, endX, endY)
-            console.log(selectedArea);
+            if (e.buttons === 0) {
+                // 获取选中区域的坐标信息
+                window.go.main.App.CaptureSelectedScreen(startX, startY, endX - startX, endY - startY).then((res) => {
+                    console.log("success", res)
+                })
+                wails.Window.Hide()
+            }
         });
 
-        function getDpiFactorX() {
-            // 计算横向DPI因子
-            const dpi = window.screen.width / window.innerWidth;
-            return dpi;
-        }
+        function updateSelectBox(x1, y1, x2, y2) {
+            const width = Math.abs(x2 - x1);
+            const height = Math.abs(y2 - y1);
 
-        function getDpiFactorY() {
-            // 计算纵向DPI因子
-            const dpi = window.screen.height / window.innerHeight;
-            return dpi;
+            selectBox.style.width = `${width}px`;
+            selectBox.style.height = `${height}px`;
+            selectBox.style.left = `${Math.min(x1, x2)}px`;
+            selectBox.style.top = `${Math.min(y1, y2)}px`;
         }
     </script>
-
 </body>
 
 </html>
