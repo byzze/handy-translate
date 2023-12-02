@@ -56,8 +56,7 @@ func DafaultHook(wm map[string]*application.WebviewWindow) {
 	screenshot := config.Data.Keyboards["screenshot"]
 	hook.Register(hook.KeyDown, screenshot, func(e hook.Event) {
 		logrus.Info("screenshot", e)
-		wm["screenshot"].SetAlwaysOnTop(true).Fullscreen()
-		windows.ShowForWindows("screenshot")
+		wm["screenshot"].SetAlwaysOnTop(true).Fullscreen().Show()
 	})
 
 	// default mid mouse
