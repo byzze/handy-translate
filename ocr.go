@@ -4,10 +4,9 @@ import (
 	"bytes"
 	"encoding/base64"
 	"encoding/json"
-	"image"
-	"image/png"
 	"os"
 	"os/exec"
+	"runtime"
 	"strings"
 	"syscall"
 
@@ -80,10 +79,13 @@ func runExternalProgram(program ExternalProgram) ([]byte, error) {
 	// 创建一个字节缓冲区来捕获输出
 	var outputBuffer bytes.Buffer
 	cmd.Stdout = &outputBuffer
-	cmd.SysProcAttr = &syscall.SysProcAttr{
-		HideWindow:    true,
-		CreationFlags: 0x08000000,
+	if runtime.GOOS == "windows" {
+		cmd.SysProcAttr = &syscall.SysProcAttr{
+			HideWindow:    true,
+			CreationFlags: 0x08000000,
+		}
 	}
+
 	// 启动外部进程
 	err := cmd.Start()
 	if err != nil {
@@ -116,24 +118,6 @@ func saveBase64Image(base64String, filename string) error {
 	}
 
 	return nil
-}
-
-// 将图像编码为Base64字符串
-func encodeImageToBase64(img image.Image) string {
-	// 创建一个缓冲区用于保存Base64编码的数据
-	var imgBytes []byte
-	buf := new(bytes.Buffer)
-	err := png.Encode(buf, img)
-	if err != nil {
-		panic(err)
-	}
-
-	imgBytes = buf.Bytes()
-
-	// 使用base64编码图像数据
-	base64Image := base64.StdEncoding.EncodeToString(imgBytes)
-
-	return base64Image
 }
 
 // 保存Base64字符串到文件（可选）

@@ -1,45 +1,27 @@
 package translate
 
 import (
-	"handy-translate/config"
-	"handy-translate/translate/baidu"
-	"handy-translate/translate/caiyun"
-	"handy-translate/translate/youdao"
+	"github.com/wailsapp/wails/v3/pkg/application"
+	"github.com/wailsapp/wails/v3/pkg/events"
 )
 
-type Translate interface {
-	GetName() string
-	PostQuery(query, sourceLang, targetLang string) ([]string, error)
-}
+var WindowName = "Translate"
 
-func GetTransalteWay(way string) Translate {
-	var t Translate
-	switch way {
-	case youdao.Way:
-		t = &youdao.Youdao{
-			Translate: config.Translate{
-				Name:  config.Data.Translate[way].Name,
-				AppID: config.Data.Translate[way].AppID,
-				Key:   config.Data.Translate[way].Key,
-			},
-		}
-	case caiyun.Way:
-		t = &caiyun.Caiyun{
-			Translate: config.Translate{
-				Name:  config.Data.Translate[way].Name,
-				AppID: config.Data.Translate[way].AppID,
-				Key:   config.Data.Translate[way].Key,
-			},
-		}
-	case baidu.Way:
-		t = &baidu.Baidu{
-			Translate: config.Translate{
-				Name:  config.Data.Translate[way].Name,
-				AppID: config.Data.Translate[way].AppID,
-				Key:   config.Data.Translate[way].Key,
-			},
-		}
-	}
+var Window *application.WebviewWindow
 
-	return t
+// NewWindow 截图功能也可以提取成一个单独程序，设计screenshot，robotgo库的使用
+func NewWindow(app *application.App) {
+	Window = app.NewWebviewWindowWithOptions(application.WebviewWindowOptions{
+		Title:     WindowName,
+		Width:     500,
+		Height:    500,
+		Frameless: true,
+		Hidden:    true,
+		URL:       "translate.html",
+	})
+
+	Window.On(events.Common.WindowClosing, func(e *application.WindowEvent) {
+		app.Logger.Info("[Event] Window WindowClosing win2")
+		Window.Hide()
+	})
 }

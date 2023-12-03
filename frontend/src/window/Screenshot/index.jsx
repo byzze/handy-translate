@@ -1,7 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
-import { WindowHide, WindowUnfullscreen, WindowFullscreen, WindowMaximise, WindowSetBackgroundColour, WindowShow, WindowSetSize, WindowSetAlwaysOnTop, WindowUnmaximise, WindowMinimise, EventsOn, EventsEmit, ClipboardSetText, Hide } from "../../../wailsjs/runtime"
-import { CaptureSelectedScreen } from '../../../wailsjs/go/main/App'
 import { useConfig, useToastStyle, useVoice } from '../../hooks';
 import { atom, useAtom } from 'jotai';
 
@@ -19,8 +17,9 @@ export default function Screenshot() {
     const canvasRef = useRef(null);
 
     useEffect(() => {
-        EventsOn("screenshot", (result) => {
-            setImgurl("data:image/png;base64," + result)
+        wails.Events.On("screenshotBase64", function (result) {
+            let base64 = result.data
+            setImgurl("data:image/png;base64," + base64)
         })
     }, [])
 
@@ -39,28 +38,14 @@ export default function Screenshot() {
         // context.drawImage(image, x, y, width, height, 0, 0, width, height);
         // const base64Data = canvas.toDataURL('image/png');
         // EventsEmit("screenshotCapture", base64Data)
-        CaptureSelectedScreen(x, y, x + width, y + height).then((result) => {
-            console.log(result)
-            EventsEmit("query", result)
+        window.go.main.App.CaptureSelectedScreen(x, y, x + width, y + height).then((res) => {
+            console.log("success", res)
         })
         setImgurl("")
-        EventsEmit("appLabel", "translate")
-        // image.onload = function () {
-
-        // };
     }
-
-    const keyDown = (event) => {
-        if (event.key === 'Escape') {
-            WindowFullscreen();
-            WindowSetAlwaysOnTop(false)
-            WindowHide()
-        }
-    };
 
     return (
         <>
-            {/* <canvas ref={canvasRef}></canvas> */}
             <img
                 ref={imgRef}
                 className='fixed top-0 left-0 w-full select-none'
@@ -68,9 +53,9 @@ export default function Screenshot() {
                 draggable={false}
                 onLoad={() => {
                     if (imgurl !== '' && imgRef.current.complete) {
-                        WindowFullscreen();
-                        WindowSetAlwaysOnTop(true)
-                        WindowShow()
+                        wails.Window.Show()
+                        wails.Window.Fullscreen()
+                        wails.Window.SetAlwaysOnTop(true)
                     }
                 }}
             />
@@ -86,12 +71,12 @@ export default function Screenshot() {
             <div
                 className='fixed top-0 left-0 bottom-0 right-0 cursor-crosshair select-none'
                 onMouseDown={(e) => {
-                    if (e.buttons === 1) {
+                    if (e.button === 0) {
                         setIsDown(true);
                         setMouseDownX(e.clientX);
                         setMouseDownY(e.clientY);
                     } else {
-                        WindowHide()
+                        wails.Window.Hide()
                     }
                 }}
                 onMouseMove={(e) => {
@@ -102,11 +87,9 @@ export default function Screenshot() {
                     }
                 }}
                 onMouseUp={async (e) => {
-                    WindowHide()
                     setIsDown(false);
                     setIsMoved(false);
-                    console.log(e, "xxxxx")
-                    if (e.button === 1 || e.button === 0) {
+                    if (e.button === 0) {
                         const imgWidth = imgRef.current.naturalWidth;
                         const dpi = imgWidth / screen.width;
                         const left = Math.floor(Math.min(mouseDownX, e.clientX) * dpi);
@@ -115,16 +98,13 @@ export default function Screenshot() {
                         const bottom = Math.floor(Math.max(mouseDownY, e.clientY) * dpi);
                         const width = right - left;
                         const height = bottom - top;
-                        console.log(height, width)
                         if (width <= 0 || height <= 0) {
                             toast.error('Screenshot area is too small', { style: toastStyle });
-                            WindowHide()
                         } else {
                             captureScreenshot(left, top, width, height)
-                            WindowUnfullscreen();
-                            WindowSetAlwaysOnTop(false)
                         }
                     }
+                    wails.Window.Hide()
                 }}
             />
         </>

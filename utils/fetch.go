@@ -3,18 +3,13 @@ package utils
 import (
 	"bufio"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"strings"
-
-	"github.com/sirupsen/logrus"
 )
 
+// MyFetch 封装请求，因为从前端发起http请求会出现跨域
 func MyFetch(URL string, content map[string]interface{}) interface{} {
-	logrus.WithFields(logrus.Fields{
-		"URL":     URL,
-		"content": content,
-	}).Info("MyFetch")
-
 	client := &http.Client{}
 	var req *http.Request
 	var err error
@@ -34,7 +29,7 @@ func MyFetch(URL string, content map[string]interface{}) interface{} {
 	}
 
 	if err != nil {
-		println(err.Error())
+		slog.Error("err", err)
 		return err
 	}
 
@@ -47,7 +42,7 @@ func MyFetch(URL string, content map[string]interface{}) interface{} {
 		}
 	}
 
-	logrus.Info(req)
+	slog.Info("req", req)
 
 	resp, err := client.Do(req)
 
@@ -65,7 +60,7 @@ func MyFetch(URL string, content map[string]interface{}) interface{} {
 	}
 
 	if err := scanner.Err(); err != nil {
-		println(err)
+		slog.Error("err", err)
 		return err
 	}
 

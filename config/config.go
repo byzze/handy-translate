@@ -1,7 +1,6 @@
 package config
 
 import (
-	"context"
 	"fmt"
 	"io"
 	"os"
@@ -9,7 +8,6 @@ import (
 
 	"github.com/pelletier/go-toml/v2"
 	"github.com/sirupsen/logrus"
-	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 // Data config
@@ -18,7 +16,7 @@ var Data config
 type (
 	config struct {
 		Appname      string               `toml:"appname"`
-		Keyboard     []string             `toml:"keyboard"`
+		Keyboards    map[string][]string  `toml:"keyboards"`
 		TranslateWay string               `toml:"translate_way"`
 		Translate    map[string]Translate `toml:"translate"`
 	}
@@ -31,21 +29,14 @@ type (
 )
 
 // Init  config
-func Init(ctx context.Context) {
+func Init(projectName string) {
 	filePath, _ := os.Getwd()
-	var projectName = "handy-translate"
 	b := strings.Index(filePath, projectName)
 	configPath := filePath[:b+len(projectName)]
 
 	configFile, err := os.Open(configPath + "/config.toml")
 	if err != nil {
 		logrus.WithError(err).Error("Open")
-		runtime.MessageDialog(ctx, runtime.MessageDialogOptions{
-			Type:    runtime.ErrorDialog,
-			Title:   "错误",
-			Message: "配置文件打开失败:" + err.Error(),
-			// DefaultButton: "No",
-		})
 		os.Exit(1)
 	}
 	defer configFile.Close()
@@ -55,7 +46,6 @@ func Init(ctx context.Context) {
 		logrus.WithError(err).Error("ReadAll")
 		os.Exit(1)
 	}
-
 	err = toml.Unmarshal(fd, &Data)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
@@ -66,13 +56,6 @@ func Init(ctx context.Context) {
 
 func Save() {
 	filePath := "./config.toml"
-	// 使用Toml库编码并保存数据
-	// 使用ioutil.WriteFile()函数将数据写入文件
-	// err := ioutil.WriteFile("./config.toml", data, 0644)
-	// if err != nil {
-	// 	fmt.Println(err)
-	// 	return
-	// }
 	data, err := toml.Marshal(&Data)
 	if err != nil {
 		logrus.WithError(err).Error("Marshal")

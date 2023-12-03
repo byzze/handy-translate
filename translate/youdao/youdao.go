@@ -48,10 +48,10 @@ func (y *Youdao) PostQuery(query, fromLang, toLang string) ([]string, error) {
 		return nil, nil
 	}
 
-	transalteResult := strings.Join(tr.Translation, ",")
-	transalteExplains := strings.Join(tr.Basic.Explains, ",")
+	translateResult := strings.Join(tr.Translation, ",")
+	translateExplains := strings.Join(tr.Basic.Explains, ",")
 
-	return []string{transalteResult, transalteExplains}, nil
+	return []string{translateResult, translateExplains}, nil
 }
 
 func createRequestParams(query, fromLang, toLang string) map[string][]string {

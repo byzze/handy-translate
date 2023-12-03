@@ -90,12 +90,6 @@ export default function LanguageArea() {
                                     } else {
                                         setTargetLanguage(translateTargetLanguage);
                                     }
-                                } else {
-                                    // if (targetLanguage === translateSecondLanguage) {
-                                    //     setTargetLanguage(translateTargetLanguage);
-                                    // } else {
-                                    //     setTargetLanguage(secondLanguage);
-                                    // }
                                 }
                             }
                         }}

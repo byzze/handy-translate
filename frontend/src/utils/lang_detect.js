@@ -1,8 +1,6 @@
-// import { fetch, Body } from '@tauri-apps/api/http';
-// import { invoke } from '@tauri-apps/api';
-// import { store } from './store';
-import { MyFetch } from '../../wailsjs/go/main/App'
 import { v4 as uuidv4 } from 'uuid';
+
+// 引入命名空间
 
 // https://fanyi-api.baidu.com/product/113
 async function baidu_detect(text) {
@@ -29,20 +27,22 @@ async function baidu_detect(text) {
         nno: 'nn_no',
         per: 'fa',
     };
-    let res = await MyFetch('https://fanyi.baidu.com/langdetect', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: "query=" + text,
-    });
 
-    let result = JSON.parse(res)
-    if (result.error == 0) {
-        if (result.lan && result.lan in lang_map) {
-            return lang_map[result.lan];
-        }
-    }
+
+    // let res = await window.go.main.App.MyFetch('https://fanyi.baidu.com/langdetect', {
+    //     method: 'POST',
+    //     headers: {
+    //         'Content-Type': 'application/x-www-form-urlencoded',
+    //     },
+    //     body: "query=" + text,
+    // });
+
+    // let result = JSON.parse(res)
+    // if (result.error == 0) {
+    //     if (result.lan && result.lan in lang_map) {
+    //         return lang_map[result.lan];
+    //     }
+    // }
     return 'en';
 }
 

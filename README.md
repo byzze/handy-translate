@@ -1,24 +1,30 @@
 # 概述
-借鉴优秀的开源软件，拓宽自己的技术视野，开发了一款便捷翻译的工具，使用wails框架开发，wails支持Go+Vue, React等多种前端框架结合使用，同时也支持多平台Windows, Linux, Mac开发，该工具支持自定义快捷键，当鼠标选中的文本时，按压鼠标中键，弹出窗口渲染翻译结果，由于目前没有多余的开发设备，所以仅验证了Windows，wails生成的包容量相较于Electron的是相当的小了, 仅有10M左右
+借鉴优秀的开源软件，拓宽自己的技术视野，使用wails框架开发，wails支持Go+React等结合使用，可以也支持多平台Windows, Linux, Mac开发，当鼠标选中的文本时，按压鼠标中键，弹出窗口渲染翻译结果，由于自身的设备情况，在Windows平台适配性比较好，其他平台理论上也可以编译运行，但体验没Windows好，wails生成的包容量相较于Electron的是相当的小, 仅有10M左右, 本次版本使用wails的[v3](https://v3alpha.wails.io/)版本开发，该版本不太稳定，处于alpha版本，若需要稳定开发可以参考[v2](https://wails.io/)版本
 
 # 功能说明
-- [X] 选择文字翻译为中文
-- [X] 自定义快捷键
-- [X] 多种翻译源
-- [X] 支持OCR截图翻译
+- [X] 鼠标选中文字进行翻译
+- [X] 通过配置文件自定义快捷键
+- [X] 支持有道，百度，彩云翻译源
+- [X] 支持截图OCR翻译
+- [X] 系统托盘
   
 # 效果展示
-按压*鼠标中键*或*CTRL+C+C*弹出窗口
-按压*CTRL+SHIFT+F*弹出窗口
+按压**鼠标中键**弹出窗口
+按压**CTRL+SHIFT+F**弹出窗口
 
-![示例视频](https://raw.githubusercontent.com/byzze/oss/main/handly-translate/exp.gif)
+![示例视频](https://raw.githubusercontent.com/byzze/oss/main/handly-translate/effect.gif)
 
 # 安装编译环境
-安装wails(重要)
+安装wails(重要), 此软件基于v3版本开发，但v3处于alpha测试版本
+**v3**
+`https://v3alpha.wails.io/`
+**v2**
 `https://wails.io/docs/gettingstarted/installation/`
 
+
 ## 检查wails所需环境是否安装成功
-`wails doctor`
+v2 `wails doctor`
+v3 `wails doctor`
 
 # OCR models
 实现截图ocr解析文件模型，该模型有点大，大约75M, 文件夹：models
@@ -36,37 +42,39 @@
 
 **填写对应的api信息**
 ```toml
-appname = 'handy-translate'
-keyboard = ['center', '', ''] # 快捷键配置,默认鼠标中键 可指定固定顺序["ctrl","shift","c"] 通过配置文件或界面操作配置快捷键
-translate_way = 'baidu'
+appname = "handy-translate"
+translate_way = "baidu"
+
+[keyboards] 
+toolBar = ["center", "", ""]
+screenshot = ["ctrl", "shift",  "f"]
 
 [translate]
 [translate.baidu]
-name = '百度翻译'
-appID = ''
-key = ''
+name = "百度翻译"
+appID = ""
+key = ""
 
 [translate.youdao]
-name = '有道翻译'
-appID = ''
-key = ''
+name = "有道翻译"
+appID = ""
+key = ""
 ```
 
 # 编译构建
 
 **方式一**
-编译可执行文件
-`wails build` 
-复制`config.toml->./build/bin/`
+直接编译可执行文件
+`go build -tags production -ldflags="-w -s -H windowsgui" -o handy-translate.exe` 
 
-双击windows生成文件`./build/bin/handry-translate.exe`
+双击生成文件`./handry-translate.exe`
 
 **方式二**
-编译安装包，**建议**使用该方式，可以打包配置文件
-`wails build -nsis`
-双击生成文件`./build/bin/handy-translate-amd64-installer.exe`安装, 并执行安装成功后的`handry-translate.exe`文件
+下载对应的wails版本进行构建，并替换`go.mod`文件内容`replace github.com/wailsapp/wails/v3 => D:\go_project\wails\v3`
 
 # 参考用到的工具组件链接
-https://wails.io (使用了Go+VUE)
-https://www.naiveui.com/zh-CN/os-theme/docs/installation (前端组件)
-https://github.com/pot-app/pot-desktop (一款优秀的翻译工具)
+[wails v2](https://wails.io)
+[wails v3](https://v3alpha.wails.io/)
+[NEXTUI](https://nextui.org/) 前端UI组件
+[pot-desktop](https://github.com/pot-app/pot-desktop) rust开发的跨平台翻译工具
+[go-qoq](https://github.com/duolabmeng6/go-qoq) wails3开发的翻译工具

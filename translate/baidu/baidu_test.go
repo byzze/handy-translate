@@ -1,14 +1,13 @@
 package baidu
 
 import (
-	"context"
 	"fmt"
 	"handy-translate/config"
 	"testing"
 )
 
 func TestBaidu_PostQuery(t *testing.T) {
-	config.Init(context.TODO())
+	config.Init("handy-translate")
 	source := `Number of English letters`
 	var baidu = &Baidu{
 		Translate: config.Translate{
