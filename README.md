@@ -9,7 +9,9 @@
 - [X] 系统托盘
   
 # 效果展示
-按压**鼠标中键**弹出窗口
+### 方式一
+点击**鼠标中键**弹出窗口
+### 方式二
 按压**CTRL+SHIFT+F**弹出窗口
 
 ![示例视频](https://raw.githubusercontent.com/byzze/oss/main/handly-translate/effect.gif)
