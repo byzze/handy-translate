@@ -17,8 +17,8 @@
 ![示例视频](https://raw.githubusercontent.com/byzze/oss/main/handly-translate/effect.gif)
 
 # 安装编译环境
-安装wails(重要)， 此软件基于v3版本开发，但v3处于alpha测试版本
-[wails](`https://v3alpha.wails.io/getting-started/installation/`)
+安装wails(重要)， 此软件基于v3版本开发，但v3处于alpha测试版本，后续会同步更新
+安装地址：[wails](https://v3alpha.wails.io/getting-started/installation/)
 ```
 git clone https://github.com/wailsapp/wails.git
 cd wails
@@ -34,7 +34,9 @@ go install
 `go build -tags production -ldflags="-w -s -H windowsgui" -o handy-translate.exe` 
 
 ## 方式二
-并替换`go.mod`文件内容`replace github.com/wailsapp/wails/v3 => D:\go_project\wails\v3`(wails v3的存储路径)
+替换`go.mod`文件内容`replace github.com/wailsapp/wails/v3 => D:\go_project\wails\v3`(wails v3的存储路径)
+windows开发编译：`build_and_run.bat`
+linux或mac开发编译：`build_and_run.sh`
 
 # 配置翻译源
 填写对应的翻译秘钥
@@ -62,8 +64,8 @@ appID = "appKey"
 key = "appSecret"
 ```
 # 执行
-双击生成文件`./handry-translate.exe`
-
+- 双击生成文件`./handry-translate.exe`
+- 其他系统还未认证
 # OCR models
 实现截图ocr解析文件模型，该模型有点大，大约75M， 文件夹：models
 
