@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"os"
 	"os/exec"
+	"runtime"
 	"strings"
 	"syscall"
 
@@ -78,10 +79,13 @@ func runExternalProgram(program ExternalProgram) ([]byte, error) {
 	// 创建一个字节缓冲区来捕获输出
 	var outputBuffer bytes.Buffer
 	cmd.Stdout = &outputBuffer
-	cmd.SysProcAttr = &syscall.SysProcAttr{
-		HideWindow:    true,
-		CreationFlags: 0x08000000,
+	if runtime.GOOS == "windows" {
+		cmd.SysProcAttr = &syscall.SysProcAttr{
+			HideWindow:    true,
+			CreationFlags: 0x08000000,
+		}
 	}
+
 	// 启动外部进程
 	err := cmd.Start()
 	if err != nil {

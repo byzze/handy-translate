@@ -1,7 +1,6 @@
 package windows
 
 import (
-	"fmt"
 	"log/slog"
 	"runtime"
 	"syscall"
@@ -9,6 +8,7 @@ import (
 	"github.com/lxn/win"
 )
 
+// Window Windows os 窗口
 type Window struct {
 	Name string
 	HWND win.HWND
@@ -40,25 +40,6 @@ func (w Window) ShowForWindows() {
 	hwnd := w.HWND
 	win.SetForegroundWindow(hwnd)
 	win.ShowWindow(hwnd, win.SW_SHOW)
-}
-
-// GetWindwosSize 获取窗口大小
-func GetWindwosSize(windowName string) *win.RECT {
-	runtime.LockOSThread()
-	defer runtime.UnlockOSThread()
-	lpWindowName, err := syscall.UTF16PtrFromString(windowName)
-	if err != nil {
-		slog.Error("UTF16PtrFromString", err)
-	}
-	hwnd := win.FindWindow(nil, lpWindowName)
-	if hwnd == 0 {
-		slog.Error("FindWindow Failed")
-		return nil
-	}
-	rect := &win.RECT{}
-	win.GetWindowRect(hwnd, rect)
-	fmt.Println("GetWindwosSize", rect)
-	return rect
 }
 
 // GetCursorPos 获取鼠标位置

@@ -60,10 +60,10 @@ export default function TargetArea(props) {
         // wails.Events.On("loading", function (data) {
         //     setIsLoading(data.data == 'true')
         // })
-        wails.Events.On("result", function (data) {
-            let result = data.data
-            setResult(result)
-        })
+        // wails.Events.On("result", function (data) {
+        //     let result = data.data
+        //     setResult(result)
+        // })
         const LanguageEnum = builtinServices[translateServiceName].Language;
         if (sourceLanguage in LanguageEnum && targetLanguage in LanguageEnum) {
             wails.Events.Emit({ name: "translateLang", data: [LanguageEnum[sourceLanguage], LanguageEnum[targetLanguage]] })
@@ -78,7 +78,9 @@ export default function TargetArea(props) {
             const LanguageEnum = builtinServices[translateServiceName].Language;
 
             if (sourceLanguage in LanguageEnum && targetLanguage in LanguageEnum) {
-                window.go.main.App.Transalte(sourceText, LanguageEnum[sourceLanguage], LanguageEnum[targetLanguage])
+                window.go.main.App.Transalte(sourceText, LanguageEnum[sourceLanguage], LanguageEnum[targetLanguage]).then((res) => {
+                    setResult(res)
+                })
             }
         }
     }, [sourceText, targetLanguage, sourceLanguage, autoCopy, hideWindow, translateServiceName, clipboardMonitor]);

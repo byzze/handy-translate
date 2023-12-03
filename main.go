@@ -124,26 +124,27 @@ func processHook() {
 					slog.String("fromLang", fromLang),
 					slog.String("toLang", toLang))
 
-				processTranslate(queryText)
+				translateRes := processTranslate(queryText)
+				// 发送结果至前端
+				sendDataToJS(queryText, translateRes, "")
 			}
 		}
 	}
 }
 
 // 翻译处理
-func processTranslate(queryText string) {
-	transalteWay := translate.GetTransalteWay(config.Data.TranslateWay)
-	result, err := transalteWay.PostQuery(queryText, fromLang, toLang)
+func processTranslate(queryText string) string {
+	translateWay := translate.GetTransalteWay(config.Data.TranslateWay)
+	result, err := translateWay.PostQuery(queryText, fromLang, toLang)
 	if err != nil {
 		slog.Error("PostQuery", err)
 	}
 
 	app.Logger.Info("Transalte",
 		slog.Any("result", result),
-		slog.Any("transalteWay", transalteWay.GetName()))
+		slog.Any("translateWay", translateWay.GetName()))
 
-	transalteRes := strings.Join(result, "\n")
+	translateRes := strings.Join(result, "\n")
 
-	// 发送结果至前端
-	sendDataToJS(queryText, transalteRes, "")
+	return translateRes
 }

@@ -4,6 +4,7 @@ import (
 	"handy-translate/config"
 	"handy-translate/os_api/windows"
 	"handy-translate/screenshot"
+	"runtime"
 
 	"sync"
 	"time"
@@ -39,7 +40,9 @@ var lastMouseTime time.Time
 
 // DafaultHook register hook event
 func DafaultHook(app *application.App) {
-	go windows.WindowsHook() // 完善，robotgo处理的不完美
+	if runtime.GOOS == "windows" {
+		go windows.WindowsHook() // 完善，robotgo处理的不完美
+	}
 	// hook.Register(hook.KeyDown, []string{"ctrl", "c", "c"}, func(e hook.Event) {
 	// 	logrus.Info(e)
 	// 	if pressLock.TryLock() {

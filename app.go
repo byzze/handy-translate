@@ -12,6 +12,7 @@ import (
 	"handy-translate/utils"
 	"image/png"
 	"log/slog"
+	"runtime"
 
 	"github.com/go-vgo/robotgo"
 	"github.com/sirupsen/logrus"
@@ -30,13 +31,14 @@ func (a *App) MyFetch(URL string, content map[string]interface{}) interface{} {
 }
 
 // Transalte 翻译逻辑
-func (a *App) Transalte(queryText, fromLang, toLang string) {
+func (a *App) Transalte(queryText, fromLang, toLang string) string {
 	app.Logger.Info("Transalte",
 		slog.Any("queryText", queryText),
 		slog.Any("toLang", toLang),
 		slog.Any("fromLang", fromLang))
 
-	processTranslate(queryText)
+	res := processTranslate(queryText)
+	return res
 }
 
 // GetTransalteMap 获取所有翻译配置
@@ -89,8 +91,8 @@ func (a *App) Hide(windowName string) {
 
 // ToolBarShow 显示工具弹窗，控制大小，布局
 func (a *App) ToolBarShow(height float64) {
-	// 40 + 55 窗口空白区域+翻译的图标区域 + 44 + 55
-	height = height + 40 + 50
+	// 40 + 55 窗口空白区域+翻译的图标区域
+	height = height + 35 + 54
 	app.Logger.Info("ToolBarShow", slog.Float64("height", height))
 
 	h := int(height)
@@ -99,17 +101,18 @@ func (a *App) ToolBarShow(height float64) {
 	}
 
 	if h == 0 {
-		h = 55
+		h = 54
 	}
 
-	pos := windows.GetCursorPos()
 	w := toolbar.Window
 	w.SetSize(300, h)
-	// x, y := robotgo.Location() // 在联想小新pro13 2k屏幕时数据不对
-	x, y := int(pos.X), int(pos.Y) // 处理获取坐标不正确，采用windows原生api
+	x, y := robotgo.Location() // 在联想小新13 pro 2k屏幕时数据不对
+	if runtime.GOOS == "windows" {
+		pos := windows.GetCursorPos()
+		x, y = int(pos.X), int(pos.Y) // 处理获取坐标不正确，采用windows原生api
+		slog.Info("GetCursorPos", slog.Any("pos.X", pos.X), slog.Any("pos.Y", pos.Y))
+	}
 	sc, _ := w.GetScreen()
-	robotgo.GetMousePos()
-	slog.Info("GetCursorPos", slog.Any("pos.X", pos.X), slog.Any("pos.Y", pos.Y))
 	slog.Info("GetScreen", slog.Any("sc.Size.Width", sc.Size.Width), slog.Any("sc.Size.Height", sc.Size.Height))
 
 	c := int(float64(sc.Size.Height) * 0.1)
@@ -122,8 +125,11 @@ func (a *App) ToolBarShow(height float64) {
 		slog.Info("<<<<")
 		w.SetAbsolutePosition(x+10, y+10)
 	}
-	windows.FindWindow(toolbar.WindowName).ShowForWindows() // 使用原生showwindow，wails3版本有些问题，无法正常显示
-	// windows.ShowForWindows(toolbar.WindowName) // 使用原生showwindow，wails3版本有些问题，无法正常显示
+	if runtime.GOOS == "windows" {
+		windows.FindWindow(toolbar.WindowName).ShowForWindows() // 使用原生showwindow，wails3版本有些问题，无法正常显示
+	} else {
+		toolbar.Window.Show()
+	}
 }
 
 // CaptureSelectedScreen 截取选中的区域
@@ -150,7 +156,9 @@ func (a *App) CaptureSelectedScreen(startX, startY, width, height float64) {
 	}
 
 	// OCR解析文本
-	ocrres := ExecOCR(".\\RapidOCR-json.exe", filename)
+	queryText := ExecOCR(".\\RapidOCR-json.exe", filename)
 	// 翻译文本
-	processTranslate(ocrres)
+	translateRes := processTranslate(queryText)
+	// 发送结果至前端
+	sendDataToJS(queryText, translateRes, "")
 }
