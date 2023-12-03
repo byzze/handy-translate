@@ -27,7 +27,7 @@ cd v3/cmd/wails3
 go install
 ```
 
-# 编译构建
+# 构建运行
 
 ## 方式一
 直接编译可执行文件
@@ -64,8 +64,9 @@ appID = "appKey"
 key = "appSecret"
 ```
 # 执行
-- 双击生成文件`./handry-translate.exe`
-- 其他系统还未认证
+- Windows双击生成文件`./handry-translate.exe`
+  
+
 # OCR models
 实现截图ocr解析文件模型，该模型有点大，大约75M， 文件夹：models
 
