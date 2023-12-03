@@ -1,0 +1,17 @@
+appname = 'handy-translate'
+translate_way = 'youdao'
+
+[keyboards]
+screenshot = ['ctrl', 'shift', 'f']
+toolBar = ['center', '', '']
+
+[translate]
+[translate.baidu]
+name = '百度翻译'
+appID = '20230823001790949'
+key = 'hTlcbpu7xTRDR6fXshze'
+
+[translate.youdao]
+name = '有道翻译'
+appID = '5ade39ff86f06b4a'
+key = 'iNdxyDD3C5mbGQJpEPEyeU565ZAh8g5l'
