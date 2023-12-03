@@ -18,7 +18,8 @@
 
 # 安装编译环境
 安装wails(重要)， 此软件基于v3版本开发，但v3处于alpha测试版本，后续会同步更新
-安装地址：[wails](https://v3alpha.wails.io/getting-started/installation/)
+
+[wails安装地址](https://v3alpha.wails.io/getting-started/installation/)
 ```
 git clone https://github.com/wailsapp/wails.git
 cd wails
