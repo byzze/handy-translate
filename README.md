@@ -73,9 +73,9 @@ key = ""
 下载对应的wails版本进行构建，并替换`go.mod`文件内容`replace github.com/wailsapp/wails/v3 => D:\go_project\wails\v3`
 
 # 参考用到的工具组件链接
-[robotgo](https://github.com/go-vgo/robotgo) 鼠标，键盘监听
-[wails v2](https://wails.io)
-[wails v3](https://v3alpha.wails.io/)
-[NEXTUI](https://nextui.org/) 前端UI组件
-[pot-desktop](https://github.com/pot-app/pot-desktop) rust开发的跨平台翻译工具
-[go-qoq](https://github.com/duolabmeng6/go-qoq) wails3开发的翻译工具
+- [robotgo](https://github.com/go-vgo/robotgo) 鼠标，键盘监听
+- [wails v2](https://wails.io)
+- [wails v3](https://v3alpha.wails.io/)
+- [NEXTUI](https://nextui.org/) 前端UI组件
+- [pot-desktop](https://github.com/pot-app/pot-desktop) rust开发的跨平台翻译工具
+- [go-qoq](https://github.com/duolabmeng6/go-qoq) wails3开发的翻译工具
