@@ -7,13 +7,15 @@ import (
 	"handy-translate/config"
 	"handy-translate/os_api/windows"
 	"handy-translate/screenshot"
-	"handy-translate/translate_service"
+	"handy-translate/toolbar"
+	"handy-translate/translate"
 	"handy-translate/utils"
 	"image/png"
 	"log/slog"
 
 	"github.com/go-vgo/robotgo"
 	"github.com/sirupsen/logrus"
+	"github.com/wailsapp/wails/v3/pkg/application"
 )
 
 // 和js绑定的go方法集合
@@ -34,10 +36,6 @@ func (a *App) Transalte(queryText, fromLang, toLang string) {
 		slog.Any("toLang", toLang),
 		slog.Any("fromLang", fromLang))
 
-	/* 	// 翻译loading
-	   	app.Events.Emit(&application.WailsEvent{Name: "loading", Data: "true"})
-	   	defer app.Events.Emit(&application.WailsEvent{Name: "loading", Data: "false"}) */
-
 	processTranslate(queryText)
 }
 
@@ -54,9 +52,9 @@ func (a *App) GetTransalteMap() string {
 // SetTransalteWay 设置当前翻译服务
 func (a *App) SetTransalteWay(translateWay string) {
 	config.Data.TranslateWay = translateWay
-	translate_service.SetQueryText("")
+	translate.SetQueryText("")
 	config.Save()
-	logrus.WithField("Translate", config.Data.Translate).Info("SetTransalteList")
+	slog.Info("SetTransalteList", slog.Any("config.Data.Translate", config.Data.Translate))
 }
 
 // GetTransalteWay 获取当前翻译的服务
@@ -66,21 +64,33 @@ func (a *App) GetTransalteWay() string {
 
 // Show 通过名字控制窗口事件
 func (a *App) Show(windowName string) {
-	if _, ok := windowMap[windowName]; ok {
-		windowMap[windowName].Center()
-		windowMap[windowName].Show()
+	var win *application.WebviewWindow
+	switch windowName {
+	case screenshot.WindowName:
+		win = screenshot.Window
+	case translate.WindowName:
+		win = translate.Window
 	}
+	win.Center()
+	win.Show()
 }
 
 // Hide 通过名字控制窗口事件
 func (a *App) Hide(windowName string) {
-	if _, ok := windowMap[windowName]; ok {
-		windowMap[windowName].Hide()
+	var win *application.WebviewWindow
+	switch windowName {
+	case screenshot.WindowName:
+		win = screenshot.Window
+	case translate.WindowName:
+		win = translate.Window
 	}
+	win.Hide()
 }
 
 // ToolBarShow 显示工具弹窗，控制大小，布局
 func (a *App) ToolBarShow(height float64) {
+	// 40 + 55 窗口空白区域+翻译的图标区域 + 44 + 55
+	height = height + 40 + 50
 	app.Logger.Info("ToolBarShow", slog.Float64("height", height))
 
 	h := int(height)
@@ -92,24 +102,33 @@ func (a *App) ToolBarShow(height float64) {
 		h = 55
 	}
 
-	if w, ok := windowMap["index"]; ok {
-		w.SetSize(w.Width(), h)
-		x, y := robotgo.Location()
-		sc, _ := w.GetScreen()
+	pos := windows.GetCursorPos()
+	w := toolbar.Window
+	w.SetSize(300, h)
+	// x, y := robotgo.Location() // 在联想小新pro13 2k屏幕时数据不对
+	x, y := int(pos.X), int(pos.Y) // 处理获取坐标不正确，采用windows原生api
+	sc, _ := w.GetScreen()
+	robotgo.GetMousePos()
+	slog.Info("GetCursorPos", slog.Any("pos.X", pos.X), slog.Any("pos.Y", pos.Y))
+	slog.Info("GetScreen", slog.Any("sc.Size.Width", sc.Size.Width), slog.Any("sc.Size.Height", sc.Size.Height))
 
-		if y+w.Height() >= sc.Size.Height {
-			gap := y + w.Height() - sc.Size.Height
-			w.SetAbsolutePosition(x+10, y-gap-50)
-		} else {
-			w.SetAbsolutePosition(x+10, y+10)
-		}
-		// windows.FindWindow("ToolBar").ShowForWindows() // 使用原生showwindow，wails3版本有些问题，无法正常显示
-		windows.ShowForWindows("ToolBar") // 使用原生showwindow，wails3版本有些问题，无法正常显示
+	c := int(float64(sc.Size.Height) * 0.1)
+	slog.Info("sc.Size.Height", slog.Any("c", c))
+	if y+h+c >= sc.Size.Height {
+		gap := y + h + c - sc.Size.Height
+		slog.Info(">>>>", slog.Any("gap", gap))
+		w.SetAbsolutePosition(x+10, y-gap)
+	} else {
+		slog.Info("<<<<")
+		w.SetAbsolutePosition(x+10, y+10)
 	}
+	windows.FindWindow(toolbar.WindowName).ShowForWindows() // 使用原生showwindow，wails3版本有些问题，无法正常显示
+	// windows.ShowForWindows(toolbar.WindowName) // 使用原生showwindow，wails3版本有些问题，无法正常显示
 }
 
 // CaptureSelectedScreen 截取选中的区域
 func (a *App) CaptureSelectedScreen(startX, startY, width, height float64) {
+
 	croppedImg := screenshot.CaptureSelectedScreen(int(startX), int(startY), int(width), int(height))
 	if croppedImg == nil {
 		return

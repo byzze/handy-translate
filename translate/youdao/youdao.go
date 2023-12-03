@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"handy-translate/config"
-	"handy-translate/translate_service/youdao/utils"
-	"handy-translate/translate_service/youdao/utils/authv3"
+	"handy-translate/translate/youdao/utils"
+	"handy-translate/translate/youdao/utils/authv3"
 	"strings"
 
 	"github.com/sirupsen/logrus"

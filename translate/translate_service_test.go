@@ -1,9 +1,9 @@
-package translate_service
+package translate
 
 import (
 	"fmt"
 	"handy-translate/config"
-	"handy-translate/translate_service/baidu"
+	"handy-translate/translate/baidu"
 	"testing"
 
 	"github.com/OwO-Network/gdeeplx"

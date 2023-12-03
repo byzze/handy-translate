@@ -7,27 +7,25 @@ import (
 	"handy-translate/config"
 	"handy-translate/hook"
 	"handy-translate/screenshot"
-	"handy-translate/translate_service"
+	"handy-translate/toolbar"
+	"handy-translate/translate"
 	"log"
 	"log/slog"
 	"strings"
 
 	"github.com/go-vgo/robotgo"
 	"github.com/wailsapp/wails/v3/pkg/application"
-	"github.com/wailsapp/wails/v3/pkg/events"
 )
 
 //go:embed frontend/dist
 var assets embed.FS
 
-//go:embed frontend/public/wails.png
+//go:embed frontend/public/appicon.png
 var iconlogo []byte
 
 var app *application.App
 
 var appInfo = &App{}
-
-var windowMap = make(map[string]*application.WebviewWindow)
 
 var fromLang, toLang = "auto", "zh"
 
@@ -43,49 +41,11 @@ func main() {
 		},
 	})
 
-	win1 := app.NewWebviewWindowWithOptions(application.WebviewWindowOptions{
-		Title:         "ToolBar",
-		Width:         300,
-		Height:        55,
-		AlwaysOnTop:   false,
-		Hidden:        true,
-		DisableResize: false,
-		Frameless:     true,
-		Centered:      true,
-		ShouldClose: func(window *application.WebviewWindow) bool {
-			app.Quit()
-			return true
-		},
-		// Windows: application.WindowsWindow{
-		// 	HiddenOnTaskbar: true,
-		// },
-		URL: "index.html",
-	})
+	toolbar.NewWindow(app)
 
-	win2 := app.NewWebviewWindowWithOptions(application.WebviewWindowOptions{
-		Title:     "Translate",
-		Width:     500,
-		Height:    500,
-		Frameless: true,
-		Hidden:    true,
-		URL:       "translate.html",
-	})
+	translate.NewWindow(app)
 
-	win3 := screenshot.NewWindow(app)
-
-	win2.On(events.Common.WindowClosing, func(e *application.WindowEvent) {
-		app.Logger.Info("[Event] Window WindowClosing win2")
-		win2.Hide()
-	})
-
-	win1.On(events.Common.WindowLostFocus, func(e *application.WindowEvent) {
-		win1.Hide()
-	})
-
-	win3.On(events.Common.WindowClosing, func(e *application.WindowEvent) {
-		app.Logger.Info("[Event] Window WindowClosing win2")
-		win3.Hide()
-	})
+	screenshot.NewWindow(app)
 
 	app.Events.On("translateLang", func(event *application.WailsEvent) {
 		app.Logger.Info("translateType", slog.Any("event", event))
@@ -104,12 +64,15 @@ func main() {
 	systemTray.SetIcon(iconlogo)
 	myMenu := app.NewMenu()
 
-	myMenu.Add("Translate").OnClick(func(ctx *application.Context) {
-		win2.Show()
+	myMenu.Add("翻译").OnClick(func(ctx *application.Context) {
+		translate.Window.Center()
+		translate.Window.Show()
 	})
 
 	myMenu.Add("截图").OnClick(func(ctx *application.Context) {
-		win3.SetAlwaysOnTop(true).Fullscreen().Show()
+		screenshot.ScreenshotFullScreen()
+		base64Image := screenshot.ScreenshotFullScreen()
+		app.Events.Emit(&application.WailsEvent{Name: "screenshotBase64", Data: base64Image})
 	})
 
 	myMenu.Add("退出").OnClick(func(ctx *application.Context) {
@@ -117,13 +80,10 @@ func main() {
 	})
 
 	systemTray.SetMenu(myMenu)
-	systemTray.OnClick(func() {
-		win1.Show()
-	})
 
-	windowMap["index"] = win1
-	windowMap["translate"] = win2
-	windowMap["screenshot"] = win3
+	systemTray.OnClick(func() {
+		toolbar.Window.Show()
+	})
 
 	// 初始化文件和鼠标事件
 	config.Init(projectName)
@@ -151,14 +111,14 @@ func sendResult(result, explian string) {
 
 // 监听处理鼠标事件
 func processHook() {
-	go hook.DafaultHook(windowMap) // 使用robotgo处理
+	go hook.DafaultHook(app) // 使用robotgo处理
 
 	for {
 		select {
 		case <-hook.HookChan:
 			queryText, _ := robotgo.ReadAll()
 			sendQueryText(queryText)
-			if queryText != translate_service.GetQueryText() {
+			if queryText != translate.GetQueryText() {
 				app.Logger.Info("GetQueryText",
 					slog.String("queryText", queryText),
 					slog.String("fromLang", fromLang),
@@ -172,7 +132,7 @@ func processHook() {
 
 // 翻译处理
 func processTranslate(queryText string) {
-	transalteWay := translate_service.GetTransalteWay(config.Data.TranslateWay)
+	transalteWay := translate.GetTransalteWay(config.Data.TranslateWay)
 	result, err := transalteWay.PostQuery(queryText, fromLang, toLang)
 	if err != nil {
 		slog.Error("PostQuery", err)

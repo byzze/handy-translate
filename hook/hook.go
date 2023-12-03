@@ -3,6 +3,7 @@ package hook
 import (
 	"handy-translate/config"
 	"handy-translate/os_api/windows"
+	"handy-translate/screenshot"
 
 	"sync"
 	"time"
@@ -37,7 +38,7 @@ var lastKeyPressTime time.Time
 var lastMouseTime time.Time
 
 // DafaultHook register hook event
-func DafaultHook(wm map[string]*application.WebviewWindow) {
+func DafaultHook(app *application.App) {
 	go windows.WindowsHook() // 完善，robotgo处理的不完美
 	// hook.Register(hook.KeyDown, []string{"ctrl", "c", "c"}, func(e hook.Event) {
 	// 	logrus.Info(e)
@@ -53,10 +54,13 @@ func DafaultHook(wm map[string]*application.WebviewWindow) {
 	// 	}
 	// })
 
-	screenshot := config.Data.Keyboards["screenshot"]
-	hook.Register(hook.KeyDown, screenshot, func(e hook.Event) {
+	screenshotKey := config.Data.Keyboards["screenshot"]
+	hook.Register(hook.KeyDown, screenshotKey, func(e hook.Event) {
 		logrus.Info("screenshot", e)
-		wm["screenshot"].SetAlwaysOnTop(true).Fullscreen().Show()
+		// screenshot.Window.Show()
+		base64Image := screenshot.ScreenshotFullScreen()
+		app.Events.Emit(&application.WailsEvent{Name: "screenshotBase64", Data: base64Image})
+
 	})
 
 	// default mid mouse

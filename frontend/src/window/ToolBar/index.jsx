@@ -22,8 +22,7 @@ export default function ToolBar() {
             let height = 0
             if (result !== '') {
                 // textAreaRef.current.scrollHeight 文本高度
-                // 40 + 55 窗口空白区域+翻译图标区域
-                height = textAreaRef.current.scrollHeight + 40 + 55
+                height = textAreaRef.current.scrollHeight
                 textAreaRef.current.style.height = textAreaRef.current.scrollHeight + 'px';
                 window.go.main.App.ToolBarShow(height)
             }
@@ -37,12 +36,12 @@ export default function ToolBar() {
                 <CardHeader>
                     <div className="flex gap-4 items-center">
                         <Button size="sm" isIconOnly color="danger" aria-label="Like" onPress={() => {
-                            window.go.main.App.Show("translate")
+                            window.go.main.App.Show("Translate")
                         }}>
                             <BsTranslate />
                         </Button>
                         {/* <Button size="sm" isIconOnly color="danger" aria-label="Like" onPress={() => {
-                            window.go.main.App.Hide("translate")
+                            window.go.main.App.Hide("Translate")
                         }}>
                             隐藏
                         </Button> */}

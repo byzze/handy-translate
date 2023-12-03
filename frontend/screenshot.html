@@ -1,85 +1,18 @@
-</html>
-
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <style>
-        body {
-            margin: 0;
-            overflow: hidden;
-            border: 3px solid red;
-            cursor: crosshair;
-        }
-
-        #select-box {
-            position: absolute;
-            border: 2px dashed #3498db;
-            background-color: rgba(52, 152, 219, 0.3);
-            pointer-events: none;
-            z-index: 999;
-            display: none;
-        }
-    </style>
-    <title>Selectable Area</title>
-
+    <title>Screenshot</title>
 </head>
 
 <body>
-    <div id="select-box"></div>
+    <div id="root"></div>
+    <script type="module" src="./src/screenshot.jsx"></script>
     <script type="module" src="bindings_main.js"></script>
     <script src="/wails/ipc.js"></script>
     <script src="/wails/runtime.js"></script>
-    <script>
-        let isDrawing = false;
-        let startX, startY, endX, endY;
-        const selectBox = document.getElementById('select-box');
-
-        document.addEventListener('mousedown', (e) => {
-            if (e.button === 0) {
-                isDrawing = true;
-                startX = e.clientX;
-                startY = e.clientY;
-                selectBox.style.display = 'block';
-                updateSelectBox(startX, startY, startX, startY);
-            } else {
-                wails.Window.Hide()
-            }
-        });
-
-        document.addEventListener('mousemove', (e) => {
-            if (!isDrawing) return;
-
-            endX = e.clientX;
-            endY = e.clientY;
-
-            updateSelectBox(startX, startY, endX, endY);
-        });
-
-        document.addEventListener('mouseup', (e) => {
-            isDrawing = false;
-            selectBox.style.display = 'none';
-            if (e.buttons === 0) {
-                // 获取选中区域的坐标信息
-                window.go.main.App.CaptureSelectedScreen(startX, startY, endX - startX, endY - startY).then((res) => {
-                    console.log("success", res)
-                })
-                wails.Window.Hide()
-            }
-        });
-
-        function updateSelectBox(x1, y1, x2, y2) {
-            const width = Math.abs(x2 - x1);
-            const height = Math.abs(y2 - y1);
-
-            selectBox.style.width = `${width}px`;
-            selectBox.style.height = `${height}px`;
-            selectBox.style.left = `${Math.min(x1, x2)}px`;
-            selectBox.style.top = `${Math.min(y1, y2)}px`;
-        }
-    </script>
 </body>
 
 </html>

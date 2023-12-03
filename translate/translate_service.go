@@ -1,10 +1,10 @@
-package translate_service
+package translate
 
 import (
 	"handy-translate/config"
-	"handy-translate/translate_service/baidu"
-	"handy-translate/translate_service/caiyun"
-	"handy-translate/translate_service/youdao"
+	"handy-translate/translate/baidu"
+	"handy-translate/translate/caiyun"
+	"handy-translate/translate/youdao"
 	"sync"
 )
 

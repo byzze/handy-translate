@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { BrowserRouter } from 'react-router-dom';
 import ToolBar from './window/ToolBar';
 import Translate from './window/Translate';
+import Screenshot from './window/Screenshot';
 import { useTranslation } from 'react-i18next';
 import './i18n';
 import { useConfig, useSyncAtom } from './hooks';
@@ -9,6 +10,7 @@ import { useConfig, useSyncAtom } from './hooks';
 const windowMap = {
   root: <ToolBar />,
   translate: <Translate />,
+  screenshot: <Screenshot />,
 };
 
 function App({ variable }) {

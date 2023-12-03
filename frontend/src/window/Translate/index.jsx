@@ -125,18 +125,6 @@ export default function Translate({ variable, onUpdateVariable }) {
                             disableAnimation
                             className={`my-auto ${osType === 'Darwin' && 'hidden'} bg-transparent`}
                             onPress={() => {
-                                wails.Window.Minimise();
-                            }}
-                        >
-                            <AiFillMinusCircle className='text-[20px] text-default-400' />
-                        </Button>
-                        <Button
-                            isIconOnly
-                            size='sm'
-                            variant='flat'
-                            disableAnimation
-                            className={`my-auto ${osType === 'Darwin' && 'hidden'} bg-transparent`}
-                            onPress={() => {
                                 wails.Window.Hide();
                             }}
                         >
