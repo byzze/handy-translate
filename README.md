@@ -1,5 +1,5 @@
 # 概述
-借鉴优秀的开源软件，拓宽自己的技术视野，使用wails框架开发，wails支持Go+React等结合使用，可以也支持多平台Windows, Linux, Mac开发，当鼠标选中的文本时，按压鼠标中键，弹出窗口渲染翻译结果，由于自身的设备情况，在Windows平台适配性比较好，其他平台理论上也可以编译运行，但体验没Windows好，wails生成的包容量相较于Electron的是相当的小, 仅有10M左右, 本次版本使用wails的[v3](https://v3alpha.wails.io/)版本开发，该版本不太稳定，处于alpha版本，若需要稳定开发可以参考[v2](https://wails.io/)版本
+基于wails框架开发，结合Go+React，开发支持多平台Windows, Linux, Mac开发，当鼠标选中的文本时，按压鼠标中键，弹出窗口渲染翻译结果，目前Windows平台效果较好，其他平台理论上也可以编译运行，但体验没Windows好，wails生成的包容量相较于Electron的是相当的小, 仅有10M左右, 本次版本使用wails的[v3](https://v3alpha.wails.io/)版本开发，该版本不太稳定，处于alpha版本，若需要稳定开发可以参考[v2](https://wails.io/)版本
 
 # 功能说明
 - [X] 鼠标选中文字进行翻译
@@ -18,25 +18,22 @@
 安装wails(重要), 此软件基于v3版本开发，但v3处于alpha测试版本
 **v3**
 `https://v3alpha.wails.io/`
+
 **v2**
 `https://wails.io/docs/gettingstarted/installation/`
 
 
-## 检查wails所需环境是否安装成功
-- v2 `wails doctor`
-- v3 `wails doctor`
+# 编译构建
 
-# OCR models
-实现截图ocr解析文件模型，该模型有点大，大约75M, 文件夹：models
+## 方式一
+直接编译可执行文件
+`go build -tags production -ldflags="-w -s -H windowsgui" -o handy-translate.exe` 
+
+## 方式二
+下载对应的wails版本进行构建，并替换`go.mod`文件内容`replace github.com/wailsapp/wails/v3 => D:\go_project\wails\v3`(注意该路径对应的系统路径)
 
 # 配置翻译源
-填写对应的翻译秘钥即可
-```text
-百度翻译源: https://docs.caiyunapp.com/blog/2021/12/30/hello-world
-有道翻译：https://ai.youdao.com/DOCSIRMA/html/trans/api/wbfy/index.html
-彩云翻译：https://docs.caiyunapp.com/blog/2021/12/30/hello-world
-```
-
+填写对应的翻译秘钥
 **修改配置名**
 `config.toml.bak -> config.toml`
 
@@ -50,27 +47,21 @@ toolBar = ["center", "", ""] # 小窗口翻译快捷键， 表示鼠标中键
 screenshot = ["ctrl", "shift",  "f"] # 截图快捷键
 
 [translate]
-[translate.baidu]
+[translate.baidu] # https://fanyi-api.baidu.com/api/trans/product/apidoc
 name = "百度翻译"
-appID = ""
-key = ""
+appID = "20230823001790949"
+key = "hTlcbpu7xxxxxxxxx"
 
-[translate.youdao]
+[translate.youdao] # https://ai.youdao.com/DOCSIRMA/html/trans/api/wbfy/index.html
 name = "有道翻译"
-appID = ""
-key = ""
+appID = "appKey"
+key = "appSecret"
 ```
-
-# 编译构建
-
-**方式一**
-直接编译可执行文件
-`go build -tags production -ldflags="-w -s -H windowsgui" -o handy-translate.exe` 
-
+# 执行
 双击生成文件`./handry-translate.exe`
 
-**方式二**
-下载对应的wails版本进行构建，并替换`go.mod`文件内容`replace github.com/wailsapp/wails/v3 => D:\go_project\wails\v3`
+# OCR models
+实现截图ocr解析文件模型，该模型有点大，大约75M, 文件夹：models
 
 # 参考用到的工具组件链接
 - [robotgo](https://github.com/go-vgo/robotgo) 鼠标，键盘监听
