@@ -23,8 +23,8 @@
 
 
 ## 检查wails所需环境是否安装成功
-v2 `wails doctor`
-v3 `wails doctor`
+- v2 `wails doctor`
+- v3 `wails doctor`
 
 # OCR models
 实现截图ocr解析文件模型，该模型有点大，大约75M, 文件夹：models
@@ -46,8 +46,8 @@ appname = "handy-translate"
 translate_way = "baidu"
 
 [keyboards] 
-toolBar = ["center", "", ""]
-screenshot = ["ctrl", "shift",  "f"]
+toolBar = ["center", "", ""] # 小窗口翻译快捷键， 表示鼠标中键
+screenshot = ["ctrl", "shift",  "f"] # 截图快捷键
 
 [translate]
 [translate.baidu]
@@ -73,6 +73,7 @@ key = ""
 下载对应的wails版本进行构建，并替换`go.mod`文件内容`replace github.com/wailsapp/wails/v3 => D:\go_project\wails\v3`
 
 # 参考用到的工具组件链接
+[robotgo](https://github.com/go-vgo/robotgo) 鼠标，键盘监听
 [wails v2](https://wails.io)
 [wails v3](https://v3alpha.wails.io/)
 [NEXTUI](https://nextui.org/) 前端UI组件
