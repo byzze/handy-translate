@@ -19,7 +19,7 @@
 # 安装编译环境
 安装wails(重要)， 此软件基于v3版本开发，但v3处于alpha测试版本，后续会同步更新
 
-[wails安装地址](https://v3alpha.wails.io/getting-started/installation/)
+[wails安装](https://v3alpha.wails.io/getting-started/installation/)
 ```
 git clone https://github.com/wailsapp/wails.git
 cd wails
@@ -27,17 +27,6 @@ git checkout v3-alpha
 cd v3/cmd/wails3
 go install
 ```
-
-# 构建运行
-
-## 方式一
-直接编译可执行文件
-`go build -tags production -ldflags="-w -s -H windowsgui" -o handy-translate.exe` 
-
-## 方式二
-替换`go.mod`文件内容`replace github.com/wailsapp/wails/v3 => D:\go_project\wails\v3`(wails v3的存储路径)
-windows开发编译：`build_and_run.bat`
-linux或mac开发编译：`build_and_run.sh`
 
 # 配置翻译源
 填写对应的翻译秘钥
@@ -64,6 +53,18 @@ name = "有道翻译"
 appID = "appKey"
 key = "appSecret"
 ```
+
+# 构建运行
+
+## 方式一
+直接编译可执行文件
+`go build -tags production -ldflags="-w -s -H windowsgui" -o handy-translate.exe` 
+
+## 方式二
+替换`go.mod`文件内容`replace github.com/wailsapp/wails/v3 => D:\go_project\wails\v3`(wails v3的存储路径)
+windows开发编译：`build_and_run.bat`
+linux或mac开发编译：`build_and_run.sh`
+
 # 执行
 - Windows双击生成文件`./handry-translate.exe`
   
