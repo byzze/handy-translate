@@ -17,13 +17,9 @@
 ![示例视频](https://raw.githubusercontent.com/byzze/oss/main/handly-translate/effect.gif)
 
 # 安装编译环境
-安装wails(重要), 此软件基于v3版本开发，但v3处于alpha测试版本
-**v3**
-`https://v3alpha.wails.io/`
-
-**v2**
-`https://wails.io/docs/gettingstarted/installation/`
-
+安装wails(重要)， 此软件基于v3版本开发，但v3处于alpha测试版本
+- **v3** `https://v3alpha.wails.io/`
+- **v2** `https://wails.io/docs/gettingstarted/installation/`
 
 # 编译构建
 
@@ -63,7 +59,7 @@ key = "appSecret"
 双击生成文件`./handry-translate.exe`
 
 # OCR models
-实现截图ocr解析文件模型，该模型有点大，大约75M, 文件夹：models
+实现截图ocr解析文件模型，该模型有点大，大约75M， 文件夹：models
 
 # 参考用到的工具组件链接
 - [robotgo](https://github.com/go-vgo/robotgo) 鼠标，键盘监听
