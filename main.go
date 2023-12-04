@@ -11,6 +11,7 @@ import (
 	"handy-translate/translate"
 	"log"
 	"log/slog"
+	"reflect"
 	"strings"
 
 	"github.com/go-vgo/robotgo"
@@ -50,7 +51,10 @@ func main() {
 	app.Events.On("translateLang", func(event *application.WailsEvent) {
 		app.Logger.Info("translateType", slog.Any("event", event))
 
-		if optionalData, ok := event.Data.([]string); ok {
+		valueType := reflect.TypeOf(event.Data)
+		fmt.Println("Type:", valueType)
+
+		if optionalData, ok := event.Data.([]interface{}); ok {
 			fromLang = fmt.Sprintf("%v", optionalData[0])
 			toLang = fmt.Sprintf("%v", optionalData[1])
 			app.Logger.Info("translateLang",

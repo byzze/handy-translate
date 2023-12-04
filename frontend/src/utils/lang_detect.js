@@ -29,20 +29,20 @@ async function baidu_detect(text) {
     };
 
 
-    // let res = await window.go.main.App.MyFetch('https://fanyi.baidu.com/langdetect', {
-    //     method: 'POST',
-    //     headers: {
-    //         'Content-Type': 'application/x-www-form-urlencoded',
-    //     },
-    //     body: "query=" + text,
-    // });
+    let res = await window.go.main.App.MyFetch('https://fanyi.baidu.com/langdetect', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: "query=" + text,
+    });
 
-    // let result = JSON.parse(res)
-    // if (result.error == 0) {
-    //     if (result.lan && result.lan in lang_map) {
-    //         return lang_map[result.lan];
-    //     }
-    // }
+    let result = JSON.parse(res)
+    if (result.error == 0) {
+        if (result.lan && result.lan in lang_map) {
+            return lang_map[result.lan];
+        }
+    }
     return 'en';
 }
 
