@@ -8,10 +8,10 @@ toolBar = ['center', '', '']
 [translate]
 [translate.baidu]
 name = '百度翻译'
-appID = '20230823001790949'
-key = 'hTlcbpu7xTRDR6fXshze'
+appID = 'APP ID'
+key = '密钥'
 
 [translate.youdao]
 name = '有道翻译'
-appID = '5ade39ff86f06b4a'
-key = 'iNdxyDD3C5mbGQJpEPEyeU565ZAh8g5l'
+appID = '应用ID'
+key = '应用密钥'

@@ -9,10 +9,8 @@
 - [X] 系统托盘
   
 # 效果展示
-### 方式一
-点击**鼠标中键**弹出窗口
-### 方式二
-按压**CTRL+SHIFT+F**弹出窗口
+- 点击**鼠标中键**选中文本弹出窗口
+- 按压**CTRL+SHIFT+F**截图翻译弹出窗口
 
 ![示例视频](https://raw.githubusercontent.com/byzze/oss/main/handly-translate/effect.gif)
 
@@ -67,7 +65,8 @@ linux或mac开发编译：`build_and_run.sh`
 
 # 执行
 - Windows双击生成文件`./handry-translate.exe`
-  
+
+# 下载文件
 
 # OCR models
 实现截图ocr解析文件模型，该模型有点大，大约75M， 文件夹：models

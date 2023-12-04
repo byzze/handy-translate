@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"strings"
 
 	"github.com/pelletier/go-toml/v2"
 	"github.com/sirupsen/logrus"
@@ -30,11 +29,11 @@ type (
 
 // Init  config
 func Init(projectName string) {
-	filePath, _ := os.Getwd()
-	b := strings.Index(filePath, projectName)
-	configPath := filePath[:b+len(projectName)]
+	// filePath, _ := os.Getwd()
+	// b := strings.Index(filePath, projectName)
+	// configPath := filePath[:b+len(projectName)]
 
-	configFile, err := os.Open(configPath + "/config.toml")
+	configFile, err := os.Open("./config.toml")
 	if err != nil {
 		logrus.WithError(err).Error("Open")
 		os.Exit(1)

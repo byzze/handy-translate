@@ -4,6 +4,7 @@ import (
 	"handy-translate/config"
 	"handy-translate/os_api/windows"
 	"handy-translate/screenshot"
+	"log/slog"
 	"runtime"
 
 	"sync"
@@ -44,24 +45,24 @@ func DafaultHook(app *application.App) {
 		go windows.WindowsHook() // 完善，robotgo处理的不完美
 	}
 
-	hook.Register(hook.KeyDown, []string{"ctrl", "c", "c"}, func(e hook.Event) {
-		logrus.Info(e)
+	hook.Register(hook.KeyDown, []string{"c", "c", "ctrl"}, func(e hook.Event) {
+		slog.Info("ctrl+c+c", e)
 		if pressLock.TryLock() {
 			lastKeyPressTime = time.Now()
 		} else {
+			pressLock.Unlock()
 			elapsed := time.Since(lastKeyPressTime)
 			// Check if the time elapsed is greater than 500 milliseconds
 			if elapsed.Milliseconds() < 800 {
 				HookChan <- struct{}{}
 			}
-			pressLock.Unlock()
+
 		}
 	})
 
 	screenshotKey := config.Data.Keyboards["screenshot"]
 	hook.Register(hook.KeyDown, screenshotKey, func(e hook.Event) {
-		logrus.Info("screenshot", e)
-		// screenshot.Window.Show()
+		slog.Info("screenshot", e)
 		base64Image := screenshot.ScreenshotFullScreen()
 		app.Events.Emit(&application.WailsEvent{Name: "screenshotBase64", Data: base64Image})
 

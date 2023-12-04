@@ -9,7 +9,7 @@ require (
 	github.com/kbinani/screenshot v0.0.0-20230812210009-b87d31814237
 	github.com/lxn/win v0.0.0-20210218163916-a377121e959e
 	github.com/pelletier/go-toml/v2 v2.1.0
-	github.com/robotn/gohook v0.41.0
+	github.com/robotn/gohook v0.31.3
 	github.com/sirupsen/logrus v1.4.1
 	github.com/wailsapp/wails/v3 v3.0.0-alpha.0
 )
