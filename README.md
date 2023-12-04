@@ -67,7 +67,7 @@ linux或mac开发编译：`build_and_run.sh`
 - Windows双击生成文件`./handry-translate.exe`
 
 # 下载文件
-
+[windows安装文件](https://github.com/byzze/handy-translate/releases/download/v1.0.2/handy-translate-amd64-installer.exe)
 # OCR models
 实现截图ocr解析文件模型，该模型有点大，大约75M， 文件夹：models
 
