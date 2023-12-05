@@ -7,6 +7,7 @@
 - [X] 支持有道，百度，彩云翻译源
 - [X] 支持截图OCR翻译
 - [X] 系统托盘
+- [X] 详细翻译功能（语音读，多语言互译）
   
 # 效果展示
 - 点击**鼠标中键**选中文本弹出窗口
@@ -26,6 +27,7 @@ wails3 show
 
 # 配置翻译源
 填写对应的翻译秘钥
+
 **修改配置名**
 `config.toml.bak -> config.toml`
 
@@ -54,11 +56,12 @@ key = "appSecret"
 
 ## 方式一
 直接编译可执行文件, 存在dist文件
+
 `go build -tags production -ldflags="-w -s -H windowsgui" -o handy-translate.exe` 
 
 ## 方式二
-windows开发编译：`build_and_run.bat`
-linux或mac开发编译：`build_and_run.sh`
+- windows开发编译：`build_and_run.bat`
+- linux或mac开发编译：`build_and_run.sh`
 
 # 执行
 - Windows双击生成文件`handry-translate.exe`
