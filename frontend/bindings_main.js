@@ -69,7 +69,7 @@ window.go.main = {
 
 		/**
 		 * App.ToolBarShow
-		 * ToolBarShow 显示工具弹窗，控制大小，布局
+		 * ToolBarShow 显示工具弹窗，控制大小，布局, 前端调用，传递文本高度
 		 * @param height {number}
 		 * @returns {Promise<void>}
 		 **/

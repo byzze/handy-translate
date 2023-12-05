@@ -50,13 +50,12 @@ func DafaultHook(app *application.App) {
 		if pressLock.TryLock() {
 			lastKeyPressTime = time.Now()
 		} else {
-			pressLock.Unlock()
 			elapsed := time.Since(lastKeyPressTime)
 			// Check if the time elapsed is greater than 500 milliseconds
 			if elapsed.Milliseconds() < 800 {
 				HookChan <- struct{}{}
 			}
-
+			pressLock.Unlock()
 		}
 	})
 

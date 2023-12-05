@@ -37,6 +37,7 @@ func main() {
 		Bind: []any{
 			&App{},
 		},
+		Icon: iconlogo,
 		Assets: application.AssetOptions{
 			FS: assets,
 		},
@@ -65,7 +66,6 @@ func main() {
 
 	// 系统托盘
 	systemTray := app.NewSystemTray()
-	systemTray.SetIcon(iconlogo)
 	myMenu := app.NewMenu()
 
 	myMenu.Add("翻译").OnClick(func(ctx *application.Context) {
@@ -84,6 +84,7 @@ func main() {
 	})
 
 	systemTray.SetMenu(myMenu)
+	systemTray.SetIcon(iconlogo)
 
 	systemTray.OnClick(func() {
 		toolbar.Window.Show()
@@ -99,18 +100,18 @@ func main() {
 	}
 }
 
-func sendDataToJS(query, result, explian string) {
+func sendDataToJS(query, result, explains string) {
 	sendQueryText(query)
-	sendResult(result, explian)
+	sendResult(result, explains)
 }
 
 func sendQueryText(queryText string) {
 	app.Events.Emit(&application.WailsEvent{Name: "query", Data: queryText})
 }
 
-func sendResult(result, explian string) {
+func sendResult(result, explains string) {
 	app.Events.Emit(&application.WailsEvent{Name: "result", Data: result})
-	app.Events.Emit(&application.WailsEvent{Name: "explian", Data: explian})
+	app.Events.Emit(&application.WailsEvent{Name: "explains", Data: explains})
 }
 
 // 监听处理鼠标事件
@@ -121,17 +122,20 @@ func processHook() {
 		select {
 		case <-hook.HookChan:
 			queryText, _ := robotgo.ReadAll()
-			sendQueryText(queryText)
-			if queryText != translate.GetQueryText() {
-				app.Logger.Info("GetQueryText",
-					slog.String("queryText", queryText),
-					slog.String("fromLang", fromLang),
-					slog.String("toLang", toLang))
 
+			app.Logger.Info("GetQueryText",
+				slog.String("queryText", queryText),
+				slog.String("fromLang", fromLang),
+				slog.String("toLang", toLang))
+
+			if queryText != translate.GetQueryText() && queryText != "" {
+				translate.SetQueryText(queryText)
 				translateRes := processTranslate(queryText)
 				// 发送结果至前端
 				sendDataToJS(queryText, translateRes, "")
+				continue
 			}
+			processToolbarShow()
 		}
 	}
 }
