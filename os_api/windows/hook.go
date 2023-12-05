@@ -2,6 +2,7 @@ package windows
 
 import (
 	"runtime"
+	"sync"
 	"syscall"
 	"unsafe"
 
@@ -46,7 +47,8 @@ type POINT struct {
 var (
 	hHook uintptr
 )
-var ch = make(chan struct{}, 2)
+
+var PressLock sync.RWMutex
 
 // LowLevelMouseProc 代用windows api 才能做到选中文字，鼠标事件触发前执行模拟ctrl + c 操作
 func LowLevelMouseProc(nCode int, wParam uintptr, lParam uintptr) uintptr {
@@ -67,7 +69,6 @@ func LowLevelMouseProc(nCode int, wParam uintptr, lParam uintptr) uintptr {
 			// fmt.Println("右键释放")
 		case WM_MBUTTONDOWN:
 			robotgo.KeyTap("c", "ctrl")
-			// copyText()
 		case WM_MBUTTONUP:
 		}
 	}

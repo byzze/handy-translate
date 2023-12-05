@@ -7,6 +7,5 @@ frontend/pkg
 config.toml
 screenshot.png
 .task
-assets
 bin
 handy-translate.exe

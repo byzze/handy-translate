@@ -89,7 +89,9 @@ func (a *App) Hide(windowName string) {
 	win.Hide()
 }
 
-// ToolBarShow 显示工具弹窗，控制大小，布局
+var queryResultHeight int = 54
+
+// ToolBarShow 显示工具弹窗，控制大小，布局, 前端调用，传递文本高度
 func (a *App) ToolBarShow(height float64) {
 	// 40 + 55 窗口空白区域+翻译的图标区域
 	height = height + 35 + 54
@@ -103,28 +105,35 @@ func (a *App) ToolBarShow(height float64) {
 	if h == 0 {
 		h = 54
 	}
+	queryResultHeight = h
+	processToolbarShow()
+}
 
+func processToolbarShow() {
+	height := queryResultHeight
 	w := toolbar.Window
-	w.SetSize(300, h)
+	w.SetSize(300, height)
+
 	x, y := robotgo.Location() // 在联想小新13 pro 2k屏幕时数据不对
 	if runtime.GOOS == "windows" {
 		pos := windows.GetCursorPos()
 		x, y = int(pos.X), int(pos.Y) // 处理获取坐标不正确，采用windows原生api
-		slog.Info("GetCursorPos", slog.Any("pos.X", pos.X), slog.Any("pos.Y", pos.Y))
 	}
-	sc, _ := w.GetScreen()
-	slog.Info("GetScreen", slog.Any("sc.Size.Width", sc.Size.Width), slog.Any("sc.Size.Height", sc.Size.Height))
 
+	sc, _ := w.GetScreen()
+	// 计算屏幕任务多出的高度，防止弹出框超出屏幕外面
 	c := int(float64(sc.Size.Height) * 0.1)
-	slog.Info("sc.Size.Height", slog.Any("c", c))
-	if y+h+c >= sc.Size.Height {
-		gap := y + h + c - sc.Size.Height
+
+	// 计算左边对应的窗体高度是否超出屏幕外，超出则需要重新计算y轴坐标，防止弹出框超出屏幕外面
+	if y+height+c >= sc.Size.Height {
+		gap := y + height + c - sc.Size.Height
 		slog.Info(">>>>", slog.Any("gap", gap))
 		w.SetAbsolutePosition(x+10, y-gap)
 	} else {
 		slog.Info("<<<<")
 		w.SetAbsolutePosition(x+10, y+10)
 	}
+
 	if runtime.GOOS == "windows" {
 		windows.FindWindow(toolbar.WindowName).ShowForWindows() // 使用原生showwindow，wails3版本有些问题，无法正常显示
 	} else {

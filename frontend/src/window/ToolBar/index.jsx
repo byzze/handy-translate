@@ -12,22 +12,32 @@ export default function ToolBar() {
     useEffect(() => {
         wails.Events.On("result", function (data) {
             let result = data.data
+
             setResult(result)
+            let height = 0
+            if (textAreaRef.current !== null) {
+                textAreaRef.current.style.height = '0px';
+                if (result !== '') {
+                    // textAreaRef.current.scrollHeight 文本高度
+                    height = textAreaRef.current.scrollHeight
+                    textAreaRef.current.style.height = textAreaRef.current.scrollHeight + 'px';
+                }
+            }
+            window.go.main.App.ToolBarShow(height)
         })
     }, [])
 
-    useEffect(() => {
-        if (textAreaRef.current !== null) {
-            textAreaRef.current.style.height = '0px';
-            let height = 0
-            if (result !== '') {
-                // textAreaRef.current.scrollHeight 文本高度
-                height = textAreaRef.current.scrollHeight
-                textAreaRef.current.style.height = textAreaRef.current.scrollHeight + 'px';
-                window.go.main.App.ToolBarShow(height)
+    /*     useEffect(() => {
+            if (textAreaRef.current !== null) {
+                textAreaRef.current.style.height = '0px';
+                if (result !== '') {
+                    // textAreaRef.current.scrollHeight 文本高度
+                    let height = textAreaRef.current.scrollHeight
+                    textAreaRef.current.style.height = textAreaRef.current.scrollHeight + 'px';
+                    window.go.main.App.ToolBarShow(height)
+                }
             }
-        }
-    }, [result]);
+        }, [result]); */
 
     return (
         <div >
