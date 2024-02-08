@@ -12,6 +12,7 @@ import About from './components/About';
 import { useConfig, useSyncAtom, useVoice, useToastStyle } from '../../hooks';
 import { translateServiceListAtom } from './components/Way';
 import { atom, useAtom, useAtomValue } from 'jotai';
+import { GetTransalteWay } from '../../../bindings/main/App';
 
 let blurTimeout = null;
 let resizeTimeout = null;
@@ -38,7 +39,7 @@ export default function Translate({ variable, onUpdateVariable }) {
     const [translateServiceList, setTranslateServiceList] = useAtom(translateServiceListAtom);
 
     useEffect(() => {
-        window.go.main.App.GetTransalteWay().then(result => {
+        GetTransalteWay().then(result => {
             setTranslateServiceList([result]);
         });
     }, []);

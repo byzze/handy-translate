@@ -1,6 +1,6 @@
 @echo off
 
-call wails3 generate bindings -d frontend
+call wails3 generate bindings -d frontend/bindings
 
 cd "frontend"
 

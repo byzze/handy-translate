@@ -5,7 +5,7 @@ import toast, { Toaster } from 'react-hot-toast';
 import { atom, useAtom, useAtomValue } from 'jotai';
 
 import { useSyncAtom } from '../../../../hooks';
-
+import { GetTransalteMap, SetTransalteWay, GetTransalteWay } from '../../../../../bindings/main/App';
 export const translateServiceListAtom = atom([]);
 
 let timer = null;
@@ -18,12 +18,12 @@ export default function Way() {
     const [selected, setSelected] = React.useState("");
 
     useEffect(() => {
-        window.go.main.App.GetTransalteMap().then(result => {
+        GetTransalteMap().then(result => {
             result = JSON.parse(result)
             setTranslateMap(result)
         })
 
-        window.go.main.App.GetTransalteWay().then(result => {
+        GetTransalteWay().then(result => {
             setSelected(result)
         })
     }, [])
@@ -38,7 +38,7 @@ export default function Way() {
                 onValueChange={(value => {
                     console.log(value)
                     setSelected(value)
-                    window.go.main.App.SetTransalteWay(value)
+                    SetTransalteWay(value)
                     setTranslateServiceList([value])
 
                     if (timer) {

@@ -3,7 +3,7 @@ package hook
 import (
 	"handy-translate/config"
 	"handy-translate/os_api/windows"
-	"handy-translate/screenshot"
+	"handy-translate/window/screenshot"
 	"log/slog"
 	"runtime"
 

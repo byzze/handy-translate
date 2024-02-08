@@ -47,5 +47,4 @@ func GetCursorPos() *win.POINT {
 	lpPoint := &win.POINT{}
 	win.GetCursorPos(lpPoint)
 	return lpPoint
-
 }

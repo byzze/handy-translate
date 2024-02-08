@@ -3,6 +3,8 @@ import { Button, Card, CardBody, CardHeader, Divider } from "@nextui-org/react";
 import { HeartIcon } from './HeartIcon';
 import { CameraIcon } from './CameraIcon';
 import { BsTranslate } from "react-icons/bs";
+import { ToolBarShow, Show } from "../../../bindings/main/App";
+
 
 export default function ToolBar() {
     const [result, setResult] = useState("")
@@ -23,7 +25,8 @@ export default function ToolBar() {
                     textAreaRef.current.style.height = textAreaRef.current.scrollHeight + 'px';
                 }
             }
-            window.go.main.App.ToolBarShow(height)
+            ToolBarShow(height)
+            // ToolBarShow(height)
         })
     }, [])
 
@@ -34,7 +37,7 @@ export default function ToolBar() {
                     // textAreaRef.current.scrollHeight 文本高度
                     let height = textAreaRef.current.scrollHeight
                     textAreaRef.current.style.height = textAreaRef.current.scrollHeight + 'px';
-                    window.go.main.App.ToolBarShow(height)
+                    ToolBarShow(height)
                 }
             }
         }, [result]); */
@@ -46,12 +49,12 @@ export default function ToolBar() {
                 <CardHeader>
                     <div className="flex gap-4 items-center">
                         <Button size="sm" isIconOnly color="danger" aria-label="Like" onPress={() => {
-                            window.go.main.App.Show("Translate")
+                            Show("Translate")
                         }}>
                             <BsTranslate />
                         </Button>
                         {/* <Button size="sm" isIconOnly color="danger" aria-label="Like" onPress={() => {
-                            window.go.main.App.Hide("Translate")
+                            Hide("Translate")
                         }}>
                             隐藏
                         </Button> */}

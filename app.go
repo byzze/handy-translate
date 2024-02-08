@@ -6,10 +6,11 @@ import (
 	"encoding/json"
 	"handy-translate/config"
 	"handy-translate/os_api/windows"
-	"handy-translate/screenshot"
-	"handy-translate/toolbar"
-	"handy-translate/translate"
+	"handy-translate/translate_service"
 	"handy-translate/utils"
+	"handy-translate/window/screenshot"
+	"handy-translate/window/toolbar"
+	"handy-translate/window/translate"
 	"image/png"
 	"log/slog"
 	"runtime"
@@ -54,7 +55,7 @@ func (a *App) GetTransalteMap() string {
 // SetTransalteWay 设置当前翻译服务
 func (a *App) SetTransalteWay(translateWay string) {
 	config.Data.TranslateWay = translateWay
-	translate.SetQueryText("")
+	translate_service.SetQueryText("")
 	config.Save()
 	slog.Info("SetTransalteList", slog.Any("config.Data.Translate", config.Data.Translate))
 }

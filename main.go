@@ -6,16 +6,22 @@ import (
 	"fmt"
 	"handy-translate/config"
 	"handy-translate/hook"
-	"handy-translate/screenshot"
-	"handy-translate/toolbar"
-	"handy-translate/translate"
+	"handy-translate/translate_service"
+	"handy-translate/window/screenshot"
+	"handy-translate/window/toolbar"
+	"handy-translate/window/translate"
 	"log"
 	"log/slog"
+	"os"
 	"reflect"
+	"runtime"
 	"strings"
+	"syscall"
+	"time"
 
 	"github.com/go-vgo/robotgo"
 	"github.com/wailsapp/wails/v3/pkg/application"
+	"golang.org/x/sys/windows"
 )
 
 //go:embed frontend/dist
@@ -30,8 +36,9 @@ var appInfo = &App{}
 
 var fromLang, toLang = "auto", "zh"
 
+var projectName = "handy-translate"
+
 func main() {
-	var projectName = "handy-translate"
 	app = application.New(application.Options{
 		Name: projectName,
 		Bind: []any{
@@ -42,6 +49,11 @@ func main() {
 			FS: assets,
 		},
 	})
+
+	if err := mutexProcess(); err != nil {
+		slog.Error("mutexProcess", slog.Any("err", err))
+		return
+	}
 
 	toolbar.NewWindow(app)
 
@@ -128,8 +140,8 @@ func processHook() {
 				slog.String("fromLang", fromLang),
 				slog.String("toLang", toLang))
 
-			if queryText != translate.GetQueryText() && queryText != "" {
-				translate.SetQueryText(queryText)
+			if queryText != translate_service.GetQueryText() && queryText != "" {
+				translate_service.SetQueryText(queryText)
 				translateRes := processTranslate(queryText)
 				// 发送结果至前端
 				sendDataToJS(queryText, translateRes, "")
@@ -142,7 +154,7 @@ func processHook() {
 
 // 翻译处理
 func processTranslate(queryText string) string {
-	translateWay := translate.GetTransalteWay(config.Data.TranslateWay)
+	translateWay := translate_service.GetTransalteWay(config.Data.TranslateWay)
 	result, err := translateWay.PostQuery(queryText, fromLang, toLang)
 	if err != nil {
 		slog.Error("PostQuery", err)
@@ -155,4 +167,50 @@ func processTranslate(queryText string) string {
 	translateRes := strings.Join(result, "\n")
 
 	return translateRes
+}
+
+func mutexProcess() error {
+	// 检查是否已经存在另一个实例
+	if runtime.GOOS == "windows" {
+		// Windows 下使用命名管道
+		mutexName := "Global\\" + projectName
+		mutexNameUint, _ := syscall.UTF16PtrFromString(mutexName)
+		mutexHandle, err := windows.CreateMutex(nil, false, mutexNameUint)
+		if err != nil {
+			var ch = make(chan int, 1)
+			defer close(ch)
+
+			go func() {
+				app.Run()
+			}()
+
+			time.Sleep(time.Second * 2)
+
+			go func() {
+				dialog := application.ErrorDialog()
+				dialog.SetTitle(projectName)
+				dialog.SetMessage("启动失败, 另一个进程实例正在运行!!!")
+				dialog.Show()
+				ch <- 1
+			}()
+
+			<-ch
+			app.Quit()
+			return err
+		}
+		if mutexHandle != 0 {
+			defer windows.CloseHandle(mutexHandle)
+		}
+	} else {
+		// 其他平台使用文件锁, 暂未验证
+		mutexFileName := "/tmp/" + projectName + ".lock"
+		_, err := os.Create(mutexFileName)
+		if err != nil {
+			return err
+		}
+	}
+
+	// 你的应用程序逻辑开始
+	fmt.Println("Starting your desktop application...")
+	return nil
 }

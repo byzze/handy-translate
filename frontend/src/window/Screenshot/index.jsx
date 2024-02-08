@@ -2,6 +2,8 @@ import React, { useEffect, useState, useRef } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 import { useConfig, useToastStyle, useVoice } from '../../hooks';
 import { atom, useAtom } from 'jotai';
+import { CaptureSelectedScreen } from '../../../bindings/main/App';
+
 
 
 export default function Screenshot() {
@@ -38,7 +40,7 @@ export default function Screenshot() {
         // context.drawImage(image, x, y, width, height, 0, 0, width, height);
         // const base64Data = canvas.toDataURL('image/png');
         // EventsEmit("screenshotCapture", base64Data)
-        window.go.main.App.CaptureSelectedScreen(x, y, x + width, y + height).then((res) => {
+        CaptureSelectedScreen(x, y, x + width, y + height).then((res) => {
             console.log("success", res)
         })
         setImgurl("")

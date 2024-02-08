@@ -1,4 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
+import { MyFetch } from '../../bindings/main/App';
+
 
 // 引入命名空间
 
@@ -29,7 +31,7 @@ async function baidu_detect(text) {
     };
 
 
-    let res = await window.go.main.App.MyFetch('https://fanyi.baidu.com/langdetect', {
+    let res = await MyFetch('https://fanyi.baidu.com/langdetect', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
