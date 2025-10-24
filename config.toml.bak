@@ -15,3 +15,9 @@ key = '密钥'
 name = '有道翻译'
 appID = '应用ID'
 key = '应用密钥'
+
+[translate.deepseek]
+name = 'DeepSeek'
+appID = 'deepseek'
+key = ''
+

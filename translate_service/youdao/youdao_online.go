@@ -2,7 +2,6 @@ package youdao
 
 import (
 	"encoding/json"
-	"fmt"
 	"handy-translate/config"
 	"io"
 	"log/slog"
@@ -10,19 +9,19 @@ import (
 	"net/url"
 )
 
-const YaoDaoOnlineWay = "youdao_online"
+const YouDaoOnlineWay = "youdao_online"
 
-type YoudaoOnline struct {
+type YouDaoOnline struct {
 	config.Translate
 }
 
-func (y *YoudaoOnline) PostQuery(query string) []string {
+func (y *YouDaoOnline) PostQuery(query string) []string {
 	url := "https://dict.youdao.com/suggest?num=2&ver=3.0&doctype=json&cache=false&le=en&q=" + url.QueryEscape(query) // 替换为你要请求的 URL
 
 	// 发起 GET 请求
 	response, err := http.Get(url)
 	if err != nil {
-		fmt.Println("HTTP 请求出错:", err)
+		slog.Error("Get", slog.Any("err", err))
 		return nil
 	}
 	defer response.Body.Close()
@@ -30,7 +29,7 @@ func (y *YoudaoOnline) PostQuery(query string) []string {
 	// 读取响应内容
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
-		fmt.Println("读取响应内容出错:", err)
+		slog.Error("ReadAll", slog.Any("err", err))
 		return nil
 	}
 
@@ -38,7 +37,7 @@ func (y *YoudaoOnline) PostQuery(query string) []string {
 
 	err = json.Unmarshal(body, &tr)
 	if err != nil {
-		slog.Error("Unmarshal", err)
+		slog.Error("Unmarshal", slog.Any("err", err))
 		return nil
 	}
 	if len(tr.Data.Entries) > 0 {

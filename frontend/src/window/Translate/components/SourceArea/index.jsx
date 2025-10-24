@@ -16,6 +16,7 @@ import * as builtinTtsServices from '../../../../services/tts';
 import * as builtinServices from '../../../../services/translate';
 import { useConfig, useSyncAtom, useVoice, useToastStyle } from '../../../../hooks';
 import { sourceLanguageAtom, targetLanguageAtom } from '../LanguageArea';
+import { Events, Window, Clipboard } from "@wailsio/runtime";
 
 export const sourceTextAtom = atom('');
 export const detectLanguageAtom = atom('');
@@ -37,11 +38,11 @@ export default function SourceArea(props) {
     const speak = useVoice();
 
     useEffect(() => {
-        // wails.Events.On("loading", function (data) {
+        // Events.On("loading", function (data) {
         //     setIsLoading(data.data == 'true')
         // })
-        wails.Events.On("query", function (data) {
-            let result = data.data
+        Events.On("query", function (data) {
+            let result = typeof data.data === 'string' ? data.data : String(data.data || '')
             setSourceText(result)
         })
     }, [])
@@ -64,7 +65,7 @@ export default function SourceArea(props) {
             });
         }
         if (event.key === 'Escape') {
-            wails.Window.Minimise();
+            Window.Minimise();
         }
     };
 
@@ -141,7 +142,7 @@ export default function SourceArea(props) {
                                 variant='light'
                                 size='sm'
                                 onPress={() => {
-                                    wails.Clipboard.SetText(sourceText).then((e) => {
+                                    Clipboard.SetText(sourceText).then((e) => {
                                         toast.success(e.toString(), { style: toastStyle });
                                     });
                                 }}

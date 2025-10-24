@@ -1,12 +1,12 @@
 package windows
 
 import (
+	"fmt"
 	"runtime"
 	"sync"
 	"syscall"
+	"time"
 	"unsafe"
-
-	"github.com/go-vgo/robotgo"
 )
 
 // 因为windows下的robotgo鼠标获取文本内容有些瑕疵，故这里用windows原生api增强
@@ -26,11 +26,39 @@ const (
 
 var (
 	user32              = syscall.NewLazyDLL("user32.dll")
-	setWindowsHookEx    = user32.NewProc("SetWindowsHookExW")
+	setWindowsHookExW   = user32.NewProc("SetWindowsHookExW")
 	callNextHookEx      = user32.NewProc("CallNextHookEx")
 	unhookWindowsHookEx = user32.NewProc("UnhookWindowsHookEx")
-	getMessage          = user32.NewProc("GetMessageW")
+	getMessageW         = user32.NewProc("GetMessageW")
+	keybdEventProc      = user32.NewProc("keybd_event") // 键盘事件函数
+
+	kernel32         = syscall.NewLazyDLL("kernel32.dll")
+	getModuleHandleW = kernel32.NewProc("GetModuleHandleW")
 )
+
+const (
+	KEYEVENTF_KEYUP = 0x0002
+	VK_CONTROL      = 0x11
+	VK_C            = 0x43
+)
+
+const (
+	WH_KEYBOARD_LL = 13
+	WM_KEYDOWN     = 0x0100
+	WM_KEYUP       = 0x0101
+
+	VK_CTRL  = 0xa2
+	VK_SHIFT = 0xa0
+	VK_F     = 0x46
+)
+
+type KBDLLHOOKSTRUCT struct {
+	vkCode      uint32
+	scanCode    uint32
+	flags       uint32
+	time        uint32
+	dwExtraInfo uintptr
+}
 
 type MSLLHOOKSTRUCT struct {
 	Pt          POINT
@@ -50,6 +78,11 @@ var (
 
 var PressLock sync.RWMutex
 
+// HookChan channle
+var HookChan = make(chan string, 10)
+
+var state = 0 // 0=等待Ctrl，1=等待Shift，2=等待F
+
 // LowLevelMouseProc 代用windows api 才能做到选中文字，鼠标事件触发前执行模拟ctrl + c 操作
 func LowLevelMouseProc(nCode int, wParam uintptr, lParam uintptr) uintptr {
 	runtime.LockOSThread()
@@ -68,7 +101,9 @@ func LowLevelMouseProc(nCode int, wParam uintptr, lParam uintptr) uintptr {
 		case WM_RBUTTONUP:
 			// fmt.Println("右键释放")
 		case WM_MBUTTONDOWN:
-			robotgo.KeyTap("c", "ctrl")
+			PressCtrlC()
+			time.Sleep(time.Millisecond * 100)
+			HookChan <- "mouse"
 		case WM_MBUTTONUP:
 		}
 	}
@@ -76,15 +111,82 @@ func LowLevelMouseProc(nCode int, wParam uintptr, lParam uintptr) uintptr {
 }
 
 func WindowsHook() {
-	hHook, _, _ = setWindowsHookEx.Call(uintptr(WH_MOUSE_LL), syscall.NewCallback(LowLevelMouseProc), 0, 0)
+	go func() {
+		hMod, _, _ := getModuleHandleW.Call(0)
+
+		hHook, _, err := setWindowsHookExW.Call(
+			uintptr(WH_KEYBOARD_LL),
+			syscall.NewCallback(onKeyboard),
+			hMod,
+			0,
+		)
+		if hHook == 0 {
+			fmt.Println("❌ 钩子安装失败:", err)
+			return
+		}
+
+		fmt.Println("✅ 钩子已安装，请依次按 Ctrl → Shift → C")
+
+		var msg struct{}
+		getMessageW.Call(uintptr(unsafe.Pointer(&msg)), 0, 0, 0)
+	}()
+
+	hHook, _, _ = setWindowsHookExW.Call(uintptr(WH_MOUSE_LL), syscall.NewCallback(LowLevelMouseProc), 0, 0)
 
 	defer unhookWindowsHookEx.Call(hHook)
 
 	str, _ := syscall.UTF16PtrFromString("")
 
-	// 阻塞消息
-	for {
-		// 监听消息
-		getMessage.Call(uintptr(unsafe.Pointer(&str)), 0, 0, 0)
+	// 监听消息
+	getMessageW.Call(uintptr(unsafe.Pointer(&str)), 0, 0, 0)
+
+}
+
+// 获取鼠标位置
+func GetMousePosition() (x, y int32, err error) {
+	var point struct{ X, Y int32 }
+	// 调用 Windows API：GetCursorPos
+	ret, _, err := syscall.NewLazyDLL("user32.dll").NewProc("GetCursorPos").Call(
+		uintptr(unsafe.Pointer(&point)),
+	)
+	if ret == 0 {
+		return 0, 0, err
+	}
+	return point.X, point.Y, nil
+}
+
+func onKeyboard(nCode int, wParam, lParam uintptr) uintptr {
+	if nCode >= 0 {
+		kbd := (*KBDLLHOOKSTRUCT)(unsafe.Pointer(lParam))
+		if wParam == WM_KEYDOWN {
+			fmt.Printf("按下键: vkCode = %x\n", kbd.vkCode)
+			handleSequence(kbd.vkCode)
+		}
+	}
+	ret, _, _ := callNextHookEx.Call(0, uintptr(nCode), wParam, lParam)
+	return ret
+}
+
+func handleSequence(key uint32) {
+	switch state {
+	case 0:
+		if key == VK_CTRL {
+			fmt.Println("✅ 检测到 Ctrl")
+			state = 1
+		}
+	case 1:
+		if key == VK_SHIFT {
+			fmt.Println("✅ 检测到 Shift")
+			state = 2
+		} else if key != VK_CTRL {
+			fmt.Println("❌ 顺序错误，重置")
+			state = 0
+		}
+	case 2:
+		if key == VK_F {
+			fmt.Println("🎉 顺序匹配成功：Ctrl → Shift → F")
+			HookChan <- "screenshot"
+		}
+		state = 0
 	}
 }

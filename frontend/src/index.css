@@ -9,9 +9,107 @@
 }
 
 
-html {
+html,
+body {
   border-radius: 10px !important;
-  /* background: transparent !important; */
+  background: transparent !important;
+  overflow: hidden;
+}
+
+body {
+  padding: 0;
+  margin: 0;
+}
+
+#root {
+  background: transparent;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+/* Toolbar 样式 */
+.toolbar-animate-in {
+  animation: fadeIn 0.2s ease-out forwards;
+}
+
+.toolbar-animate-out {
+  animation: fadeOut 0.15s ease-in forwards;
+}
+
+/* Toolbar 淡入淡出动画 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+
+/* 确保 Card 的圆角正确显示 */
+.toolbar-animate-in [data-slot="base"] {
+  border-radius: 12px !important;
+  overflow: hidden;
+}
+
+/* 加载动画样式 */
+@keyframes pulse-glow {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.loading-skeleton {
+  animation: pulse-glow 1.5s ease-in-out infinite;
+}
+
+/* 加载动画容器过渡 */
+.loading-container {
+  transition: all 0.3s ease-in-out;
+}
+
+/* 窗口拖动区域 */
+.drag-region {
+  -webkit-app-region: drag;
+  cursor: move;
+}
+
+/* 拖动区域内的文本选择 */
+.drag-region * {
+  user-select: none;
+}
+
+/* 拖动区域内的按钮需要禁用拖动 */
+.drag-region button,
+.drag-region [role="button"],
+.drag-region input,
+.drag-region textarea,
+.drag-region select,
+.drag-region .tooltip,
+.drag-region [data-tooltip] {
+  -webkit-app-region: no-drag;
 }
 
 *::-webkit-scrollbar {
@@ -19,10 +117,10 @@ html {
 }
 
 *::-webkit-scrollbar-thumb {
-  background: #c0c1c550;
+  background: #999999;
   border-radius: 5px;
 }
 
 *::-webkit-scrollbar-thumb:hover {
-  background: #c0c1c550;
+  background: #808080;
 }

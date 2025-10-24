@@ -29,7 +29,7 @@ func MyFetch(URL string, content map[string]interface{}) interface{} {
 	}
 
 	if err != nil {
-		slog.Error("err", err)
+		slog.Error("err", slog.Any("err", err))
 		return err
 	}
 
@@ -42,7 +42,7 @@ func MyFetch(URL string, content map[string]interface{}) interface{} {
 		}
 	}
 
-	slog.Info("req", req)
+	slog.Info("req", slog.Any("req", req))
 
 	resp, err := client.Do(req)
 
@@ -60,7 +60,7 @@ func MyFetch(URL string, content map[string]interface{}) interface{} {
 	}
 
 	if err := scanner.Err(); err != nil {
-		slog.Error("err", err)
+		slog.Error("err", slog.Any("err", err))
 		return err
 	}
 

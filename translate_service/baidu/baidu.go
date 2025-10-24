@@ -4,7 +4,6 @@ import (
 	"crypto/md5"
 	"encoding/json"
 	"fmt"
-	"handy-translate/config"
 	"io"
 	"log/slog"
 	"math/rand"
@@ -12,6 +11,8 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
+
+	"handy-translate/config"
 )
 
 const Way = "baidu"
@@ -67,14 +68,14 @@ func (b *Baidu) PostQuery(query, fromLang, toLang string) ([]string, error) {
 	client := &http.Client{}
 	req, err := http.NewRequest("POST", uri, strings.NewReader(form.Encode()))
 	if err != nil {
-		slog.Error("Error creating request:", err)
+		slog.Error("Error creating request:", slog.Any("err", err))
 		return nil, err
 	}
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 
 	resp, err := client.Do(req)
 	if err != nil {
-		slog.Error("Error sending request:", err)
+		slog.Error("Error sending request:", slog.Any("err", err))
 		return nil, err
 	}
 	defer resp.Body.Close()
@@ -82,13 +83,13 @@ func (b *Baidu) PostQuery(query, fromLang, toLang string) ([]string, error) {
 	// Read response
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		slog.Error("Error reading response:", err)
+		slog.Error("Error reading response:", slog.Any("err", err))
 		return nil, err
 	}
 
 	var result translateResult
 	if err := json.Unmarshal(body, &result); err != nil {
-		slog.Error("Error:", err)
+		slog.Error("Error:", slog.Any("err", err))
 		return nil, err
 	}
 

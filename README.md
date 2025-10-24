@@ -6,7 +6,7 @@
 
 - [X] 鼠标选中文字进行翻译
 - [X] 通过配置文件自定义快捷键
-- [X] 支持有道，百度，彩云翻译源
+- [X] 支持有道，百度，彩云，DeepSeek翻译源
 - [X] 支持截图OCR翻译
 - [X] 系统托盘
 - [X] 详细翻译功能（语音读，多语言互译）
@@ -22,11 +22,9 @@
 
 [wails安装参考教程](https://v3alpha.wails.io/getting-started/installation/)
 
-**v3处于alpha测试版本，为方便构建开发，已内置wailsv3代码在该仓库中，可以直接进入安装wails3**
+**v3处于alpha测试版本，不是稳定版本**
 
 ```
-cd wails/v3/cmd/wails3
-go install
 wails3 show
 ```
 
@@ -59,7 +57,11 @@ appID = "appKey"
 key = "appSecret"
 ```
 
-# 构建运行
+# 开发调试
+
+`wails3 dev`
+
+# 构建程序
 
 ## 方式一
 
@@ -69,8 +71,7 @@ key = "appSecret"
 
 ## 方式二
 
-- windows开发编译：`build_and_run.bat`
-- linux或mac开发编译：`build_and_run.sh`
+` wails3 build`
 
 # 执行
 

@@ -11,7 +11,7 @@ var Window *application.WebviewWindow
 
 // NewWindow 截图功能也可以提取成一个单独程序，设计screenshot，robotgo库的使用
 func NewWindow(app *application.App) {
-	Window = app.NewWebviewWindowWithOptions(application.WebviewWindowOptions{
+	Window = app.Window.NewWithOptions(application.WebviewWindowOptions{
 		Title:     WindowName,
 		Width:     500,
 		Height:    500,
@@ -20,8 +20,9 @@ func NewWindow(app *application.App) {
 		URL:       "http://wails.localhost/translate.html",
 	})
 
-	Window.On(events.Common.WindowClosing, func(e *application.WindowEvent) {
+	Window.OnWindowEvent(events.Common.WindowClosing, func(e *application.WindowEvent) {
 		app.Logger.Info("[Event] Window WindowClosing win2")
+		e.Cancel()
 		Window.Hide()
 	})
 }

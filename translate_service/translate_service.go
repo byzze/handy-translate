@@ -1,16 +1,24 @@
 package translate_service
 
 import (
+	"sync"
+
 	"handy-translate/config"
 	"handy-translate/translate_service/baidu"
 	"handy-translate/translate_service/caiyun"
+	"handy-translate/translate_service/deepseek"
 	"handy-translate/translate_service/youdao"
-	"sync"
 )
 
 type Translate interface {
 	GetName() string
 	PostQuery(query, sourceLang, targetLang string) ([]string, error)
+}
+
+// StreamTranslate 支持流式输出的翻译接口
+type StreamTranslate interface {
+	Translate
+	PostQueryStream(query, sourceLang, targetLang string, callback func(chunk string)) error
 }
 
 func GetTransalteWay(way string) Translate {
@@ -34,6 +42,14 @@ func GetTransalteWay(way string) Translate {
 		}
 	case baidu.Way:
 		t = &baidu.Baidu{
+			Translate: config.Translate{
+				Name:  config.Data.Translate[way].Name,
+				AppID: config.Data.Translate[way].AppID,
+				Key:   config.Data.Translate[way].Key,
+			},
+		}
+	case deepseek.Way:
+		t = &deepseek.Deepseek{
 			Translate: config.Translate{
 				Name:  config.Data.Translate[way].Name,
 				AppID: config.Data.Translate[way].AppID,

@@ -301,6 +301,10 @@
                     "title": "彩云小译",
                     "token": "Token"
                 },
+                "deepseek": {
+                    "title": "DeepSeek",
+                    "api_key": "API Key"
+                },
                 "openai_custom": {
                     "title": "OpenAI 自定义"
                 },

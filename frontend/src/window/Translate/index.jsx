@@ -12,7 +12,8 @@ import About from './components/About';
 import { useConfig, useSyncAtom, useVoice, useToastStyle } from '../../hooks';
 import { translateServiceListAtom } from './components/Way';
 import { atom, useAtom, useAtomValue } from 'jotai';
-import { GetTransalteWay } from '../../../bindings/main/App';
+import { GetTransalteWay } from '../../../bindings/handy-translate/app';
+import { Window } from "@wailsio/runtime";
 
 let blurTimeout = null;
 let resizeTimeout = null;
@@ -110,9 +111,9 @@ export default function Translate({ variable, onUpdateVariable }) {
                             className='my-auto bg-transparent'
                             onPress={() => {
                                 if (pined) {
-                                    wails.Window.SetAlwaysOnTop(false);
+                                    Window.SetAlwaysOnTop(false);
                                 } else {
-                                    wails.Window.SetAlwaysOnTop(true);
+                                    Window.SetAlwaysOnTop(true);
                                 }
                                 setPined(!pined);
                             }}
@@ -126,7 +127,7 @@ export default function Translate({ variable, onUpdateVariable }) {
                             disableAnimation
                             className={`my-auto ${osType === 'Darwin' && 'hidden'} bg-transparent`}
                             onPress={() => {
-                                wails.Window.Hide();
+                                Window.Hide();
                             }}
                         >
                             <AiFillCloseCircle className='text-[20px] text-default-400' />
@@ -208,7 +209,7 @@ export default function Translate({ variable, onUpdateVariable }) {
                                             取消
                                         </Button>
                                         <Button color="primary" onPress={() => {
-                                            wails.Window.Close();
+                                            Window.Close();
                                         }}>
                                             确认
                                         </Button>

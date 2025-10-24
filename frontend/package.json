@@ -5,14 +5,15 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build:dev": "vite build --minify false --mode development",
+    "build": "vite build --mode production",
     "preview": "vite preview"
   },
   "dependencies": {
     "@nextui-org/react": "^2.1.13",
     "@nextui-org/theme": "^2.1.9",
     "@tauri-apps/api": "^1.5.0",
-    "@wailsio/runtime": "^3.0.0-alpha.20",
+    "@wailsio/runtime": "^3.0.0-alpha.36",
     "file-saver": "^2.0.5",
     "i18next": "^23.5.1",
     "jotai": "^2.4.3",

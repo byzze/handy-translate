@@ -2,8 +2,6 @@ package windows
 
 import (
 	"log/slog"
-	"runtime"
-	"syscall"
 
 	"github.com/lxn/win"
 )
@@ -14,37 +12,33 @@ type Window struct {
 	HWND win.HWND
 }
 
-// FindWindow 查找窗口
-func FindWindow(windowName string) *Window {
-	w := new(Window)
-	runtime.LockOSThread()
-	defer runtime.UnlockOSThread()
-	lpWindowName, err := syscall.UTF16PtrFromString(windowName)
-	if err != nil {
-		slog.Error("UTF16PtrFromString", err)
-		return nil
-	}
-
-	// find window
-	hwnd := win.FindWindow(nil, lpWindowName)
-	if hwnd == 0 {
-		slog.Error("FindWindow Failed")
-		return nil
-	}
-	w.HWND = hwnd
-	return w
-}
-
 // ShowForWindows windows 窗口下的弹窗， 因为wails的弹窗无法和通过鼠标有效弹出，这里采用windows原生api
-func (w Window) ShowForWindows() {
-	hwnd := w.HWND
-	win.SetForegroundWindow(hwnd)
-	win.ShowWindow(hwnd, win.SW_SHOW)
-}
+func (w *Window) ShowForWindows() {
+	if w == nil {
+		slog.Error("ShowForWindows: 窗口对象为 nil")
+		return
+	}
 
-// GetCursorPos 获取鼠标位置
-func GetCursorPos() *win.POINT {
-	lpPoint := &win.POINT{}
-	win.GetCursorPos(lpPoint)
-	return lpPoint
+	if w.HWND == 0 {
+		slog.Error("ShowForWindows: 无效的窗口句柄",
+			slog.String("windowName", w.Name))
+		return
+	}
+
+	hwnd := w.HWND
+
+	// 设置为前台窗口
+	if !win.SetForegroundWindow(hwnd) {
+		slog.Warn("ShowForWindows: SetForegroundWindow 失败",
+			slog.String("windowName", w.Name))
+	}
+
+	// 显示窗口
+	if !win.ShowWindow(hwnd, win.SW_SHOW) {
+		slog.Warn("ShowForWindows: ShowWindow 失败",
+			slog.String("windowName", w.Name))
+	} else {
+		slog.Debug("ShowForWindows: 成功显示窗口",
+			slog.String("windowName", w.Name))
+	}
 }

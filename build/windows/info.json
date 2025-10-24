@@ -1,0 +1,15 @@
+{
+	"fixed": {
+		"file_version": "0.1.0"
+	},
+	"info": {
+		"0000": {
+			"ProductVersion": "0.1.0",
+			"CompanyName": "Handy-translate",
+			"FileDescription": "Handy-translate Description",
+			"LegalCopyright": "© now, Handy-translate",
+			"ProductName": "Handy-translate",
+			"Comments": "This is a comment"
+		}
+	}
+}

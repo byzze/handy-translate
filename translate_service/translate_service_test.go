@@ -33,7 +33,7 @@ func TestGetTransalteWayList(t *testing.T) {
 func TestTranslateYouDao(t *testing.T) {
 	config.Init("handy-translate")
 	v := GetTransalteWay(youdao.Way)
-	s, err := v.PostQuery("china", "auto", "zh")
+	s, err := v.PostQuery("test", "auto", "zh")
 	if err != nil {
 		t.Fatal(err)
 	}

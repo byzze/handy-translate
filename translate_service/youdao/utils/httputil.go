@@ -28,14 +28,14 @@ func DoGet(url string, header map[string][]string, paramsMap map[string][]string
 	}
 	res, err := client.Do(req)
 	if err != nil {
-		slog.Error("request failed:", err)
+		slog.Error("request failed:", slog.Any("err", err))
 		return nil
 	}
 	defer res.Body.Close()
 	body, _ := io.ReadAll(res.Body)
 	contentType := res.Header.Get("Content-Type")
 	if !strings.Contains(contentType, expectContentType) {
-		print(string(body))
+		slog.Error("contentType not match", slog.String("contentType", contentType), slog.String("expectContentType", expectContentType))
 		return nil
 	}
 	return body
@@ -59,7 +59,7 @@ func DoPost(url string, header map[string][]string, bodyMap map[string][]string,
 	}
 	res, err := client.Do(req)
 	if err != nil {
-		slog.Error("request failed:", err)
+		slog.Error("request failed:", slog.Any("err", err))
 		return nil
 	}
 
@@ -67,7 +67,7 @@ func DoPost(url string, header map[string][]string, bodyMap map[string][]string,
 	body, _ := io.ReadAll(res.Body)
 	contentType := res.Header.Get("Content-Type")
 	if !strings.Contains(contentType, expectContentType) {
-		print(string(body))
+		slog.Error("contentType not match", slog.String("contentType", contentType), slog.String("expectContentType", expectContentType))
 		return nil
 	}
 	return body

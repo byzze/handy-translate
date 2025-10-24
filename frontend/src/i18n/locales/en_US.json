@@ -309,6 +309,10 @@
                 "caiyun": {
                     "title": "Caiyun",
                     "token": "Token"
+                },
+                "deepseek": {
+                    "title": "DeepSeek",
+                    "api_key": "API Key"
                 }
             },
             "recognize": {

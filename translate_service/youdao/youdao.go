@@ -2,7 +2,6 @@ package youdao
 
 import (
 	"encoding/json"
-	"fmt"
 	"handy-translate/config"
 	"handy-translate/translate_service/youdao/utils"
 	"handy-translate/translate_service/youdao/utils/authv3"
@@ -36,12 +35,12 @@ func (y *Youdao) PostQuery(query, fromLang, toLang string) ([]string, error) {
 
 	err := json.Unmarshal(result, &tr)
 	if err != nil {
-		slog.Error("PostQuery", err)
+		slog.Error("PostQuery", slog.Any("err", err))
 		return nil, err
 	}
 
 	prettyResult, _ := json.MarshalIndent(string(result), "", "    ")
-	fmt.Println(string(prettyResult))
+	slog.Info("PostQuery", slog.String("prettyResult", string(prettyResult)))
 
 	if len(tr.Translation) == 0 {
 		return nil, nil

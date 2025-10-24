@@ -11,6 +11,7 @@ import {
     DropdownMenu,
     DropdownTrigger,
     Tooltip,
+    Spinner,
 } from '@nextui-org/react';
 import toast, { Toaster } from 'react-hot-toast';
 import React, { useEffect, useRef, useState } from "react";
@@ -27,7 +28,8 @@ import * as builtinServices from '../../../../services/translate';
 import { useConfig, useToastStyle, useVoice } from '../../../../hooks';
 import { sourceTextAtom, detectLanguageAtom } from '../SourceArea';
 import { sourceLanguageAtom, targetLanguageAtom } from '../LanguageArea';
-import { Transalte } from '../../../../../bindings/main/App';
+import { Transalte, TransalteStream } from '../../../../../bindings/handy-translate/app';
+import { Events, Clipboard } from "@wailsio/runtime";
 
 export default function TargetArea(props) {
     const { name, index, translateServiceList, ...drag } = props;
@@ -53,34 +55,78 @@ export default function TargetArea(props) {
 
     const { t } = useTranslation();
     const textAreaRef = useRef();
+    const streamBufferRef = useRef(''); // 使用 useRef 保存流式数据
     const [result, setResult] = useState('');
     const [error, setError] = useState('');
 
     useEffect(() => {
-        // wails.Events.On("loading", function (data) {
-        //     setIsLoading(data.data == 'true')
-        // })
-        // wails.Events.On("result", function (data) {
-        //     let result = data.data
-        //     setResult(result)
-        // })
+        // 监听普通翻译结果
+        const unsubscribeResult = Events.On("result", function (data) {
+            let result = typeof data.data === 'string' ? data.data : String(data.data || '')
+            setResult(result)
+            setIsLoading(false)
+        })
+
+        // 监听流式翻译结果
+        const unsubscribeStream = Events.On("result_stream", function (data) {
+            let chunk = typeof data.data === 'string' ? data.data : String(data.data || '')
+            console.log('收到流式数据块:', chunk, '长度:', chunk.length)
+            streamBufferRef.current += chunk  // 累积到 ref
+            console.log('当前累积结果:', streamBufferRef.current)
+            setResult(streamBufferRef.current)  // 更新状态触发重渲染
+            setIsLoading(false)
+        })
+
+        // 监听流式完成
+        const unsubscribeStreamDone = Events.On("result_stream_done", function (data) {
+            setIsLoading(false)
+        })
+
+        // 监听流式错误
+        const unsubscribeStreamError = Events.On("result_stream_error", function (data) {
+            setError(typeof data.data === 'string' ? data.data : String(data.data || ''))
+            setIsLoading(false)
+        })
+
         const LanguageEnum = builtinServices[translateServiceName].Language;
         if (sourceLanguage in LanguageEnum && targetLanguage in LanguageEnum) {
-            wails.Events.Emit({ name: "translateLang", data: [LanguageEnum[sourceLanguage], LanguageEnum[targetLanguage]] })
+            Events.Emit({ name: "translateLang", data: [LanguageEnum[sourceLanguage], LanguageEnum[targetLanguage]] })
         }
-    }, [targetLanguage, sourceLanguage])
+
+        // 清理事件监听
+        return () => {
+            if (unsubscribeResult) unsubscribeResult()
+            if (unsubscribeStream) unsubscribeStream()
+            if (unsubscribeStreamDone) unsubscribeStreamDone()
+            if (unsubscribeStreamError) unsubscribeStreamError()
+        }
+    }, [targetLanguage, sourceLanguage, translateServiceName])
 
     useEffect(() => {
         setResult('');
         setError('');
+        streamBufferRef.current = ''; // 重置流式缓冲区
 
         if (sourceText !== '' && sourceLanguage && targetLanguage) {
             const LanguageEnum = builtinServices[translateServiceName].Language;
 
             if (sourceLanguage in LanguageEnum && targetLanguage in LanguageEnum) {
-                Transalte(sourceText, LanguageEnum[sourceLanguage], LanguageEnum[targetLanguage]).then((res) => {
-                    setResult(res)
-                })
+                setIsLoading(true)
+
+                // 如果是 DeepSeek，使用流式 API
+                if (translateServiceName === 'deepseek') {
+                    console.log('开始 DeepSeek 流式翻译:', sourceText)
+                    TransalteStream(sourceText, LanguageEnum[sourceLanguage], LanguageEnum[targetLanguage])
+                } else {
+                    // 其他服务使用普通 API
+                    Transalte(sourceText, LanguageEnum[sourceLanguage], LanguageEnum[targetLanguage]).then((res) => {
+                        setResult(res)
+                        setIsLoading(false)
+                    }).catch((err) => {
+                        setError(err.toString())
+                        setIsLoading(false)
+                    })
+                }
             }
         }
     }, [sourceText, targetLanguage, sourceLanguage, autoCopy, hideWindow, translateServiceName, clipboardMonitor]);
@@ -361,7 +407,7 @@ export default function TargetArea(props) {
                             size='sm'
                             isDisabled={typeof result !== 'string' || result === ''}
                             onPress={() => {
-                                wails.Clipboard.SetText(result).then((e) => {
+                                Clipboard.SetText(result).then((e) => {
                                     toast.success(e.toString(), { style: toastStyle });
                                 });
                             }}

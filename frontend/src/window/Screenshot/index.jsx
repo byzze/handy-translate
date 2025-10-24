@@ -2,7 +2,8 @@ import React, { useEffect, useState, useRef } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 import { useConfig, useToastStyle, useVoice } from '../../hooks';
 import { atom, useAtom } from 'jotai';
-import { CaptureSelectedScreen } from '../../../bindings/main/App';
+import { CaptureSelectedScreen } from '../../../bindings/handy-translate/app';
+import { Events, Window } from "@wailsio/runtime";
 
 
 
@@ -19,7 +20,7 @@ export default function Screenshot() {
     const canvasRef = useRef(null);
 
     useEffect(() => {
-        wails.Events.On("screenshotBase64", function (result) {
+        Events.On("screenshotBase64", function (result) {
             let base64 = result.data
             setImgurl("data:image/png;base64," + base64)
         })
@@ -55,9 +56,9 @@ export default function Screenshot() {
                 draggable={false}
                 onLoad={() => {
                     if (imgurl !== '' && imgRef.current.complete) {
-                        wails.Window.Show()
-                        wails.Window.Fullscreen()
-                        wails.Window.SetAlwaysOnTop(true)
+                        Window.Show()
+                        Window.Fullscreen()
+                        Window.SetAlwaysOnTop(true)
                     }
                 }}
             />
@@ -78,7 +79,7 @@ export default function Screenshot() {
                         setMouseDownX(e.clientX);
                         setMouseDownY(e.clientY);
                     } else {
-                        wails.Window.Hide()
+                        Window.Hide()
                     }
                 }}
                 onMouseMove={(e) => {
@@ -106,7 +107,7 @@ export default function Screenshot() {
                             captureScreenshot(left, top, width, height)
                         }
                     }
-                    wails.Window.Hide()
+                    Window.Hide()
                 }}
             />
         </>
