@@ -1,6 +1,6 @@
 # 概述
 
-基于wails框架，结合Go+React，开发支持Windows的翻译小工具。当鼠标选中文本时，点击鼠标中键，弹出窗口渲染翻译结果。目前支持Windows平台，其他平台理论上也可以编译运行，但功能未开放完整。通过wails构建生成的包容量相较于Electron小，仅有10M左右。 本次版本开发使用的是wails[v3](https://v3alpha.wails.io/)版本
+基于wails框架，结合Go+React，开发支持Windows的翻译小工具。当鼠标选中文本时，点击鼠标中键，弹出窗口渲染翻译结果。目前支持Windows平台，其他平台理论上也可以编译运行，但功能未开放完整。通过wails构建生成的包容量相较于Electron小，仅有10M左右。 本次版本开发使用的是wails[v3](https://v3alpha.wails.io/)版本, 欢迎您提出使用该项目的问题, 我会积极跟进的~
 
 # 功能说明
 
@@ -21,7 +21,7 @@
 
 [wails安装参考教程](https://v3alpha.wails.io/getting-started/installation/)
 
-**v3处于alpha测试版本，不是稳定版本**
+**v3处于alpha测试版本，不是稳定版本，使用过程中，需要多参考参考源码和文档**
 
 ```
 wails3 show
