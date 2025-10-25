@@ -1,6 +1,6 @@
 # 概述
 
-基于wails框架，结合Go+React，开发支持多平台(Windows，Linux，Mac)的翻译工具。当鼠标选中文本时，点击鼠标中键，弹出窗口渲染翻译结果。目前Windows平台效果较好，其他平台理论上也可以编译运行，但体验没Windows好。通过wails构建生成的包容量相较于Electron小，仅有10M左右。 本次版本开发使用的是wails[v3](https://v3alpha.wails.io/)版本
+基于wails框架，结合Go+React，开发支持Windows的翻译小工具。当鼠标选中文本时，点击鼠标中键，弹出窗口渲染翻译结果。目前支持Windows平台，其他平台理论上也可以编译运行，但功能未开放完整。通过wails构建生成的包容量相较于Electron小，仅有10M左右。 本次版本开发使用的是wails[v3](https://v3alpha.wails.io/)版本
 
 # 功能说明
 
@@ -9,7 +9,6 @@
 - [X] 支持有道，百度，彩云，DeepSeek翻译源
 - [X] 支持截图OCR翻译
 - [X] 系统托盘
-- [X] 详细翻译功能（语音读，多语言互译）
 
 # 效果展示
 
@@ -55,6 +54,11 @@ key = "hTlcbpu7xxxxxxxxx"
 name = "有道翻译"
 appID = "appKey"
 key = "appSecret"
+
+[translate.deepseek] # https://platform.deepseek.com/
+name = 'DeepSeek'
+appID = 'deepseek'
+key = ''
 ```
 
 # 开发调试
@@ -67,7 +71,7 @@ key = "appSecret"
 
 直接编译可执行文件, 存在dist文件
 
-`go build -tags production -ldflags="-w -s -H windowsgui" -o handy-translate.exe`
+`wails package`
 
 ## 方式二
 
@@ -77,9 +81,9 @@ key = "appSecret"
 
 - Windows双击生成文件 `handry-translate.exe`
 
-# 下载文件
+<!-- # 下载文件
 
-[windows安装文件](https://github.com/byzze/handy-translate/releases/download/v1.0.2/handy-translate-amd64-installer.exe)
+[windows安装文件](https://github.com/byzze/handy-translate/releases/download/v1.0.2/handy-translate-amd64-installer.exe) -->
 
 # OCR models
 

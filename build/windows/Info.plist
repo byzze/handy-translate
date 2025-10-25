@@ -4,7 +4,7 @@
         <key>CFBundlePackageType</key>
         <string>APPL</string>
         <key>CFBundleName</key>
-        <string>My Product</string>
+        <string>handy-translate</string>
         <key>CFBundleExecutable</key>
         <string>myproject</string>
         <key>CFBundleIdentifier</key>

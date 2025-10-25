@@ -3,26 +3,26 @@
 #
 # The lines below are called `modelines`. See `:help modeline`
 
-name: "myfirstapp.exe"
+name: "handy-translate.exe"
 arch: ${GOARCH}
 platform: "linux"
 version: "0.1.0"
 section: "default"
 priority: "extra"
 maintainer: ${GIT_COMMITTER_NAME} <${GIT_COMMITTER_EMAIL}>
-description: "My Product Description"
+description: "handy-translate Description"
 vendor: "My Company"
 homepage: "https://wails.io"
 license: "MIT"
 release: "1"
 
 contents:
-  - src: "./bin/myfirstapp.exe"
-    dst: "/usr/local/bin/myfirstapp.exe"
+  - src: "./bin/handy-translate.exe"
+    dst: "/usr/local/bin/handy-translate.exe"
   - src: "./build/appicon.png"
-    dst: "/usr/share/icons/hicolor/128x128/apps/myfirstapp.exe.png"
-  - src: "./build/linux/myfirstapp.exe.desktop"
-    dst: "/usr/share/applications/myfirstapp.exe.desktop"
+    dst: "/usr/share/icons/hicolor/128x128/apps/handy-translate.exe.png"
+  - src: "./build/linux/handy-translate.exe.desktop"
+    dst: "/usr/share/applications/handy-translate.exe.desktop"
 
 # Default dependencies for Debian 12/Ubuntu 22.04+ with WebKit 4.1
 depends:

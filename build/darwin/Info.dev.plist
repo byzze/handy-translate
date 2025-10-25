@@ -4,11 +4,11 @@
         <key>CFBundlePackageType</key>
             <string>APPL</string>
         <key>CFBundleName</key>
-            <string>My Product</string>
+            <string>handy-translate</string>
         <key>CFBundleExecutable</key>
-            <string>myfirstapp.exe</string>
+            <string>handy-translate.exe</string>
         <key>CFBundleIdentifier</key>
-            <string>com.wails.myfirstapp</string>
+            <string>com.wails.handy-translate</string>
         <key>CFBundleVersion</key>
             <string>0.1.0</string>
         <key>CFBundleGetInfoString</key>
